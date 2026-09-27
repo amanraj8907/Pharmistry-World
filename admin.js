@@ -13,12 +13,7 @@
 
   let client = null;
 
-  /* =========================
-     SUBJECTS
-  ========================= */
-
   const SUBJECTS = {
-
     '1st Semester': [
       'Human Anatomy and Physiology I',
       'Pharmaceutical Analysis I',
@@ -27,7 +22,6 @@
       'Communication Skills',
       'Remedial Biology / Remedial Mathematics'
     ],
-
     '2nd Semester': [
       'Human Anatomy and Physiology II',
       'Pharmaceutical Organic Chemistry I',
@@ -36,14 +30,12 @@
       'Computer Applications in Pharmacy',
       'Environmental Sciences'
     ],
-
     '3rd Semester': [
       'Pharmaceutical Organic Chemistry II',
       'Physical Pharmaceutics I',
       'Pharmaceutical Microbiology',
       'Pharmaceutical Engineering'
     ],
-
     '4th Semester': [
       'Pharmaceutical Organic Chemistry III',
       'Medicinal Chemistry I',
@@ -51,7 +43,6 @@
       'Pharmacology I',
       'Pharmacognosy and Phytochemistry I'
     ],
-
     '5th Semester': [
       'Medicinal Chemistry II',
       'Industrial Pharmacy I',
@@ -59,7 +50,6 @@
       'Pharmacognosy and Phytochemistry II',
       'Pharmaceutical Jurisprudence'
     ],
-
     '6th Semester': [
       'Medicinal Chemistry III',
       'Pharmacology III',
@@ -68,14 +58,12 @@
       'Pharmaceutical Biotechnology',
       'Quality Assurance'
     ],
-
     '7th Semester': [
       'Instrumental Methods of Analysis',
       'Industrial Pharmacy II',
       'Pharmacy Practice',
       'Novel Drug Delivery System'
     ],
-
     '8th Semester': [
       'Biostatistics and Research Methodology',
       'Social and Preventive Pharmacy',
@@ -91,65 +79,42 @@
       'Dietary Supplements and Nutraceuticals',
       'Project Work'
     ]
-
   };
-
-
-  /* =========================
-     HELPERS
-  ========================= */
 
   const esc = value =>
     String(value ?? '').replace(
       /[&<>"']/g,
-      char => ({
+      c => ({
         '&': '&amp;',
         '<': '&lt;',
         '>': '&gt;',
         '"': '&quot;',
         "'": '&#039;'
-      }[char])
+      }[c])
     );
 
-
-  const msg = (element, text, ok = false) => {
-
+  function message(element, text, success = false) {
     if (!element) return;
 
     element.textContent = text || '';
-
     element.className =
-      'message ' + (ok ? 'ok' : 'error');
-  };
-
-
-  /* =========================
-     ADMIN CHECK
-  ========================= */
+      'message ' + (success ? 'ok' : 'error');
+  }
 
   async function isAdmin(uid) {
-
-    const { data, error } =
-      await client
-        .from('admin_users')
-        .select('user_id')
-        .eq('user_id', uid)
-        .maybeSingle();
+    const { data, error } = await client
+      .from('admin_users')
+      .select('user_id')
+      .eq('user_id', uid)
+      .maybeSingle();
 
     if (error) throw error;
 
     return !!data;
   }
 
-
-  /* =========================
-     SESSION
-  ========================= */
-
   async function showSession() {
-
     try {
-
       const { data, error } =
         await client.auth.getSession();
 
@@ -158,22 +123,20 @@
       const session = data.session;
 
       if (!session) {
-
-        $('loginView').classList.remove('hidden');
-        $('adminView').classList.add('hidden');
-
+        $('loginView')?.classList.remove('hidden');
+        $('adminView')?.classList.add('hidden');
         return;
       }
 
+      const admin = await isAdmin(session.user.id);
 
-      if (!(await isAdmin(session.user.id))) {
-
+      if (!admin) {
         await client.auth.signOut();
 
-        $('loginView').classList.remove('hidden');
-        $('adminView').classList.add('hidden');
+        $('loginView')?.classList.remove('hidden');
+        $('adminView')?.classList.add('hidden');
 
-        msg(
+        message(
           $('loginMsg'),
           'This account is not authorized as an admin.'
         );
@@ -181,52 +144,57 @@
         return;
       }
 
+      if ($('userEmail')) {
+        $('userEmail').textContent =
+          session.user.email || '';
+      }
 
-      $('userEmail').textContent =
-        session.user.email || '';
-
-      $('loginView').classList.add('hidden');
-      $('adminView').classList.remove('hidden');
+      $('loginView')?.classList.add('hidden');
+      $('adminView')?.classList.remove('hidden');
 
       await loadNotes();
       await loadIndustry();
-      await loadContactMessages();
+
+      if ($('contactList')) {
+        await loadContactMessages();
+      }
 
     } catch (error) {
-
       console.error(error);
 
-      msg(
+      message(
         $('loginMsg'),
         error.message || 'Session check failed.'
       );
     }
   }
 
-
-  /* =========================
-     LOGIN
-  ========================= */
-
   async function login(event) {
-
     event.preventDefault();
 
-    msg(
+    message(
       $('loginMsg'),
       'Signing in…',
       true
     );
 
     try {
+      const email =
+        $('email')?.value.trim();
+
+      const password =
+        $('password')?.value;
+
+      if (!email || !password) {
+        throw new Error(
+          'Email and password are required.'
+        );
+      }
 
       const { error } =
         await client.auth.signInWithPassword({
-
-          email: $('email').value.trim(),
-
-          password: $('password').value
-
+          email,
+          password
         });
 
       if (error) throw error;
@@ -234,35 +202,21 @@
       await showSession();
 
     } catch (error) {
-
       console.error(error);
 
-      msg(
+      message(
         $('loginMsg'),
         error.message || 'Sign-in failed.'
       );
     }
   }
 
-
-  /* =========================
-     LOGOUT
-  ========================= */
-
   async function logout() {
-
     await client.auth.signOut();
-
     await showSession();
   }
 
-
-  /* =========================
-     FILE HELPERS
-  ========================= */
-
   function safeName(name) {
-
     return name
       .replace(/\.pdf$/i, '')
       .replace(/[^a-zA-Z0-9_-]+/g, '-')
@@ -270,46 +224,39 @@
       .slice(0, 80) || 'file';
   }
 
-
   function publicPath(url) {
-
     try {
+      if (!url) return null;
 
-      const marker =
+      const encoded =
         `/storage/v1/object/public/${encodeURIComponent(BUCKET)}/`;
 
-      if (url && url.includes(marker)) {
-
+      if (url.includes(encoded)) {
         return decodeURIComponent(
-          url.split(marker)[1]
+          url.split(encoded)[1]
         );
       }
-
 
       const raw =
         `/storage/v1/object/public/${BUCKET}/`;
 
-      if (url && url.includes(raw)) {
-
+      if (url.includes(raw)) {
         return decodeURIComponent(
           url.split(raw)[1]
         );
       }
 
-    } catch (error) {}
+    } catch (_) {}
 
     return null;
   }
 
-
   async function uploadFile(file, folder) {
-
     const path =
       `${folder}/${Date.now()}-${safeName(file.name)}.pdf`;
 
     const { error } =
-      await client
-        .storage
+      await client.storage
         .from(BUCKET)
         .upload(
           path,
@@ -326,25 +273,24 @@
     return {
       path,
       url:
-        client
-          .storage
+        client.storage
           .from(BUCKET)
           .getPublicUrl(path)
-          .data
-          .publicUrl
+          .data.publicUrl
     };
   }
 
-
-  /* =========================
-     NOTES
-  ========================= */
-
   function populateSubjects() {
+    const semester =
+      $('semester')?.value;
 
-    const semester = $('semester').value;
-    const subject = $('subject');
-    const unit = $('unit');
+    const subject =
+      $('subject');
+
+    const unit =
+      $('unit');
+
+    if (!subject || !unit) return;
 
     subject.innerHTML =
       '<option value="">Select subject</option>';
@@ -352,28 +298,27 @@
     unit.innerHTML =
       '<option value="">Select subject first</option>';
 
-    unit.disabled = true;
     subject.disabled = !semester;
+    unit.disabled = true;
 
     if (semester) {
-
-      (SUBJECTS[semester] || [])
-        .forEach(item => {
-
-          subject.insertAdjacentHTML(
-            'beforeend',
-            `<option>${esc(item)}</option>`
-          );
-
-        });
+      (SUBJECTS[semester] || []).forEach(item => {
+        subject.insertAdjacentHTML(
+          'beforeend',
+          `<option>${esc(item)}</option>`
+        );
+      });
     }
   }
 
-
   function populateUnits() {
+    const subject =
+      $('subject')?.value;
 
-    const subject = $('subject').value;
-    const unit = $('unit');
+    const unit =
+      $('unit');
+
+    if (!unit) return;
 
     unit.innerHTML =
       '<option value="">Select unit</option>';
@@ -381,9 +326,7 @@
     unit.disabled = !subject;
 
     if (subject) {
-
       for (let i = 1; i <= 5; i++) {
-
         unit.insertAdjacentHTML(
           'beforeend',
           `<option>Unit ${i}</option>`
@@ -397,30 +340,27 @@
     }
   }
 
-
   async function uploadNote(event) {
-
     event.preventDefault();
 
-    const file = $('pdf').files[0];
+    const file =
+      $('pdf')?.files[0];
 
     if (!file) {
-
-      return msg(
+      return message(
         $('uploadMsg'),
         'Choose a PDF first.'
       );
     }
 
     if (file.size > 25 * 1024 * 1024) {
-
-      return msg(
+      return message(
         $('uploadMsg'),
         'PDF must be 25 MB or smaller.'
       );
     }
 
-    msg(
+    message(
       $('uploadMsg'),
       'Uploading…',
       true
@@ -429,43 +369,34 @@
     let path = null;
 
     try {
-
       const result =
         await uploadFile(file, 'notes');
 
       path = result.path;
 
-      const payload = {
-
-        title: $('title').value.trim(),
-
-        semester: $('semester').value,
-
-        subject: $('subject').value.trim(),
-
-        unit: $('unit').value,
-
-        description: $('description').value.trim(),
-
-        pdf_url: result.url
-
-      };
-
       const { error } =
         await client
           .from('notes')
-          .insert(payload);
+          .insert({
+            title: $('title').value.trim(),
+            semester: $('semester').value,
+            subject: $('subject').value.trim(),
+            unit: $('unit').value,
+            description: $('description').value.trim(),
+            pdf_url: result.url
+          });
 
       if (error) throw error;
 
       $('uploadForm').reset();
-
       populateSubjects();
 
-      $('fileName').textContent =
-        'No file selected';
+      if ($('fileName')) {
+        $('fileName').textContent =
+          'No file selected';
+      }
 
-      msg(
+      message(
         $('uploadMsg'),
         'Note published successfully.',
         true
@@ -474,28 +405,26 @@
       await loadNotes();
 
     } catch (error) {
-
       if (path) {
-
-        await client
-          .storage
+        await client.storage
           .from(BUCKET)
           .remove([path]);
       }
 
       console.error(error);
 
-      msg(
+      message(
         $('uploadMsg'),
         error.message || 'Upload failed.'
       );
     }
   }
 
-
   async function loadNotes() {
+    const box =
+      $('notesList');
 
-    const box = $('notesList');
+    if (!box) return;
 
     box.innerHTML =
       '<p class="muted">Loading…</p>';
@@ -510,28 +439,21 @@
         );
 
     if (error) {
-
       box.innerHTML =
         `<p class="message error">${esc(error.message)}</p>`;
-
       return;
     }
 
     if (!data?.length) {
-
       box.innerHTML =
         '<p class="muted">No notes published yet.</p>';
-
       return;
     }
 
     box.innerHTML =
       data.map(note => `
-
         <article class="note-row">
-
           <div>
-
             <span class="badge">
               ${esc(note.semester)}
             </span>
@@ -541,25 +463,15 @@
             </h3>
 
             <p>
-
-              <strong>
-                ${esc(note.subject)}
-              </strong>
-
-              ${note.unit
-                ? ' · ' + esc(note.unit)
-                : ''}
-
+              <strong>${esc(note.subject)}</strong>
+              ${note.unit ? ' · ' + esc(note.unit) : ''}
               ${note.description
                 ? ' · ' + esc(note.description)
                 : ''}
-
             </p>
-
           </div>
 
           <div class="row-actions">
-
             <a
               class="btn"
               href="${esc(note.pdf_url)}"
@@ -576,39 +488,29 @@
             >
               Delete
             </button>
-
           </div>
-
         </article>
-
       `).join('');
 
     box
       .querySelectorAll('[data-del]')
       .forEach(button => {
-
         button.onclick = () =>
           deleteNote(
             button.dataset.del,
             button.dataset.url
           );
-
       });
   }
 
-
   async function deleteNote(id, url) {
-
     if (!confirm('Delete this note?')) return;
 
     try {
-
       const path = publicPath(url);
 
       if (path) {
-
-        await client
-          .storage
+        await client.storage
           .from(BUCKET)
           .remove([path]);
       }
@@ -624,7 +526,6 @@
       await loadNotes();
 
     } catch (error) {
-
       alert(
         error.message ||
         'Delete failed.'
@@ -632,30 +533,23 @@
     }
   }
 
-
-  /* =========================
-     INDUSTRY
-  ========================= */
-
   async function uploadIndustry(event) {
-
     event.preventDefault();
 
     const file =
-      $('industryPdf').files[0];
+      $('industryPdf')?.files[0];
 
     if (
       file &&
       file.size > 25 * 1024 * 1024
     ) {
-
-      return msg(
+      return message(
         $('industryMsg'),
         'PDF must be 25 MB or smaller.'
       );
     }
 
-    msg(
+    message(
       $('industryMsg'),
       'Publishing…',
       true
@@ -664,11 +558,9 @@
     let path = null;
 
     try {
-
       let url = null;
 
       if (file) {
-
         const result =
           await uploadFile(
             file,
@@ -683,33 +575,28 @@
         await client
           .from('industry_resources')
           .insert({
-
             title:
-              $('industryTitle')
-                .value
-                .trim(),
+              $('industryTitle').value.trim(),
 
             category:
-              $('industryCategory')
-                .value,
+              $('industryCategory').value,
 
             description:
-              $('industryDescription')
-                .value
-                .trim(),
+              $('industryDescription').value.trim(),
 
             pdf_url: url
-
           });
 
       if (error) throw error;
 
       $('industryForm').reset();
 
-      $('industryFileName').textContent =
-        'No PDF selected';
+      if ($('industryFileName')) {
+        $('industryFileName').textContent =
+          'No PDF selected';
+      }
 
-      msg(
+      message(
         $('industryMsg'),
         'Industry resource published successfully.',
         true
@@ -718,18 +605,15 @@
       await loadIndustry();
 
     } catch (error) {
-
       if (path) {
-
-        await client
-          .storage
+        await client.storage
           .from(BUCKET)
           .remove([path]);
       }
 
       console.error(error);
 
-      msg(
+      message(
         $('industryMsg'),
         error.message ||
         'Publish failed.'
@@ -737,11 +621,11 @@
     }
   }
 
-
   async function loadIndustry() {
-
     const box =
       $('industryList');
+
+    if (!box) return;
 
     box.innerHTML =
       '<p class="muted">Loading…</p>';
@@ -756,28 +640,21 @@
         );
 
     if (error) {
-
       box.innerHTML =
         `<p class="message error">${esc(error.message)}</p>`;
-
       return;
     }
 
     if (!data?.length) {
-
       box.innerHTML =
         '<p class="muted">No industry resources published yet.</p>';
-
       return;
     }
 
     box.innerHTML =
       data.map(item => `
-
         <article class="note-row">
-
           <div>
-
             <span class="badge">
               ${esc(item.category)}
             </span>
@@ -789,7 +666,6 @@
             <p>
               ${esc(item.description || '')}
             </p>
-
           </div>
 
           <div class="row-actions">
@@ -818,27 +694,21 @@
             </button>
 
           </div>
-
         </article>
-
       `).join('');
 
     box
       .querySelectorAll('[data-ind]')
       .forEach(button => {
-
         button.onclick = () =>
           deleteIndustry(
             button.dataset.ind,
             button.dataset.url
           );
-
       });
   }
 
-
   async function deleteIndustry(id, url) {
-
     if (
       !confirm(
         'Delete this industry resource?'
@@ -846,13 +716,10 @@
     ) return;
 
     try {
-
       const path = publicPath(url);
 
       if (path) {
-
-        await client
-          .storage
+        await client.storage
           .from(BUCKET)
           .remove([path]);
       }
@@ -868,7 +735,6 @@
       await loadIndustry();
 
     } catch (error) {
-
       alert(
         error.message ||
         'Delete failed.'
@@ -876,13 +742,7 @@
     }
   }
 
-
-  /* =========================
-     CONTACT MESSAGES
-  ========================= */
-
   async function loadContactMessages() {
-
     const box =
       $('contactList');
 
@@ -901,100 +761,85 @@
         );
 
     if (error) {
-
       box.innerHTML =
         `<p class="message error">${esc(error.message)}</p>`;
-
       return;
     }
 
     if (!data?.length) {
-
       box.innerHTML =
         '<p class="muted">No contact messages yet.</p>';
-
       return;
     }
 
     box.innerHTML =
-      data.map(item => {
+      data.map(item => `
+        <article class="note-row">
+          <div>
 
-        const date =
-          item.created_at
-            ? new Date(
+            <span class="badge">
+              ${esc(item.subject || 'General')}
+            </span>
+
+            <h3>
+              ${esc(item.name)}
+            </h3>
+
+            <p>
+              <strong>Email:</strong>
+              ${esc(item.email)}
+            </p>
+
+            <p>
+              <strong>Message:</strong>
+              ${esc(item.message)}
+            </p>
+
+            <small class="muted">
+              ${
                 item.created_at
-              ).toLocaleString()
-            : '';
+                  ? esc(
+                      new Date(
+                        item.created_at
+                      ).toLocaleString()
+                    )
+                  : ''
+              }
+            </small>
 
-        return `
+          </div>
 
-          <article class="note-row">
+          <div class="row-actions">
 
-            <div>
+            <a
+              class="btn"
+              href="mailto:${encodeURIComponent(item.email)}"
+            >
+              Reply
+            </a>
 
-              <span class="badge">
-                ${esc(item.subject || 'General')}
-              </span>
+            <button
+              class="btn danger"
+              data-contact="${esc(item.id)}"
+            >
+              Delete
+            </button>
 
-              <h3>
-                ${esc(item.name)}
-              </h3>
-
-              <p>
-                <strong>Email:</strong>
-                ${esc(item.email)}
-              </p>
-
-              <p>
-                <strong>Message:</strong>
-                ${esc(item.message)}
-              </p>
-
-              <small class="muted">
-                ${esc(date)}
-              </small>
-
-            </div>
-
-            <div class="row-actions">
-
-              <a
-                class="btn"
-                href="mailto:${encodeURIComponent(item.email)}"
-              >
-                Reply
-              </a>
-
-              <button
-                class="btn danger"
-                data-contact="${esc(item.id)}"
-              >
-                Delete
-              </button>
-
-            </div>
-
-          </article>
-
-        `;
-
-      }).join('');
+          </div>
+        </article>
+      `).join('');
 
     box
       .querySelectorAll('[data-contact]')
       .forEach(button => {
-
         button.onclick = () =>
           deleteContactMessage(
             button.dataset.contact
           );
-
       });
   }
 
-
   async function deleteContactMessage(id) {
-
     if (
       !confirm(
         'Delete this contact message?'
@@ -1002,7 +847,6 @@
     ) return;
 
     try {
-
       const { error } =
         await client
           .from('contact_messages')
@@ -1014,7 +858,6 @@
       await loadContactMessages();
 
     } catch (error) {
-
       alert(
         error.message ||
         'Delete failed.'
@@ -1022,13 +865,7 @@
     }
   }
 
-
-  /* =========================
-     TAB MANAGEMENT
-  ========================= */
-
   function showTab(tab) {
-
     const notesTab =
       $('notesTab');
 
@@ -1047,149 +884,149 @@
     const contactPanel =
       $('contactPanel');
 
-    notesTab.classList.remove('active');
-    industryTab.classList.remove('active');
-    contactTab.classList.remove('active');
+    notesTab?.classList.remove('active');
+    industryTab?.classList.remove('active');
+    contactTab?.classList.remove('active');
 
-    notesPanel.classList.add('hidden');
-    industryPanel.classList.add('hidden');
-    contactPanel.classList.add('hidden');
-
+    notesPanel?.classList.add('hidden');
+    industryPanel?.classList.add('hidden');
+    contactPanel?.classList.add('hidden');
 
     if (tab === 'notes') {
-
-      notesTab.classList.add('active');
-      notesPanel.classList.remove('hidden');
-
+      notesTab?.classList.add('active');
+      notesPanel?.classList.remove('hidden');
     }
-
 
     if (tab === 'industry') {
-
-      industryTab.classList.add('active');
-      industryPanel.classList.remove('hidden');
-
+      industryTab?.classList.add('active');
+      industryPanel?.classList.remove('hidden');
     }
-
 
     if (tab === 'contact') {
-
-      contactTab.classList.add('active');
-      contactPanel.classList.remove('hidden');
-
+      contactTab?.classList.add('active');
+      contactPanel?.classList.remove('hidden');
       loadContactMessages();
-
     }
   }
-
-
-  /* =========================
-     BIND EVENTS
-  ========================= */
 
   function bind() {
 
-    $('loginForm').onsubmit =
-      login;
+    const loginForm =
+      $('loginForm');
 
-    $('logoutBtn').onclick =
-      logout;
+    if (loginForm) {
+      loginForm.onsubmit = login;
+    }
 
-    $('uploadForm').onsubmit =
-      uploadNote;
+    if ($('logoutBtn')) {
+      $('logoutBtn').onclick = logout;
+    }
 
-    $('industryForm').onsubmit =
-      uploadIndustry;
+    if ($('uploadForm')) {
+      $('uploadForm').onsubmit =
+        uploadNote;
+    }
 
-    $('refreshBtn').onclick =
-      loadNotes;
+    if ($('industryForm')) {
+      $('industryForm').onsubmit =
+        uploadIndustry;
+    }
 
-    $('industryRefreshBtn').onclick =
-      loadIndustry;
+    if ($('refreshBtn')) {
+      $('refreshBtn').onclick =
+        loadNotes;
+    }
 
-    $('contactRefreshBtn').onclick =
-      loadContactMessages;
+    if ($('industryRefreshBtn')) {
+      $('industryRefreshBtn').onclick =
+        loadIndustry;
+    }
 
-    $('semester').onchange =
-      populateSubjects;
+    if ($('contactRefreshBtn')) {
+      $('contactRefreshBtn').onclick =
+        loadContactMessages;
+    }
 
-    $('subject').onchange =
-      populateUnits;
+    if ($('semester')) {
+      $('semester').onchange =
+        populateSubjects;
+    }
 
-    $('pdf').onchange =
-      () => {
+    if ($('subject')) {
+      $('subject').onchange =
+        populateUnits;
+    }
 
-        $('fileName').textContent =
-          $('pdf').files[0]?.name ||
-          'No file selected';
-
+    if ($('pdf')) {
+      $('pdf').onchange = () => {
+        if ($('fileName')) {
+          $('fileName').textContent =
+            $('pdf').files[0]?.name ||
+            'No file selected';
+        }
       };
+    }
 
-    $('industryPdf').onchange =
-      () => {
+    if ($('industryPdf')) {
+      $('industryPdf').onchange = () => {
+        if ($('industryFileName')) {
+          $('industryFileName').textContent =
+            $('industryPdf').files[0]?.name ||
+            'No PDF selected';
+        }
+      };
+    }
 
-        $('industryPdf').onchange =
-  () => {
-    $('industryFileName').textContent =
-      $('industryPdf').files[0]?.name ||
-      'No PDF selected';
-  };
+    if ($('notesTab')) {
+      $('notesTab').onclick =
+        () => showTab('notes');
+    }
 
-$('notesTab').onclick =
-  () => showTab('notes');
+    if ($('industryTab')) {
+      $('industryTab').onclick =
+        () => showTab('industry');
+    }
 
-$('industryTab').onclick =
-  () => showTab('industry');
-
-$('contactTab').onclick =
-  () => showTab('contact');
-
-}
-
-
-/* =========================
-   INITIALIZE
-========================= */
-
-function init() {
-
-  if (!window.supabase?.createClient) {
-
-    msg(
-      $('loginMsg'),
-      'Supabase library load nahi hui. Refresh karke dobara try karein.'
-    );
-
-    return;
+    if ($('contactTab')) {
+      $('contactTab').onclick =
+        () => showTab('contact');
+    }
   }
 
-  client =
-    window.supabase.createClient(
-      SUPABASE_URL,
-      SUPABASE_KEY
+  function init() {
+
+    if (
+      !window.supabase ||
+      !window.supabase.createClient
+    ) {
+      message(
+        $('loginMsg'),
+        'Supabase library load nahi hui. Page refresh karein.'
+      );
+      return;
+    }
+
+    client =
+      window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_KEY
+      );
+
+    bind();
+    showSession();
+  }
+
+  if (
+    document.readyState ===
+    'loading'
+  ) {
+    document.addEventListener(
+      'DOMContentLoaded',
+      init,
+      { once: true }
     );
-
-  bind();
-
-  showSession();
-}
-
-
-if (
-  document.readyState ===
-  'loading'
-) {
-
-  document.addEventListener(
-    'DOMContentLoaded',
-    init,
-    { once: true }
-  );
-
-} else {
-
-  init();
-
-}
+  } else {
+    init();
+  }
 
 })();

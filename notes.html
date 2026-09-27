@@ -7,8 +7,26 @@
 
   <title>B.Pharm Notes | Pharmistry World</title>
 
-  <!-- CSS -->
   <link rel="stylesheet" href="style.css">
+
+  <style>
+    /* Logo */
+    .logo-img {
+      width: 64px;
+      height: 64px;
+      object-fit: contain;
+      display: block;
+      border-radius: 50%;
+    }
+
+    @media (max-width: 600px) {
+      .logo-img {
+        width: 58px;
+        height: 58px;
+      }
+    }
+  </style>
+
 </head>
 
 <body>
@@ -21,7 +39,11 @@
 
     <a class="brand" href="index.html">
 
-      <span class="logo">PW</span>
+      <img
+        class="logo-img"
+        src="logo.png"
+        alt="Pharmistry World Logo"
+      >
 
       <span>
         <b>Pharmistry</b>
@@ -66,8 +88,6 @@
 
   <main>
 
-    <!-- HERO -->
-
     <section class="page-hero">
 
       <span class="eyebrow">
@@ -84,8 +104,6 @@
 
     </section>
 
-
-    <!-- NOTES SECTION -->
 
     <section class="section">
 

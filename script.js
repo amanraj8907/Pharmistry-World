@@ -1,5 +1,5 @@
 const SUPABASE_URL = "https://qgmpwanxqytoakmnklvy.supabase.co";
-const SUPABASE_KEY = sb_publishable_qlOg73Ee92_uzX9YsaRPIA_dMQX9gub;
+const SUPABASE_KEY = "sb_publishable_qlOg73Ee92_uzX9YsaRPIA_dMQX9gub";
 
 const script = document.createElement("script");
 script.src = "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2";

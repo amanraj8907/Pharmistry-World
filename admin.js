@@ -13,7 +13,6 @@
 
   let client = null;
 
-
   /* =========================
      SUBJECTS
   ========================= */
@@ -113,19 +112,14 @@
     );
 
 
-  const msg = (
-    element,
-    text,
-    ok = false
-  ) => {
+  const msg = (element, text, ok = false) => {
 
     if (!element) return;
 
     element.textContent = text || '';
 
     element.className =
-      'message ' +
-      (ok ? 'ok' : 'error');
+      'message ' + (ok ? 'ok' : 'error');
   };
 
 
@@ -135,14 +129,12 @@
 
   async function isAdmin(uid) {
 
-    const {
-      data,
-      error
-    } = await client
-      .from('admin_users')
-      .select('user_id')
-      .eq('user_id', uid)
-      .maybeSingle();
+    const { data, error } =
+      await client
+        .from('admin_users')
+        .select('user_id')
+        .eq('user_id', uid)
+        .maybeSingle();
 
     if (error) throw error;
 
@@ -158,10 +150,8 @@
 
     try {
 
-      const {
-        data,
-        error
-      } = await client.auth.getSession();
+      const { data, error } =
+        await client.auth.getSession();
 
       if (error) throw error;
 
@@ -230,17 +220,14 @@
 
     try {
 
-      const {
-        error
-      } = await client.auth.signInWithPassword({
+      const { error } =
+        await client.auth.signInWithPassword({
 
-        email:
-          $('email').value.trim(),
+          email: $('email').value.trim(),
 
-        password:
-          $('password').value
+          password: $('password').value
 
-      });
+        });
 
       if (error) throw error;
 
@@ -320,20 +307,19 @@
     const path =
       `${folder}/${Date.now()}-${safeName(file.name)}.pdf`;
 
-    const {
-      error
-    } = await client
-      .storage
-      .from(BUCKET)
-      .upload(
-        path,
-        file,
-        {
-          contentType: 'application/pdf',
-          cacheControl: '3600',
-          upsert: false
-        }
-      );
+    const { error } =
+      await client
+        .storage
+        .from(BUCKET)
+        .upload(
+          path,
+          file,
+          {
+            contentType: 'application/pdf',
+            cacheControl: '3600',
+            upsert: false
+          }
+        );
 
     if (error) throw error;
 
@@ -356,15 +342,9 @@
 
   function populateSubjects() {
 
-    const semester =
-      $('semester').value;
-
-    const subject =
-      $('subject');
-
-    const unit =
-      $('unit');
-
+    const semester = $('semester').value;
+    const subject = $('subject');
+    const unit = $('unit');
 
     subject.innerHTML =
       '<option value="">Select subject</option>';
@@ -373,9 +353,7 @@
       '<option value="">Select subject first</option>';
 
     unit.disabled = true;
-
     subject.disabled = !semester;
-
 
     if (semester) {
 
@@ -394,18 +372,13 @@
 
   function populateUnits() {
 
-    const subject =
-      $('subject').value;
-
-    const unit =
-      $('unit');
-
+    const subject = $('subject').value;
+    const unit = $('unit');
 
     unit.innerHTML =
       '<option value="">Select unit</option>';
 
     unit.disabled = !subject;
-
 
     if (subject) {
 
@@ -429,9 +402,7 @@
 
     event.preventDefault();
 
-    const file =
-      $('pdf').files[0];
-
+    const file = $('pdf').files[0];
 
     if (!file) {
 
@@ -441,7 +412,6 @@
       );
     }
 
-
     if (file.size > 25 * 1024 * 1024) {
 
       return msg(
@@ -450,16 +420,13 @@
       );
     }
 
-
     msg(
       $('uploadMsg'),
       'Uploading…',
       true
     );
 
-
     let path = null;
-
 
     try {
 
@@ -468,38 +435,28 @@
 
       path = result.path;
 
-
       const payload = {
 
-        title:
-          $('title').value.trim(),
+        title: $('title').value.trim(),
 
-        semester:
-          $('semester').value,
+        semester: $('semester').value,
 
-        subject:
-          $('subject').value.trim(),
+        subject: $('subject').value.trim(),
 
-        unit:
-          $('unit').value,
+        unit: $('unit').value,
 
-        description:
-          $('description').value.trim(),
+        description: $('description').value.trim(),
 
-        pdf_url:
-          result.url
+        pdf_url: result.url
+
       };
 
-
-      const {
-        error
-      } = await client
-        .from('notes')
-        .insert(payload);
-
+      const { error } =
+        await client
+          .from('notes')
+          .insert(payload);
 
       if (error) throw error;
-
 
       $('uploadForm').reset();
 
@@ -508,13 +465,11 @@
       $('fileName').textContent =
         'No file selected';
 
-
       msg(
         $('uploadMsg'),
         'Note published successfully.',
         true
       );
-
 
       await loadNotes();
 
@@ -540,24 +495,19 @@
 
   async function loadNotes() {
 
-    const box =
-      $('notesList');
+    const box = $('notesList');
 
     box.innerHTML =
       '<p class="muted">Loading…</p>';
 
-
-    const {
-      data,
-      error
-    } = await client
-      .from('notes')
-      .select('*')
-      .order(
-        'created_at',
-        { ascending: false }
-      );
-
+    const { data, error } =
+      await client
+        .from('notes')
+        .select('*')
+        .order(
+          'created_at',
+          { ascending: false }
+        );
 
     if (error) {
 
@@ -567,7 +517,6 @@
       return;
     }
 
-
     if (!data?.length) {
 
       box.innerHTML =
@@ -575,7 +524,6 @@
 
       return;
     }
-
 
     box.innerHTML =
       data.map(note => `
@@ -610,7 +558,6 @@
 
           </div>
 
-
           <div class="row-actions">
 
             <a
@@ -636,7 +583,6 @@
 
       `).join('');
 
-
     box
       .querySelectorAll('[data-del]')
       .forEach(button => {
@@ -655,12 +601,9 @@
 
     if (!confirm('Delete this note?')) return;
 
-
     try {
 
-      const path =
-        publicPath(url);
-
+      const path = publicPath(url);
 
       if (path) {
 
@@ -670,14 +613,11 @@
           .remove([path]);
       }
 
-
-      const {
-        error
-      } = await client
-        .from('notes')
-        .delete()
-        .eq('id', id);
-
+      const { error } =
+        await client
+          .from('notes')
+          .delete()
+          .eq('id', id);
 
       if (error) throw error;
 
@@ -704,7 +644,6 @@
     const file =
       $('industryPdf').files[0];
 
-
     if (
       file &&
       file.size > 25 * 1024 * 1024
@@ -716,21 +655,17 @@
       );
     }
 
-
     msg(
       $('industryMsg'),
       'Publishing…',
       true
     );
 
-
     let path = null;
-
 
     try {
 
       let url = null;
-
 
       if (file) {
 
@@ -744,48 +679,41 @@
         url = result.url;
       }
 
+      const { error } =
+        await client
+          .from('industry_resources')
+          .insert({
 
-      const {
-        error
-      } = await client
-        .from('industry_resources')
-        .insert({
+            title:
+              $('industryTitle')
+                .value
+                .trim(),
 
-          title:
-            $('industryTitle')
-              .value
-              .trim(),
+            category:
+              $('industryCategory')
+                .value,
 
-          category:
-            $('industryCategory')
-              .value,
+            description:
+              $('industryDescription')
+                .value
+                .trim(),
 
-          description:
-            $('industryDescription')
-              .value
-              .trim(),
+            pdf_url: url
 
-          pdf_url:
-            url
-
-        });
-
+          });
 
       if (error) throw error;
-
 
       $('industryForm').reset();
 
       $('industryFileName').textContent =
         'No PDF selected';
 
-
       msg(
         $('industryMsg'),
         'Industry resource published successfully.',
         true
       );
-
 
       await loadIndustry();
 
@@ -818,18 +746,14 @@
     box.innerHTML =
       '<p class="muted">Loading…</p>';
 
-
-    const {
-      data,
-      error
-    } = await client
-      .from('industry_resources')
-      .select('*')
-      .order(
-        'created_at',
-        { ascending: false }
-      );
-
+    const { data, error } =
+      await client
+        .from('industry_resources')
+        .select('*')
+        .order(
+          'created_at',
+          { ascending: false }
+        );
 
     if (error) {
 
@@ -839,7 +763,6 @@
       return;
     }
 
-
     if (!data?.length) {
 
       box.innerHTML =
@@ -847,7 +770,6 @@
 
       return;
     }
-
 
     box.innerHTML =
       data.map(item => `
@@ -870,7 +792,6 @@
 
           </div>
 
-
           <div class="row-actions">
 
             ${
@@ -888,7 +809,6 @@
                 : ''
             }
 
-
             <button
               class="btn danger"
               data-ind="${esc(item.id)}"
@@ -902,7 +822,6 @@
         </article>
 
       `).join('');
-
 
     box
       .querySelectorAll('[data-ind]')
@@ -926,12 +845,9 @@
       )
     ) return;
 
-
     try {
 
-      const path =
-        publicPath(url);
-
+      const path = publicPath(url);
 
       if (path) {
 
@@ -941,14 +857,11 @@
           .remove([path]);
       }
 
-
-      const {
-        error
-      } = await client
-        .from('industry_resources')
-        .delete()
-        .eq('id', id);
-
+      const { error } =
+        await client
+          .from('industry_resources')
+          .delete()
+          .eq('id', id);
 
       if (error) throw error;
 
@@ -973,21 +886,19 @@
     const box =
       $('contactList');
 
+    if (!box) return;
+
     box.innerHTML =
       '<p class="muted">Loading messages…</p>';
 
-
-    const {
-      data,
-      error
-    } = await client
-      .from('contact_messages')
-      .select('*')
-      .order(
-        'created_at',
-        { ascending: false }
-      );
-
+    const { data, error } =
+      await client
+        .from('contact_messages')
+        .select('*')
+        .order(
+          'created_at',
+          { ascending: false }
+        );
 
     if (error) {
 
@@ -997,7 +908,6 @@
       return;
     }
 
-
     if (!data?.length) {
 
       box.innerHTML =
@@ -1005,7 +915,6 @@
 
       return;
     }
-
 
     box.innerHTML =
       data.map(item => {
@@ -1016,7 +925,6 @@
                 item.created_at
               ).toLocaleString()
             : '';
-
 
         return `
 
@@ -1048,7 +956,6 @@
 
             </div>
 
-
             <div class="row-actions">
 
               <a
@@ -1073,7 +980,6 @@
 
       }).join('');
 
-
     box
       .querySelectorAll('[data-contact]')
       .forEach(button => {
@@ -1095,19 +1001,15 @@
       )
     ) return;
 
-
     try {
 
-      const {
-        error
-      } = await client
-        .from('contact_messages')
-        .delete()
-        .eq('id', id);
-
+      const { error } =
+        await client
+          .from('contact_messages')
+          .delete()
+          .eq('id', id);
 
       if (error) throw error;
-
 
       await loadContactMessages();
 
@@ -1136,7 +1038,6 @@
     const contactTab =
       $('contactTab');
 
-
     const notesPanel =
       $('notesPanel');
 
@@ -1146,11 +1047,9 @@
     const contactPanel =
       $('contactPanel');
 
-
     notesTab.classList.remove('active');
     industryTab.classList.remove('active');
     contactTab.classList.remove('active');
-
 
     notesPanel.classList.add('hidden');
     industryPanel.classList.add('hidden');
@@ -1193,37 +1092,104 @@
     $('loginForm').onsubmit =
       login;
 
-
     $('logoutBtn').onclick =
       logout;
-
 
     $('uploadForm').onsubmit =
       uploadNote;
 
-
     $('industryForm').onsubmit =
       uploadIndustry;
-
 
     $('refreshBtn').onclick =
       loadNotes;
 
-
     $('industryRefreshBtn').onclick =
       loadIndustry;
-
 
     $('contactRefreshBtn').onclick =
       loadContactMessages;
 
-
     $('semester').onchange =
       populateSubjects;
-
 
     $('subject').onchange =
       populateUnits;
 
+    $('pdf').onchange =
+      () => {
 
-    $('pdf').onchange
+        $('fileName').textContent =
+          $('pdf').files[0]?.name ||
+          'No file selected';
+
+      };
+
+    $('industryPdf').onchange =
+      () => {
+
+        $('industryPdf').onchange =
+  () => {
+    $('industryFileName').textContent =
+      $('industryPdf').files[0]?.name ||
+      'No PDF selected';
+  };
+
+$('notesTab').onclick =
+  () => showTab('notes');
+
+$('industryTab').onclick =
+  () => showTab('industry');
+
+$('contactTab').onclick =
+  () => showTab('contact');
+
+}
+
+
+/* =========================
+   INITIALIZE
+========================= */
+
+function init() {
+
+  if (!window.supabase?.createClient) {
+
+    msg(
+      $('loginMsg'),
+      'Supabase library load nahi hui. Refresh karke dobara try karein.'
+    );
+
+    return;
+  }
+
+  client =
+    window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_KEY
+    );
+
+  bind();
+
+  showSession();
+}
+
+
+if (
+  document.readyState ===
+  'loading'
+) {
+
+  document.addEventListener(
+    'DOMContentLoaded',
+    init,
+    { once: true }
+  );
+
+} else {
+
+  init();
+
+}
+
+})();

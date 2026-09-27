@@ -7,152 +7,193 @@
 
   <title>B.Pharm Notes | Pharmistry World</title>
 
-  <link rel="stylesheet" href="assets/style.css">
+  <!-- CSS -->
+  <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-<header class="navbar">
+  <!-- =========================
+       NAVBAR
+  ========================== -->
 
-  <a class="brand" href="index.html">
-    <span class="logo">PW</span>
+  <header class="navbar">
 
-    <span>
-      <b>Pharmistry</b>
-      <strong>WORLD</strong>
-    </span>
-  </a>
+    <a class="brand" href="index.html">
 
-  <button class="menu-btn" onclick="toggleMenu()">
-    ☰
-  </button>
+      <span class="logo">PW</span>
 
-  <nav id="nav">
-    <a href="index.html">Home</a>
-    <a href="notes.html">B.Pharm Notes</a>
-    <a href="industry.html">Pharma Industry</a>
-    <a href="career.html">Career</a>
-  </nav>
+      <span>
+        <b>Pharmistry</b>
+        <strong>WORLD</strong>
+      </span>
 
-</header>
+    </a>
 
-
-<main>
-
-  <section class="page-hero">
-
-    <span class="eyebrow">
-      B.PHARM EDUCATION
-    </span>
-
-    <h1>
-      B.Pharm Notes
-    </h1>
-
-    <p>
-      Semester-wise study material — organized for quick learning.
-    </p>
-
-  </section>
-
-
-  <section class="section">
-
-    <input
-      id="search"
-      class="search-full"
-      type="search"
-      placeholder="🔎 Search subject or topic..."
+    <button
+      class="menu-btn"
+      onclick="toggleMenu()"
     >
+      ☰
+    </button>
+
+    <nav id="nav">
+
+      <a href="index.html">
+        Home
+      </a>
+
+      <a href="notes.html">
+        B.Pharm Notes
+      </a>
+
+      <a href="industry.html">
+        Pharma Industry
+      </a>
+
+      <a href="career.html">
+        Career
+      </a>
+
+    </nav>
+
+  </header>
 
 
-    <div class="semester-grid">
+  <!-- =========================
+       MAIN
+  ========================== -->
 
-      <select id="sem">
+  <main>
 
-        <option value="">
-          All Semesters
-        </option>
+    <!-- HERO -->
 
-        <option value="1st">
-          1st Semester
-        </option>
+    <section class="page-hero">
 
-        <option value="2nd">
-          2nd Semester
-        </option>
+      <span class="eyebrow">
+        B.PHARM EDUCATION
+      </span>
 
-        <option value="3rd">
-          3rd Semester
-        </option>
-
-        <option value="4th">
-          4th Semester
-        </option>
-
-        <option value="5th">
-          5th Semester
-        </option>
-
-        <option value="6th">
-          6th Semester
-        </option>
-
-        <option value="7th">
-          7th Semester
-        </option>
-
-        <option value="8th">
-          8th Semester
-        </option>
-
-      </select>
-
-    </div>
-
-
-    <!-- Supabase notes will appear here -->
-
-    <div
-      class="notes-grid"
-      id="notes"
-    >
+      <h1>
+        B.Pharm Notes
+      </h1>
 
       <p>
-        Loading notes...
+        Semester-wise study material — organized for quick learning.
       </p>
+
+    </section>
+
+
+    <!-- NOTES SECTION -->
+
+    <section class="section">
+
+      <!-- SEARCH -->
+
+      <input
+        id="search"
+        class="search-full"
+        type="search"
+        placeholder="🔎 Search subject or topic..."
+      >
+
+
+      <!-- SEMESTER FILTER -->
+
+      <div class="semester-grid">
+
+        <select id="sem">
+
+          <option value="">
+            All Semesters
+          </option>
+
+          <option value="1st">
+            1st Semester
+          </option>
+
+          <option value="2nd">
+            2nd Semester
+          </option>
+
+          <option value="3rd">
+            3rd Semester
+          </option>
+
+          <option value="4th">
+            4th Semester
+          </option>
+
+          <option value="5th">
+            5th Semester
+          </option>
+
+          <option value="6th">
+            6th Semester
+          </option>
+
+          <option value="7th">
+            7th Semester
+          </option>
+
+          <option value="8th">
+            8th Semester
+          </option>
+
+        </select>
+
+      </div>
+
+
+      <!-- NOTES FROM SUPABASE -->
+
+      <div
+        class="notes-grid"
+        id="notes"
+      >
+
+        <p>
+          Loading notes...
+        </p>
+
+      </div>
+
+    </section>
+
+  </main>
+
+
+  <!-- =========================
+       FOOTER
+  ========================== -->
+
+  <footer>
+
+    <div>
+
+      <b>
+        Pharmistry WORLD
+      </b>
+
+      <br>
+
+      <small>
+        Learn. Explore. Grow in Pharma.
+      </small>
 
     </div>
 
-  </section>
+    <div>
+      © 2026 Pharmistry World
+    </div>
 
-</main>
-
-
-<footer>
-
-  <div>
-
-    <b>
-      Pharmistry WORLD
-    </b>
-
-    <br>
-
-    <small>
-      Learn. Explore. Grow in Pharma.
-    </small>
-
-  </div>
-
-  <div>
-    © 2026 Pharmistry World
-  </div>
-
-</footer>
+  </footer>
 
 
-<script src="script.js"></script>
+  <!-- JAVASCRIPT -->
+
+  <script src="script.js"></script>
 
 </body>
 

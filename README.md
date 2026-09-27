@@ -1,17 +1,10 @@
-# Pharmistry World — Final Repaired Package
+# Pharmistry World
 
 Learn. Explore. Grow in Pharma.
 
-## Root files
-- index.html — homepage
-- notes.html — Supabase notes library
-- industry.html — pharma industry learning
-- career.html — career guidance
-- admin.html + admin.js — Supabase Auth upload panel
-- style.css + script.js — shared design and functionality
-- logo.png — brand logo
-- supabase_setup.sql — database/storage RLS setup
+This package replaces the current root HTML/CSS/JS files with a professional responsive site. Keep your existing `logo.png` in the repository.
 
-Upload the files directly to the repository root. Do not put them inside another folder.
+## Supabase
+The Notes page reads from `public.notes`. The existing public bucket `B. Pharm Notes` is used for PDFs. `supabase_setup.sql` adds the required read/insert policies for the notes table and authenticated uploads.
 
-The frontend uses only the Supabase publishable key. Never place a service_role/secret key in this repository.
+For the admin page, create your admin user in Supabase Authentication and open `/admin.html`. Do not put a service-role/secret key in the website.

@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Contact Us | Pharmistry World</title>
+  <meta name="description" content="Contact Pharmistry World for questions, suggestions and feedback.">
+
+  <link rel="stylesheet" href="style.css?v=20260927">
+
+  <style>
+    .contact-page {
+      max-width: 850px;
+      margin: 0 auto;
+      padding: 50px 20px 80px;
+    }
+
+    .contact-heading {
+      text-align: center;
+      margin-bottom: 35px;
+    }
+
+    .contact-heading h1 {
+      margin-bottom: 10px;
+    }
+
+    .contact-heading p {
+      opacity: .75;
+    }
+
+    .contact-card {
+      background: #fff;
+      padding: 30px;
+      border-radius: 18px;
+      border: 1px solid #e5e7eb;
+      box-shadow: 0 8px 25px rgba(0,0,0,.07);
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 7px;
+      font-weight: 600;
+    }
+
+    .form-group input,
+    .form-group textarea {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid #d1d5db;
+      border-radius: 10px;
+      font-size: 15px;
+      box-sizing: border-box;
+      outline: none;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus {
+      border-color: #0f766e;
+    }
+
+    .form-group textarea {
+      min-height: 150px;
+      resize: vertical;
+    }
+
+    .send-btn {
+      width: 100%;
+      border: none;
+      padding: 13px;
+      border-radius: 10px;
+      background: #0f766e;
+      color: white;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .send-btn:hover {
+      opacity: .9;
+    }
+
+    .send-btn:disabled {
+      opacity: .6;
+      cursor: not-allowed;
+    }
+
+    .status {
+      margin-top: 18px;
+      text-align: center;
+      font-weight: 500;
+    }
+
+    .success {
+      color: #15803d;
+    }
+
+    .error {
+      color: #dc2626;
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <div class="container">
+
+    <div class="brand">
+      <a href="index.html">
+        <img
+          src="logo.png"
+          alt="Pharmistry World"
+          style="height:48px;"
+        >
+      </a>
+    </div>
+
+    <button class="menu-btn" aria-label="Menu">
+      ☰
+    </button>
+
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="notes.html">B.Pharm Notes</a>
+      <a href="industry.html">Pharma Industry</a>
+      <a href="career.html">Career</a>
+      <a href="contact.html">Contact Us</a>
+    </nav>
+
+  </div>
+</header>
+
+
+<main class="contact-page">
+
+  <section class="contact-heading">
+
+    <h1>Contact Us</h1>
+
+    <p>
+      Have a question, suggestion or feedback?
+      We'd love to hear from you.
+    </p>
+
+  </section>
+
+
+  <div class="contact-card">
+
+    <form id="contactForm">
+
+      <div class="form-group">
+
+        <label for="name">
+          Name
+        </label>
+
+        <input
+          type="text"
+          id="name"
+          placeholder="Enter your name"
+          required
+        >
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label for="email">
+          Email
+        </label>
+
+        <input
+          type="email"
+          id="email"
+          placeholder="Enter your email"
+          required
+        >
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label for="subject">
+          Subject
+        </label>
+
+        <input
+          type="text"
+          id="subject"
+          placeholder="Enter subject"
+        >
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label for="message">
+          Message
+        </label>
+
+        <textarea
+          id="message"
+          placeholder="Write your message..."
+          required
+        ></textarea>
+
+      </div>
+
+
+      <button
+        type="submit"
+        class="send-btn"
+        id="sendBtn"
+      >
+        Send Message
+      </button>
+
+      <div
+        id="status"
+        class="status"
+      ></div>
+
+    </form>
+
+  </div>
+
+</main>
+
+
+<footer>
+  <div class="container">
+
+    <p>
+      © 2026 Pharmistry World. All rights reserved.
+    </p>
+
+  </div>
+</footer>
+
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+
+const SUPABASE_URL =
+  "https://qgmpwanxqytoakmnklvy.supabase.co";
+
+const SUPABASE_KEY =
+  "sb_publishable_qlOg73Ee92_uzX9YsaRPIA_dMQX9gub";
+
+
+const supabaseClient =
+  window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+  );
+
+
+const form =
+  document.getElementById("contactForm");
+
+const sendBtn =
+  document.getElementById("sendBtn");
+
+const status =
+  document.getElementById("status");
+
+
+form.addEventListener("submit", async function(event) {
+
+  event.preventDefault();
+
+  sendBtn.disabled = true;
+  sendBtn.textContent = "Sending...";
+
+  status.textContent = "";
+  status.className = "status";
+
+
+  const name =
+    document.getElementById("name").value.trim();
+
+  const email =
+    document.getElementById("email").value.trim();
+
+  const subject =
+    document.getElementById("subject").value.trim();
+
+  const message =
+    document.getElementById("message").value.trim();
+
+
+  const { error } =
+    await supabaseClient
+      .from("contact_messages")
+      .insert([
+        {
+          name: name,
+          email: email,
+          subject: subject,
+          message: message
+        }
+      ]);
+
+
+  if (error) {
+
+    console.error(error);
+
+    status.textContent =
+      "Message send nahi ho paya. Please try again.";
+
+    status.className =
+      "status error";
+
+    sendBtn.disabled = false;
+    sendBtn.textContent = "Send Message";
+
+    return;
+  }
+
+
+  status.textContent =
+    "Message sent successfully! Thank you.";
+
+  status.className =
+    "status success";
+
+
+  form.reset();
+
+  sendBtn.disabled = false;
+  sendBtn.textContent = "Send Message";
+
+});
+
+</script>
+
+</body>
+</html>

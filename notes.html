@@ -7,7 +7,6 @@
   <title>B.Pharm Notes | Pharmistry World</title>
   <meta name="description" content="B.Pharm semester-wise subjects, unit-wise notes and study resources.">
 
-  <!-- Force browser to check latest page -->
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
@@ -172,6 +171,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
+
 const SUPABASE_URL =
   "https://qgmpwanxqytoakmnklvy.supabase.co";
 
@@ -186,6 +186,11 @@ const breadcrumb = document.getElementById("breadcrumb");
 
 let allNotes = [];
 
+
+/* =========================
+   HELPERS
+========================= */
+
 function escapeHtml(value) {
   return String(value || "").replace(/[&<>"']/g, ch => ({
     "&": "&amp;",
@@ -196,16 +201,24 @@ function escapeHtml(value) {
   }[ch]));
 }
 
+
 function safeUrl(value) {
   try {
     const u = new URL(value);
+
     return ["https:", "http:"].includes(u.protocol)
       ? u.href
       : "#";
+
   } catch {
     return "#";
   }
 }
+
+
+/* =========================
+   LOAD NOTES
+========================= */
 
 async function loadNotes() {
 
@@ -215,18 +228,34 @@ async function loadNotes() {
     .order("created_at", { ascending: false });
 
   if (error) {
+
     console.error(error);
+
     content.innerHTML =
       "<div class='empty'>Notes load nahi ho paaye. Please try again.</div>";
+
     return;
   }
 
   allNotes = data || [];
 
-  showSemesters();
+  showSemesters(false);
 }
 
-function showSemesters() {
+
+/* =========================
+   SEMESTERS
+========================= */
+
+function showSemesters(addHistory = true) {
+
+  if (addHistory) {
+    history.pushState(
+      { level: "semester" },
+      "",
+      "#semester"
+    );
+  }
 
   breadcrumb.innerHTML = "";
 
@@ -243,6 +272,7 @@ function showSemesters() {
 
   content.innerHTML = `
     <div class="semester-grid">
+
       ${semesters.map(semester => {
 
         const count = allNotes.filter(
@@ -251,23 +281,49 @@ function showSemesters() {
 
         return `
           <div class="hierarchy-card"
-               onclick="showSubjects('${semester}')">
+               onclick="showSubjects('${semester}', true)">
 
             <h3>${semester}</h3>
-            <p>${count} note${count === 1 ? "" : "s"} available</p>
+
+            <p>
+              ${count}
+              note${count === 1 ? "" : "s"} available
+            </p>
 
           </div>
         `;
 
       }).join("")}
+
     </div>
   `;
 }
 
-function showSubjects(semester) {
+
+/* =========================
+   SUBJECTS
+========================= */
+
+function showSubjects(semester, addHistory = true) {
+
+  if (addHistory) {
+
+    history.pushState(
+      {
+        level: "subject",
+        semester: semester
+      },
+      "",
+      "#subject"
+    );
+  }
 
   breadcrumb.innerHTML = `
-    <a class="back-btn" onclick="showSemesters()">← All Semesters</a>
+    <a class="back-btn"
+       onclick="history.back()">
+       ← All Semesters
+    </a>
+
     <h2>${escapeHtml(semester)}</h2>
   `;
 
@@ -281,8 +337,10 @@ function showSubjects(semester) {
   ];
 
   if (!subjects.length) {
+
     content.innerHTML =
       "<div class='empty'>Is semester mein abhi notes available nahi hain.</div>";
+
     return;
   }
 
@@ -292,16 +350,25 @@ function showSubjects(semester) {
       ${subjects.map(subject => {
 
         const count = allNotes.filter(
-          n => n.semester === semester &&
-               n.subject === subject
+          n =>
+            n.semester === semester &&
+            n.subject === subject
         ).length;
 
         return `
           <div class="hierarchy-card"
-               onclick="showUnits('${encodeURIComponent(semester)}','${encodeURIComponent(subject)}')">
+               onclick="showUnits(
+                 '${encodeURIComponent(semester)}',
+                 '${encodeURIComponent(subject)}',
+                 true
+               )">
 
             <h3>${escapeHtml(subject)}</h3>
-            <p>${count} resource${count === 1 ? "" : "s"}</p>
+
+            <p>
+              ${count}
+              resource${count === 1 ? "" : "s"}
+            </p>
 
           </div>
         `;
@@ -312,30 +379,74 @@ function showSubjects(semester) {
   `;
 }
 
-function showUnits(encodedSemester, encodedSubject) {
 
-  const semester = decodeURIComponent(encodedSemester);
-  const subject = decodeURIComponent(encodedSubject);
+/* =========================
+   UNITS
+========================= */
+
+function showUnits(
+  encodedSemester,
+  encodedSubject,
+  addHistory = true
+) {
+
+  const semester =
+    decodeURIComponent(encodedSemester);
+
+  const subject =
+    decodeURIComponent(encodedSubject);
+
+
+  if (addHistory) {
+
+    history.pushState(
+      {
+        level: "unit",
+        semester: semester,
+        subject: subject
+      },
+      "",
+      "#unit"
+    );
+  }
+
 
   breadcrumb.innerHTML = `
     <a class="back-btn"
-       onclick="showSubjects('${semester}')">
+       onclick="history.back()">
+
        ← ${escapeHtml(semester)}
+
     </a>
 
     <h2>${escapeHtml(subject)}</h2>
   `;
 
+
   const notes = allNotes.filter(
-    n => n.semester === semester &&
-         n.subject === subject
+    n =>
+      n.semester === semester &&
+      n.subject === subject
   );
+
 
   const units = [
     ...new Set(
-      notes.map(n => n.unit || "Other Notes")
+      notes.map(
+        n => n.unit || "Other Notes"
+      )
     )
   ];
+
+
+  if (!units.length) {
+
+    content.innerHTML =
+      "<div class='empty'>Is subject mein abhi units available nahi hain.</div>";
+
+    return;
+  }
+
 
   content.innerHTML = `
     <div class="unit-grid">
@@ -343,7 +454,8 @@ function showUnits(encodedSemester, encodedSubject) {
       ${units.map(unit => {
 
         const count = notes.filter(
-          n => (n.unit || "Other Notes") === unit
+          n =>
+            (n.unit || "Other Notes") === unit
         ).length;
 
         return `
@@ -351,11 +463,16 @@ function showUnits(encodedSemester, encodedSubject) {
                onclick="showPDFs(
                  '${encodeURIComponent(semester)}',
                  '${encodeURIComponent(subject)}',
-                 '${encodeURIComponent(unit)}'
+                 '${encodeURIComponent(unit)}',
+                 true
                )">
 
             <h3>${escapeHtml(unit)}</h3>
-            <p>${count} note${count === 1 ? "" : "s"}</p>
+
+            <p>
+              ${count}
+              note${count === 1 ? "" : "s"}
+            </p>
 
           </div>
         `;
@@ -366,39 +483,71 @@ function showUnits(encodedSemester, encodedSubject) {
   `;
 }
 
+
+/* =========================
+   PDFS
+========================= */
+
 function showPDFs(
   encodedSemester,
   encodedSubject,
-  encodedUnit
+  encodedUnit,
+  addHistory = true
 ) {
 
-  const semester = decodeURIComponent(encodedSemester);
-  const subject = decodeURIComponent(encodedSubject);
-  const unit = decodeURIComponent(encodedUnit);
+  const semester =
+    decodeURIComponent(encodedSemester);
+
+  const subject =
+    decodeURIComponent(encodedSubject);
+
+  const unit =
+    decodeURIComponent(encodedUnit);
+
+
+  if (addHistory) {
+
+    history.pushState(
+      {
+        level: "pdf",
+        semester: semester,
+        subject: subject,
+        unit: unit
+      },
+      "",
+      "#pdf"
+    );
+  }
+
 
   breadcrumb.innerHTML = `
     <a class="back-btn"
-       onclick="showUnits(
-         '${encodeURIComponent(semester)}',
-         '${encodeURIComponent(subject)}'
-       )">
+       onclick="history.back()">
+
        ← ${escapeHtml(subject)}
+
     </a>
 
     <h2>${escapeHtml(unit)}</h2>
   `;
 
+
   const notes = allNotes.filter(
-    n => n.semester === semester &&
-         n.subject === subject &&
-         (n.unit || "Other Notes") === unit
+    n =>
+      n.semester === semester &&
+      n.subject === subject &&
+      (n.unit || "Other Notes") === unit
   );
 
+
   if (!notes.length) {
+
     content.innerHTML =
       "<div class='empty'>Is unit mein abhi notes available nahi hain.</div>";
+
     return;
   }
+
 
   content.innerHTML = `
     <div class="pdf-list">
@@ -407,11 +556,14 @@ function showPDFs(
 
         <article class="pdf-card">
 
-          <h3>${escapeHtml(note.title)}</h3>
+          <h3>
+            ${escapeHtml(note.title)}
+          </h3>
 
           <p>
             ${escapeHtml(
-              note.description || "B.Pharm study resource."
+              note.description ||
+              "B.Pharm study resource."
             )}
           </p>
 
@@ -420,7 +572,9 @@ function showPDFs(
             href="${safeUrl(note.pdf_url)}"
             target="_blank"
             rel="noopener noreferrer">
+
             View PDF →
+
           </a>
 
         </article>
@@ -431,7 +585,82 @@ function showPDFs(
   `;
 }
 
+
+/* =========================
+   BROWSER BACK BUTTON
+========================= */
+
+window.addEventListener("popstate", function(event) {
+
+  const state = event.state;
+
+
+  if (!state || state.level === "semester") {
+
+    showSemesters(false);
+
+    return;
+  }
+
+
+  if (state.level === "subject") {
+
+    showSubjects(
+      state.semester,
+      false
+    );
+
+    return;
+  }
+
+
+  if (state.level === "unit") {
+
+    showUnits(
+      encodeURIComponent(state.semester),
+      encodeURIComponent(state.subject),
+      false
+    );
+
+    return;
+  }
+
+
+  if (state.level === "pdf") {
+
+    showPDFs(
+      encodeURIComponent(state.semester),
+      encodeURIComponent(state.subject),
+      encodeURIComponent(state.unit),
+      false
+    );
+
+    return;
+  }
+
+});
+
+
+/* =========================
+   INITIAL HISTORY STATE
+========================= */
+
+if (!history.state) {
+
+  history.replaceState(
+    { level: "semester" },
+    "",
+    "#semester"
+  );
+}
+
+
+/* =========================
+   START
+========================= */
+
 loadNotes();
+
 </script>
 
 </body>

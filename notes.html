@@ -1,3 +1,438 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>B.Pharm Notes — Pharmistry World</title><meta name="description" content="PCI-aligned B.Pharm notes organized by semester, subject and unit."><link rel="stylesheet" href="style.css"><style>
-.notes-page{max-width:1100px;margin:0 auto;padding:28px 18px 60px}.notes-hero{padding:24px 0}.notes-hero h1{margin:0 0 8px}.notes-hero p{margin:0;color:#607070}.crumb{font-size:14px;color:#117f78;margin:12px 0}.semester-grid,.subject-grid,.unit-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}.nav-card{display:block;text-decoration:none;color:inherit;border:1px solid #dbe8e6;border-radius:18px;padding:20px;background:#fff;box-shadow:0 8px 24px rgba(0,0,0,.04);transition:.18s}.nav-card:hover{transform:translateY(-2px);border-color:#13877f}.nav-card small{color:#147e77;font-weight:700}.nav-card h3{margin:8px 0 4px}.nav-card p{margin:0;color:#687979}.back{display:inline-block;margin:10px 0 18px;color:#117f78;text-decoration:none;font-weight:700}.unit-card{min-height:120px}.resource-card{display:flex;justify-content:space-between;gap:18px;align-items:center;border:1px solid #dbe8e6;border-radius:18px;padding:18px;background:#fff;margin:12px 0}.resource-card h3{margin:5px 0}.resource-card p{margin:0;color:#687979}.resource-btn{background:#0f857d;color:#fff;padding:12px 18px;border-radius:12px;text-decoration:none;font-weight:700;white-space:nowrap}@media(max-width:650px){.resource-card{display:block}.resource-btn{display:block;text-align:center;margin-top:14px}.semester-grid,.subject-grid,.unit-grid{grid-template-columns:1fr}}
-</style></head><body><header style="border-bottom:1px solid #dbe8e6;background:#fff"><div style="max-width:1100px;margin:auto;padding:14px 18px;display:flex;align-items:center;gap:14px"><a href="index.html" style="display:flex;align-items:center;gap:12px;text-decoration:none;color:#102f2e"><img src="logo.png" alt="Pharmistry World" style="width:58px;height:58px;object-fit:contain"><div><strong style="font-size:24px">Pharmistry World</strong><div style="color:#687979">Learn. Explore. Grow in Pharma.</div></div></a></div></header><main class="notes-page"><div class="notes-hero"><h1>B.Pharm Notes</h1><p>PCI-aligned hierarchy: Semester → Subject → Unit → Notes</p></div><div id="notesApp"></div></main><footer style="background:#0d302f;color:#fff;padding:28px 18px"><div style="max-width:1100px;margin:auto;font-weight:700">Pharmistry World</div></footer><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script><script src="notes-hierarchy.js?v=20260927-1"></script></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>B.Pharm Notes | Pharmistry World</title>
+  <meta name="description" content="B.Pharm semester-wise subjects, unit-wise notes and study resources.">
+
+  <!-- Force browser to check latest page -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+
+  <link rel="stylesheet" href="style.css?v=20260927">
+
+  <style>
+    .notes-page {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 40px 20px 70px;
+    }
+
+    .page-heading {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .page-heading h1 {
+      margin-bottom: 8px;
+    }
+
+    .page-heading p {
+      opacity: .75;
+    }
+
+    .semester-grid,
+    .subject-grid,
+    .unit-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 18px;
+      margin-top: 25px;
+    }
+
+    .hierarchy-card {
+      display: block;
+      padding: 22px;
+      border-radius: 16px;
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      box-shadow: 0 6px 20px rgba(0,0,0,.06);
+      cursor: pointer;
+      transition: .2s;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .hierarchy-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 25px rgba(0,0,0,.10);
+    }
+
+    .hierarchy-card h3 {
+      margin: 0 0 8px;
+      font-size: 18px;
+    }
+
+    .hierarchy-card p {
+      margin: 0;
+      opacity: .7;
+      font-size: 14px;
+    }
+
+    .back-btn {
+      display: inline-block;
+      margin: 20px 0 5px;
+      padding: 10px 16px;
+      border-radius: 10px;
+      background: #f1f5f9;
+      text-decoration: none;
+      color: inherit;
+      cursor: pointer;
+    }
+
+    .pdf-list {
+      margin-top: 25px;
+      display: grid;
+      gap: 15px;
+    }
+
+    .pdf-card {
+      padding: 18px;
+      border-radius: 14px;
+      background: #fff;
+      border: 1px solid #e5e7eb;
+    }
+
+    .pdf-card h3 {
+      margin: 0 0 7px;
+    }
+
+    .pdf-card p {
+      margin: 0 0 12px;
+      opacity: .75;
+    }
+
+    .view-pdf {
+      display: inline-block;
+      padding: 9px 14px;
+      border-radius: 9px;
+      text-decoration: none;
+      background: #0f766e;
+      color: white;
+    }
+
+    .empty {
+      text-align: center;
+      padding: 35px;
+      opacity: .7;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 40px;
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <div class="container">
+    <div class="brand">
+      <a href="index.html">
+        <img src="logo.png" alt="Pharmistry World" style="height:48px;">
+      </a>
+    </div>
+
+    <button class="menu-btn" aria-label="Menu">☰</button>
+
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="notes.html">B.Pharm Notes</a>
+      <a href="industry.html">Pharma Industry</a>
+      <a href="career.html">Career</a>
+    </nav>
+  </div>
+</header>
+
+<main class="notes-page">
+
+  <section class="page-heading">
+    <h1>B.Pharm Notes</h1>
+    <p>Semester → Subject → Unit → Notes</p>
+  </section>
+
+  <div id="breadcrumb"></div>
+
+  <div id="notesContent">
+    <div class="loading">Loading notes...</div>
+  </div>
+
+</main>
+
+<footer>
+  <div class="container">
+    <p>© 2026 Pharmistry World. All rights reserved.</p>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+const SUPABASE_URL =
+  "https://qgmpwanxqytoakmnklvy.supabase.co";
+
+const SUPABASE_KEY =
+  "sb_publishable_qlOg73Ee92_uzX9YsaRPIA_dMQX9gub";
+
+const supabaseClient =
+  window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const content = document.getElementById("notesContent");
+const breadcrumb = document.getElementById("breadcrumb");
+
+let allNotes = [];
+
+function escapeHtml(value) {
+  return String(value || "").replace(/[&<>"']/g, ch => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#039;"
+  }[ch]));
+}
+
+function safeUrl(value) {
+  try {
+    const u = new URL(value);
+    return ["https:", "http:"].includes(u.protocol)
+      ? u.href
+      : "#";
+  } catch {
+    return "#";
+  }
+}
+
+async function loadNotes() {
+
+  const { data, error } = await supabaseClient
+    .from("notes")
+    .select("*")
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error(error);
+    content.innerHTML =
+      "<div class='empty'>Notes load nahi ho paaye. Please try again.</div>";
+    return;
+  }
+
+  allNotes = data || [];
+
+  showSemesters();
+}
+
+function showSemesters() {
+
+  breadcrumb.innerHTML = "";
+
+  const semesters = [
+    "1st Semester",
+    "2nd Semester",
+    "3rd Semester",
+    "4th Semester",
+    "5th Semester",
+    "6th Semester",
+    "7th Semester",
+    "8th Semester"
+  ];
+
+  content.innerHTML = `
+    <div class="semester-grid">
+      ${semesters.map(semester => {
+
+        const count = allNotes.filter(
+          n => n.semester === semester
+        ).length;
+
+        return `
+          <div class="hierarchy-card"
+               onclick="showSubjects('${semester}')">
+
+            <h3>${semester}</h3>
+            <p>${count} note${count === 1 ? "" : "s"} available</p>
+
+          </div>
+        `;
+
+      }).join("")}
+    </div>
+  `;
+}
+
+function showSubjects(semester) {
+
+  breadcrumb.innerHTML = `
+    <a class="back-btn" onclick="showSemesters()">← All Semesters</a>
+    <h2>${escapeHtml(semester)}</h2>
+  `;
+
+  const subjects = [
+    ...new Set(
+      allNotes
+        .filter(n => n.semester === semester)
+        .map(n => n.subject)
+        .filter(Boolean)
+    )
+  ];
+
+  if (!subjects.length) {
+    content.innerHTML =
+      "<div class='empty'>Is semester mein abhi notes available nahi hain.</div>";
+    return;
+  }
+
+  content.innerHTML = `
+    <div class="subject-grid">
+
+      ${subjects.map(subject => {
+
+        const count = allNotes.filter(
+          n => n.semester === semester &&
+               n.subject === subject
+        ).length;
+
+        return `
+          <div class="hierarchy-card"
+               onclick="showUnits('${encodeURIComponent(semester)}','${encodeURIComponent(subject)}')">
+
+            <h3>${escapeHtml(subject)}</h3>
+            <p>${count} resource${count === 1 ? "" : "s"}</p>
+
+          </div>
+        `;
+
+      }).join("")}
+
+    </div>
+  `;
+}
+
+function showUnits(encodedSemester, encodedSubject) {
+
+  const semester = decodeURIComponent(encodedSemester);
+  const subject = decodeURIComponent(encodedSubject);
+
+  breadcrumb.innerHTML = `
+    <a class="back-btn"
+       onclick="showSubjects('${semester}')">
+       ← ${escapeHtml(semester)}
+    </a>
+
+    <h2>${escapeHtml(subject)}</h2>
+  `;
+
+  const notes = allNotes.filter(
+    n => n.semester === semester &&
+         n.subject === subject
+  );
+
+  const units = [
+    ...new Set(
+      notes.map(n => n.unit || "Other Notes")
+    )
+  ];
+
+  content.innerHTML = `
+    <div class="unit-grid">
+
+      ${units.map(unit => {
+
+        const count = notes.filter(
+          n => (n.unit || "Other Notes") === unit
+        ).length;
+
+        return `
+          <div class="hierarchy-card"
+               onclick="showPDFs(
+                 '${encodeURIComponent(semester)}',
+                 '${encodeURIComponent(subject)}',
+                 '${encodeURIComponent(unit)}'
+               )">
+
+            <h3>${escapeHtml(unit)}</h3>
+            <p>${count} note${count === 1 ? "" : "s"}</p>
+
+          </div>
+        `;
+
+      }).join("")}
+
+    </div>
+  `;
+}
+
+function showPDFs(
+  encodedSemester,
+  encodedSubject,
+  encodedUnit
+) {
+
+  const semester = decodeURIComponent(encodedSemester);
+  const subject = decodeURIComponent(encodedSubject);
+  const unit = decodeURIComponent(encodedUnit);
+
+  breadcrumb.innerHTML = `
+    <a class="back-btn"
+       onclick="showUnits(
+         '${encodeURIComponent(semester)}',
+         '${encodeURIComponent(subject)}'
+       )">
+       ← ${escapeHtml(subject)}
+    </a>
+
+    <h2>${escapeHtml(unit)}</h2>
+  `;
+
+  const notes = allNotes.filter(
+    n => n.semester === semester &&
+         n.subject === subject &&
+         (n.unit || "Other Notes") === unit
+  );
+
+  if (!notes.length) {
+    content.innerHTML =
+      "<div class='empty'>Is unit mein abhi notes available nahi hain.</div>";
+    return;
+  }
+
+  content.innerHTML = `
+    <div class="pdf-list">
+
+      ${notes.map(note => `
+
+        <article class="pdf-card">
+
+          <h3>${escapeHtml(note.title)}</h3>
+
+          <p>
+            ${escapeHtml(
+              note.description || "B.Pharm study resource."
+            )}
+          </p>
+
+          <a
+            class="view-pdf"
+            href="${safeUrl(note.pdf_url)}"
+            target="_blank"
+            rel="noopener noreferrer">
+            View PDF →
+          </a>
+
+        </article>
+
+      `).join("")}
+
+    </div>
+  `;
+}
+
+loadNotes();
+</script>
+
+</body>
+</html>

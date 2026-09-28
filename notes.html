@@ -25,7 +25,8 @@ color:#173c3b;
 padding:11px 17px;
 border-radius:12px;
 font-weight:700;
-cursor:pointer
+cursor:pointer;
+text-decoration:none
 }
 
 .notes-grid{
@@ -157,7 +158,10 @@ background:#f7f9f9;
 color:#65716f
 }
 
-/* PDF MODAL */
+
+/* =========================
+   PDF MODAL
+========================= */
 
 .pdf-modal{
 position:fixed;
@@ -168,7 +172,9 @@ display:none;
 flex-direction:column
 }
 
-.pdf-modal.open{display:flex}
+.pdf-modal.open{
+display:flex
+}
 
 .pdf-header{
 height:62px;
@@ -275,55 +281,102 @@ color:#fff;
 font-size:13px
 }
 
+
 @media(max-width:850px){
-.notes-grid{grid-template-columns:repeat(2,1fr)}
+.notes-grid{
+grid-template-columns:repeat(2,1fr)
+}
 }
 
 @media(max-width:600px){
-.notes-page{padding:30px 15px 60px}
-.notes-grid{grid-template-columns:1fr}
-.notes-head h1{font-size:37px}
-.pdf-actions{display:grid;grid-template-columns:1fr 1fr}
-.pdf-btn{text-align:center}
-.pdf-toolbar{padding:8px}
-.pdf-toolbar a{font-size:12px;padding:9px 12px}
-.counter{font-size:11px}
+
+.notes-page{
+padding:30px 15px 60px
+}
+
+.notes-grid{
+grid-template-columns:1fr
+}
+
+.notes-head h1{
+font-size:37px
+}
+
+.pdf-actions{
+display:grid;
+grid-template-columns:1fr 1fr
+}
+
+.pdf-btn{
+text-align:center
+}
+
+.pdf-toolbar{
+padding:8px
+}
+
+.pdf-toolbar a{
+font-size:12px;
+padding:9px 12px
+}
+
+.counter{
+font-size:11px
+}
+
 }
 </style>
 </head>
 
+
 <body>
 
+
 <header>
+
 <div class="container nav">
 
 <a class="brand" href="index.html">
+
 <img src="logo.png" alt="Pharmistry World logo">
+
 <span>
 <b>Pharmistry World</b>
 <small>Learn. Explore. Grow in Pharma.</small>
 </span>
+
 </a>
 
-<button class="menu-btn" id="menuBtn" type="button">☰</button>
+<button
+class="menu-btn"
+id="menuBtn"
+type="button">
+☰
+</button>
 
 <nav id="mainNav">
+
 <a href="index.html">Home</a>
 <a class="active" href="notes.html">B.Pharm Notes</a>
 <a href="industry.html">Pharma Industry</a>
 <a href="career.html">Career</a>
 <a href="contact.html">Contact Us</a>
+
 </nav>
 
 </div>
+
 </header>
 
 
 <main class="notes-page">
 
+
 <section class="notes-head">
 
-<span class="eyebrow">B.PHARM STUDY RESOURCES</span>
+<span class="eyebrow">
+B.PHARM STUDY RESOURCES
+</span>
 
 <h1>B.Pharm Notes</h1>
 
@@ -340,86 +393,180 @@ Preview the first 5 pages before opening the full PDF.
 </div>
 
 
-<!--
-IMPORTANT:
-Semester cards are written directly in HTML.
-Therefore they will appear even if JavaScript,
-Supabase or PDF.js has a loading problem.
--->
+<!-- =========================
+     SEMESTERS
+========================= -->
 
 <section id="notes" class="notes-grid">
 
-<article class="level-card" onclick="showSubjects('1st Semester')">
+
+<article
+class="level-card"
+onclick="showSubjects('1st Semester')">
+
 <div>
+
 <div class="level-icon">📚</div>
+
 <h3>1st Semester</h3>
+
 <p>Semester study resources</p>
+
 </div>
-<span class="level-arrow">Explore →</span>
+
+<span class="level-arrow">
+Explore →
+</span>
+
 </article>
 
-<article class="level-card" onclick="showSubjects('2nd Semester')">
+
+<article
+class="level-card"
+onclick="showSubjects('2nd Semester')">
+
 <div>
+
 <div class="level-icon">📚</div>
+
 <h3>2nd Semester</h3>
+
 <p>Semester study resources</p>
+
 </div>
-<span class="level-arrow">Explore →</span>
+
+<span class="level-arrow">
+Explore →
+</span>
+
 </article>
 
-<article class="level-card" onclick="showSubjects('3rd Semester')">
+
+<article
+class="level-card"
+onclick="showSubjects('3rd Semester')">
+
 <div>
+
 <div class="level-icon">📚</div>
+
 <h3>3rd Semester</h3>
+
 <p>Semester study resources</p>
+
 </div>
-<span class="level-arrow">Explore →</span>
+
+<span class="level-arrow">
+Explore →
+</span>
+
 </article>
 
-<article class="level-card" onclick="showSubjects('4th Semester')">
+
+<article
+class="level-card"
+onclick="showSubjects('4th Semester')">
+
 <div>
+
 <div class="level-icon">📚</div>
+
 <h3>4th Semester</h3>
+
 <p>Semester study resources</p>
+
 </div>
-<span class="level-arrow">Explore →</span>
+
+<span class="level-arrow">
+Explore →
+</span>
+
 </article>
 
-<article class="level-card" onclick="showSubjects('5th Semester')">
+
+<article
+class="level-card"
+onclick="showSubjects('5th Semester')">
+
 <div>
+
 <div class="level-icon">📚</div>
+
 <h3>5th Semester</h3>
+
 <p>Semester study resources</p>
+
 </div>
-<span class="level-arrow">Explore →</span>
+
+<span class="level-arrow">
+Explore →
+</span>
+
 </article>
 
-<article class="level-card" onclick="showSubjects('6th Semester')">
+
+<article
+class="level-card"
+onclick="showSubjects('6th Semester')">
+
 <div>
+
 <div class="level-icon">📚</div>
+
 <h3>6th Semester</h3>
+
 <p>Semester study resources</p>
+
 </div>
-<span class="level-arrow">Explore →</span>
+
+<span class="level-arrow">
+Explore →
+</span>
+
 </article>
 
-<article class="level-card" onclick="showSubjects('7th Semester')">
+
+<article
+class="level-card"
+onclick="showSubjects('7th Semester')">
+
 <div>
+
 <div class="level-icon">📚</div>
+
 <h3>7th Semester</h3>
+
 <p>Semester study resources</p>
+
 </div>
-<span class="level-arrow">Explore →</span>
+
+<span class="level-arrow">
+Explore →
+</span>
+
 </article>
 
-<article class="level-card" onclick="showSubjects('8th Semester')">
+
+<article
+class="level-card"
+onclick="showSubjects('8th Semester')">
+
 <div>
+
 <div class="level-icon">📚</div>
+
 <h3>8th Semester</h3>
+
 <p>Semester study resources</p>
+
 </div>
-<span class="level-arrow">Explore →</span>
+
+<span class="level-arrow">
+Explore →
+</span>
+
 </article>
+
 
 </section>
 
@@ -431,47 +578,76 @@ Supabase or PDF.js has a loading problem.
 <div class="container foot">
 
 <div>
+
 <b>Pharmistry World</b>
-<p>Learn. Explore. Grow in Pharma.</p>
+
+<p>
+Learn. Explore. Grow in Pharma.
+</p>
+
 </div>
 
 <div>
+
 <a href="notes.html">Notes</a>
 <a href="industry.html">Industry</a>
 <a href="career.html">Career</a>
 <a href="contact.html">Contact Us</a>
+
 </div>
 
 </div>
 
 <div class="container copy">
+
 © 2026 Pharmistry World. All rights reserved.
+
 </div>
 
 </footer>
 
 
-<!-- PDF MODAL -->
+<!-- =========================
+     PDF MODAL
+========================= -->
 
-<div id="pdfModal" class="pdf-modal">
+<div
+id="pdfModal"
+class="pdf-modal">
+
 
 <div class="pdf-header">
 
-<strong id="pdfTitle">PDF Preview</strong>
+<strong id="pdfTitle">
+PDF Preview
+</strong>
 
-<button class="close-pdf" id="closePdf" type="button">×</button>
+<button
+class="close-pdf"
+id="closePdf"
+type="button">
+×
+</button>
 
 </div>
 
-<div id="pdfViewer" class="pdf-viewer"></div>
+
+<div
+id="pdfViewer"
+class="pdf-viewer">
+</div>
+
 
 <div class="pdf-toolbar">
 
-<span id="pdfCounter" class="counter">
+<span
+id="pdfCounter"
+class="counter">
 First 5 pages
 </span>
 
-<a id="downloadPdf"
+<a
+id="downloadPdf"
 href="#"
 target="_blank"
 rel="noopener noreferrer">
@@ -661,18 +837,15 @@ function safeUrl(value){
 
 try{
 
-const url = new URL(value);
+const url =
+new URL(value);
 
-if(
+return(
 url.protocol === "https:" ||
 url.protocol === "http:"
-){
-
-return url.href;
-
-}
-
-return "";
+)
+? url.href
+: "";
 
 }catch(error){
 
@@ -687,7 +860,8 @@ return "";
    MOBILE MENU
 ===================================== */
 
-menuBtn.onclick = function(){
+menuBtn.onclick =
+function(){
 
 const open =
 mainNav.classList.toggle("open");
@@ -701,136 +875,14 @@ String(open)
 
 
 /* =====================================
-   SUPABASE LOADER
-===================================== */
-
-function getSupabase(){
-
-return new Promise(function(resolve,reject){
-
-if(window.supabase){
-
-if(!supabaseClient){
-
-supabaseClient =
-window.supabase.createClient(
-SUPABASE_URL,
-SUPABASE_KEY
-);
-
-}
-
-resolve(supabaseClient);
-
-return;
-
-}
-
-
-const existing =
-document.querySelector(
-'script[data-supabase-loader="true"]'
-);
-
-if(existing){
-
-existing.addEventListener(
-"load",
-function(){
-
-if(window.supabase){
-
-supabaseClient =
-window.supabase.createClient(
-SUPABASE_URL,
-SUPABASE_KEY
-);
-
-resolve(supabaseClient);
-
-}else{
-
-reject(
-new Error("Supabase failed to load.")
-);
-
-}
-
-},
-{once:true}
-);
-
-existing.addEventListener(
-"error",
-function(){
-
-reject(
-new Error("Supabase failed to load.")
-);
-
-},
-{once:true}
-);
-
-return;
-
-}
-
-
-const script =
-document.createElement("script");
-
-script.src =
-"https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2";
-
-script.dataset.supabaseLoader =
-"true";
-
-script.onload =
-function(){
-
-if(!window.supabase){
-
-reject(
-new Error("Supabase failed to load.")
-);
-
-return;
-
-}
-
-supabaseClient =
-window.supabase.createClient(
-SUPABASE_URL,
-SUPABASE_KEY
-);
-
-resolve(supabaseClient);
-
-};
-
-script.onerror =
-function(){
-
-reject(
-new Error("Supabase library could not be loaded.")
-);
-
-};
-
-document.head.appendChild(script);
-
-});
-
-}
-
-
-/* =====================================
    SHOW SUBJECTS
 ===================================== */
 
 window.showSubjects =
-function(semester,push=true){
+function(
+semester,
+push = true
+){
 
 if(push){
 
@@ -866,34 +918,31 @@ SUBJECTS[semester] || [];
 
 
 notesBox.innerHTML =
-subjects.map(function(subject){
+subjects.map(
+function(subject){
 
 const project =
 subject === "Project Work";
+
+
+const action =
+project
+
+?
+
+`showPDFs(${JSON.stringify(semester)},${JSON.stringify(subject)},${JSON.stringify("All Units / Complete Notes")})`
+
+:
+
+`showUnits(${JSON.stringify(semester)},${JSON.stringify(subject)})`;
 
 
 return `
 
 <article
 class="level-card"
-onclick="${
-project
-?
-"showPDFs(" +
-JSON.stringify(semester) +
-"," +
-JSON.stringify(subject) +
-"," +
-JSON.stringify("All Units / Complete Notes") +
-")"
-:
-"showUnits(" +
-JSON.stringify(semester) +
-"," +
-JSON.stringify(subject) +
-")"
-}
-">
+onclick='${action}'
+>
 
 <div>
 
@@ -906,32 +955,25 @@ ${esc(subject)}
 </h3>
 
 <p>
-${
-project
-?
-"View project PDFs"
-:
-"View available units"
-}
+${project
+? "View project PDFs"
+: "View available units"}
 </p>
 
 </div>
 
 <span class="level-arrow">
-${
-project
-?
-"View PDFs →"
-:
-"View Units →"
-}
+${project
+? "View PDFs →"
+: "View Units →"}
 </span>
 
 </article>
 
 `;
 
-}).join("");
+}
+).join("");
 
 };
 
@@ -941,7 +983,11 @@ project
 ===================================== */
 
 window.showUnits =
-function(semester,subject,push=true){
+function(
+semester,
+subject,
+push = true
+){
 
 if(push){
 
@@ -974,31 +1020,30 @@ ${esc(subject)}
 
 
 const units = [
+
 "Unit 1",
 "Unit 2",
 "Unit 3",
 "Unit 4",
 "Unit 5",
 "All Units / Complete Notes"
+
 ];
 
 
 notesBox.innerHTML =
-units.map(function(unit){
+units.map(
+function(unit){
 
 return `
 
 <article
 class="level-card"
-onclick="${
-"showPDFs(" +
-JSON.stringify(semester) +
-"," +
-JSON.stringify(subject) +
-"," +
-JSON.stringify(unit) +
-")"
-}"
+onclick='showPDFs(
+${JSON.stringify(semester)},
+${JSON.stringify(subject)},
+${JSON.stringify(unit)}
+)'
 >
 
 <div>
@@ -1025,13 +1070,93 @@ View PDFs →
 
 `;
 
-}).join("");
+}
+).join("");
 
 };
 
 
 /* =====================================
-   SHOW PDFs
+   LOAD SUPABASE
+===================================== */
+
+function loadSupabase(){
+
+return new Promise(
+function(resolve,reject){
+
+if(window.supabase){
+
+supabaseClient =
+window.supabase.createClient(
+SUPABASE_URL,
+SUPABASE_KEY
+);
+
+resolve(
+supabaseClient
+);
+
+return;
+
+}
+
+
+const script =
+document.createElement("script");
+
+script.src =
+"https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2";
+
+
+script.onload =
+function(){
+
+if(!window.supabase){
+
+reject(
+new Error(
+"Supabase library failed."
+)
+);
+
+return;
+
+}
+
+supabaseClient =
+window.supabase.createClient(
+SUPABASE_URL,
+SUPABASE_KEY
+);
+
+resolve(
+supabaseClient
+);
+
+};
+
+
+script.onerror =
+function(){
+
+reject(
+new Error(
+"Supabase service could not be loaded."
+)
+);
+
+};
+
+
+document.head.appendChild(script);
+
+});
+}
+
+
+/* =====================================
+   SHOW PDFS
 ===================================== */
 
 window.showPDFs =
@@ -1039,7 +1164,7 @@ async function(
 semester,
 subject,
 unit,
-push=true
+push = true
 ){
 
 if(push){
@@ -1085,7 +1210,7 @@ Loading PDFs...
 try{
 
 const client =
-await getSupabase();
+await loadSupabase();
 
 
 const result =
@@ -1108,40 +1233,41 @@ throw result.error;
 
 
 let filtered =
-(result.data || []).filter(
+(result.data || [])
+.filter(
 function(note){
 
-const sameSemester =
+return(
+
 normalizeSemester(
 note.semester
-) ===
+)
+===
 normalizeSemester(
 semester
-);
+)
 
-const sameSubject =
+&&
+
 normalizeText(
 note.subject
-) ===
+)
+===
 normalizeText(
 subject
-);
+)
 
-return (
-sameSemester &&
-sameSubject
 );
 
 });
 
 
 /*
-Normal subjects:
-filter by Unit.
-
 Project Work:
-unit = All Units / Complete Notes,
-so show every Project Work PDF.
+show every PDF.
+
+Other subjects:
+show selected unit only.
 */
 
 if(
@@ -1153,10 +1279,11 @@ filtered =
 filtered.filter(
 function(note){
 
-return (
+return(
 normalizeText(
 note.unit
-) ===
+)
+===
 normalizeText(
 unit
 )
@@ -1188,7 +1315,9 @@ return;
 }
 
 
-renderPDFCards(filtered);
+renderPDFCards(
+filtered
+);
 
 
 }catch(error){
@@ -1223,10 +1352,13 @@ ${esc(error.message)}
 function renderPDFCards(items){
 
 notesBox.innerHTML =
-items.map(function(note){
+items.map(
+function(note){
 
 const url =
-safeUrl(note.pdf_url);
+safeUrl(
+note.pdf_url
+);
 
 
 return `
@@ -1259,12 +1391,14 @@ note.title ||
 
 </div>
 
+
 <p>
 ${esc(
 note.description ||
 "B.Pharm study resource."
 )}
 </p>
+
 
 <div class="pdf-actions">
 
@@ -1282,6 +1416,7 @@ note.title ||
 👁 View PDF
 </button>
 
+
 <a
 class="pdf-btn download-btn"
 href="${esc(url)}"
@@ -1297,59 +1432,28 @@ rel="noopener noreferrer"
 
 `;
 
-}).join("");
+}
+).join("");
 
 }
 
 
 /* =====================================
-   PDF.JS LOADER
+   LOAD PDF.JS
 ===================================== */
 
-function getPdfJs(){
+function loadPdfJs(){
 
-return new Promise(function(resolve,reject){
-
-if(window.pdfjsLib){
-
-pdfjsLib.GlobalWorkerOptions.workerSrc =
-"https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
-
-resolve(window.pdfjsLib);
-
-return;
-
-}
-
-
-const existing =
-document.querySelector(
-'script[data-pdfjs-loader="true"]'
-);
-
-if(existing){
-
-existing.addEventListener(
-"load",
-function(){
+return new Promise(
+function(resolve,reject){
 
 if(window.pdfjsLib){
 
 pdfjsLib.GlobalWorkerOptions.workerSrc =
 "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
 
-resolve(window.pdfjsLib);
-
-}else{
-
-reject(
-new Error("PDF.js failed to load.")
-);
-
-}
-
-},
-{once:true}
+resolve(
+window.pdfjsLib
 );
 
 return;
@@ -1363,8 +1467,6 @@ document.createElement("script");
 script.src =
 "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js";
 
-script.dataset.pdfjsLoader =
-"true";
 
 script.onload =
 function(){
@@ -1372,33 +1474,44 @@ function(){
 if(!window.pdfjsLib){
 
 reject(
-new Error("PDF.js failed to load.")
+new Error(
+"PDF.js failed to load."
+)
 );
 
 return;
 
 }
 
+
 pdfjsLib.GlobalWorkerOptions.workerSrc =
 "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
 
-resolve(window.pdfjsLib);
+
+resolve(
+window.pdfjsLib
+);
 
 };
+
 
 script.onerror =
 function(){
 
 reject(
-new Error("PDF preview library could not be loaded.")
+new Error(
+"PDF preview service could not be loaded."
+)
 );
 
 };
 
-document.head.appendChild(script);
+
+document.head.appendChild(
+script
+);
 
 });
-
 }
 
 
@@ -1407,7 +1520,10 @@ document.head.appendChild(script);
 ===================================== */
 
 window.openPdf =
-async function(url,title){
+async function(
+url,
+title
+){
 
 if(!url){
 
@@ -1420,7 +1536,9 @@ return;
 }
 
 
-modal.classList.add("open");
+modal.classList.add(
+"open"
+);
 
 document.body.style.overflow =
 "hidden";
@@ -1433,6 +1551,7 @@ url;
 
 counter.textContent =
 "Loading...";
+
 
 viewer.innerHTML = `
 
@@ -1448,7 +1567,7 @@ Loading high-resolution preview...
 try{
 
 const pdfjs =
-await getPdfJs();
+await loadPdfJs();
 
 
 const pdf =
@@ -1477,14 +1596,14 @@ viewer.innerHTML =
 
 
 for(
-let pageNumber=1;
-pageNumber<=total;
-pageNumber++
+let page=1;
+page<=total;
+page++
 ){
 
-await renderPage(
+await renderPdfPage(
 pdf,
-pageNumber,
+page,
 total
 );
 
@@ -1507,8 +1626,7 @@ PDF preview load nahi ho paya.
 class="full-download"
 href="${esc(url)}"
 target="_blank"
-rel="noopener noreferrer"
->
+rel="noopener noreferrer">
 Open Full PDF
 </a>
 
@@ -1522,5 +1640,97 @@ Open Full PDF
 
 
 /* =====================================
-   HIGH QUALITY PDF PAGE
-==========
+   HIGH QUALITY PDF RENDER
+===================================== */
+
+async function renderPdfPage(
+pdf,
+pageNumber,
+total
+){
+
+const page =
+await pdf.getPage(
+pageNumber
+);
+
+
+const base =
+page.getViewport({
+scale:1
+});
+
+
+const availableWidth =
+Math.max(
+280,
+Math.min(
+viewer.clientWidth - 12,
+1000
+)
+);
+
+
+const cssScale =
+availableWidth /
+base.width;
+
+
+/*
+4x internal rendering
+for sharper mobile preview.
+*/
+
+const renderScale =
+cssScale * 4;
+
+
+const renderViewport =
+page.getViewport({
+scale:renderScale
+});
+
+
+const cssViewport =
+page.getViewport({
+scale:cssScale
+});
+
+
+const wrap =
+document.createElement(
+"div"
+);
+
+wrap.className =
+"pdf-page";
+
+
+const canvas =
+document.createElement(
+"canvas"
+);
+
+
+canvas.width =
+Math.ceil(
+renderViewport.width
+);
+
+canvas.height =
+Math.ceil(
+renderViewport.height
+);
+
+
+canvas.style.width =
+Math.ceil(
+cssViewport.width
+) +
+"px";
+
+canvas.style.height =
+Math.ceil(
+cssViewport.height
+) +
+"p

@@ -1621,4 +1621,583 @@ return;
 
 modal.classList.add("open");
 
-document.body.s
+document.body.style.overflow = "hidden";
+
+pdfTitle.textContent =
+title || "PDF Preview";
+
+downloadPdf.href = url;
+
+counter.textContent =
+"Loading...";
+
+viewer.innerHTML = `
+
+<div class="pdf-loading">
+Loading high-resolution preview...
+</div>
+
+`;
+
+try{
+
+const pdfjs =
+await loadPdfJs();
+
+const pdf =
+await pdfjs
+.getDocument({
+url:url
+})
+.promise;
+
+const total =
+Math.min(
+pdf.numPages,
+5
+);
+
+counter.textContent =
+"First " +
+total +
+" pages";
+
+viewer.innerHTML = "";
+
+for(
+let pageNumber = 1;
+pageNumber <= total;
+pageNumber++
+){
+
+await renderPdfPage(
+pdf,
+pageNumber,
+total
+);
+
+}
+
+}catch(error){
+
+console.error(
+"PDF preview error:",
+error
+);
+
+viewer.innerHTML = `
+
+<div class="pdf-loading">
+
+PDF preview load nahi ho paya.
+
+<br><br>
+
+<a
+class="full-download"
+href="${esc(url)}"
+target="_blank"
+rel="noopener noreferrer">
+
+Open Full PDF
+
+</a>
+
+</div>
+
+`;
+
+}
+
+};
+
+
+/* =========================================
+   RENDER PDF PAGE
+========================================= */
+
+async function renderPdfPage(
+pdf,
+pageNumber,
+total
+){
+
+const page =
+await pdf.getPage(
+pageNumber
+);
+
+const baseViewport =
+page.getViewport({
+scale:1
+});
+
+const availableWidth =
+Math.max(
+280,
+Math.min(
+viewer.clientWidth - 16,
+1000
+)
+);
+
+const cssScale =
+availableWidth /
+baseViewport.width;
+
+/* High resolution rendering */
+
+const renderScale =
+cssScale * 4;
+
+const renderViewport =
+page.getViewport({
+scale:renderScale
+});
+
+const cssViewport =
+page.getViewport({
+scale:cssScale
+});
+
+const wrap =
+document.createElement(
+"div"
+);
+
+wrap.className =
+"pdf-page";
+
+const canvas =
+document.createElement(
+"canvas"
+);
+
+canvas.width =
+Math.ceil(
+renderViewport.width
+);
+
+canvas.height =
+Math.ceil(
+renderViewport.height
+);
+
+canvas.style.width =
+Math.ceil(
+cssViewport.width
+) + "px";
+
+canvas.style.height =
+Math.ceil(
+cssViewport.height
+) + "px";
+
+wrap.appendChild(
+canvas
+);
+
+const label =
+document.createElement(
+"div"
+);
+
+label.className =
+"page-label";
+
+label.textContent =
+"Page " +
+pageNumber +
+" of " +
+total;
+
+wrap.appendChild(
+label
+);
+
+viewer.appendChild(
+wrap
+);
+
+const context =
+canvas.getContext(
+"2d",
+{
+alpha:false
+}
+);
+
+await page.render({
+
+canvasContext:
+context,
+
+viewport:
+renderViewport
+
+}).promise;
+
+}
+
+
+/* =========================================
+   CLOSE PDF
+========================================= */
+
+function closePdf(){
+
+modal.classList.remove(
+"open"
+);
+
+document.body.style.overflow =
+"";
+
+viewer.innerHTML =
+"";
+
+}
+
+
+closePdfBtn.addEventListener(
+"click",
+closePdf
+);
+
+
+modal.addEventListener(
+"click",
+function(event){
+
+if(
+event.target === modal
+){
+
+closePdf();
+
+}
+
+}
+);
+
+
+document.addEventListener(
+"keydown",
+function(event){
+
+if(
+event.key === "Escape"
+){
+
+closePdf();
+
+}
+
+}
+);
+
+
+/* =========================================
+   BROWSER BACK
+========================================= */
+
+window.addEventListener(
+"popstate",
+function(){
+
+showHome(
+false
+);
+
+}
+);
+
+
+/* =========================================
+   SHOW HOME
+========================================= */
+
+function showHome(
+push = true
+){
+
+if(push){
+
+history.pushState(
+{
+level:"semester"
+},
+"",
+location.pathname
+);
+
+}
+
+breadcrumb.innerHTML = `
+
+<h2>
+Choose Semester
+</h2>
+
+`;
+
+notesBox.innerHTML = `
+
+<article
+class="level-card"
+data-sem="1st Semester">
+
+<div>
+
+<div class="level-icon">
+📚
+</div>
+
+<h3>
+1st Semester
+</h3>
+
+<p>
+Semester study resources
+</p>
+
+</div>
+
+<span class="level-arrow">
+Explore →
+</span>
+
+</article>
+
+
+<article
+class="level-card"
+data-sem="2nd Semester">
+
+<div>
+
+<div class="level-icon">
+📚
+</div>
+
+<h3>
+2nd Semester
+</h3>
+
+<p>
+Semester study resources
+</p>
+
+</div>
+
+<span class="level-arrow">
+Explore →
+</span>
+
+</article>
+
+
+<article
+class="level-card"
+data-sem="3rd Semester">
+
+<div>
+
+<div class="level-icon">
+📚
+</div>
+
+<h3>
+3rd Semester
+</h3>
+
+<p>
+Semester study resources
+</p>
+
+</div>
+
+<span class="level-arrow">
+Explore →
+</span>
+
+</article>
+
+
+<article
+class="level-card"
+data-sem="4th Semester">
+
+<div>
+
+<div class="level-icon">
+📚
+</div>
+
+<h3>
+4th Semester
+</h3>
+
+<p>
+Semester study resources
+</p>
+
+</div>
+
+<span class="level-arrow">
+Explore →
+</span>
+
+</article>
+
+
+<article
+class="level-card"
+data-sem="5th Semester">
+
+<div>
+
+<div class="level-icon">
+📚
+</div>
+
+<h3>
+5th Semester
+</h3>
+
+<p>
+Semester study resources
+</p>
+
+</div>
+
+<span class="level-arrow">
+Explore →
+</span>
+
+</article>
+
+
+<article
+class="level-card"
+data-sem="6th Semester">
+
+<div>
+
+<div class="level-icon">
+📚
+</div>
+
+<h3>
+6th Semester
+</h3>
+
+<p>
+Semester study resources
+</p>
+
+</div>
+
+<span class="level-arrow">
+Explore →
+</span>
+
+</article>
+
+
+<article
+class="level-card"
+data-sem="7th Semester">
+
+<div>
+
+<div class="level-icon">
+📚
+</div>
+
+<h3>
+7th Semester
+</h3>
+
+<p>
+Semester study resources
+</p>
+
+</div>
+
+<span class="level-arrow">
+Explore →
+</span>
+
+</article>
+
+
+<article
+class="level-card"
+data-sem="8th Semester">
+
+<div>
+
+<div class="level-icon">
+📚
+</div>
+
+<h3>
+8th Semester
+</h3>
+
+<p>
+Semester study resources
+</p>
+
+</div>
+
+<span class="level-arrow">
+Explore →
+</span>
+
+</article>
+
+`;
+
+
+notesBox
+.querySelectorAll(
+".level-card"
+)
+.forEach(
+function(card){
+
+card.addEventListener(
+"click",
+function(){
+
+showSubjects(
+card.dataset.sem
+);
+
+}
+);
+
+}
+);
+
+}
+
+
+/* =========================================
+   INITIAL STATE
+========================================= */
+
+history.replaceState(
+{
+level:"semester"
+},
+"",
+location.pathname
+);
+
+</script>
+
+</body>
+</html>

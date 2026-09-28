@@ -1,608 +1,1073 @@
 <!doctype html>
 <html lang="en">
-
 <head>
-  <meta charset="utf-8">
-
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-
-  <meta
-    name="description"
-    content="Pharmistry World B.Pharm Notes — semester-wise, subject-wise and unit-wise study resources."
-  >
-
-  <title>B.Pharm Notes | Pharmistry World</title>
-
-  <link rel="icon" href="logo.png">
-
-  <link
-    rel="stylesheet"
-    href="style.css?v=20260928-10"
-  >
-
-  <style>
-
-    /* =========================
-       NOTES PAGE
-    ========================= */
-
-    .notes-page {
-      min-height: 70vh;
-      padding: 48px 20px 80px;
-    }
-
-    .notes-head {
-      max-width: 1050px;
-      margin: 0 auto 38px;
-    }
-
-    .notes-head h1 {
-      margin: 8px 0 12px;
-      font-size: clamp(36px, 7vw, 56px);
-      line-height: 1.05;
-    }
-
-    .notes-head p {
-      max-width: 760px;
-      margin: 0;
-      font-size: 17px;
-      line-height: 1.7;
-      opacity: .72;
-    }
-
-    .breadcrumb {
-      max-width: 1050px;
-      margin: 0 auto 28px;
-      min-height: 48px;
-    }
-
-    .breadcrumb h2 {
-      margin: 12px 0 0;
-      font-size: 28px;
-    }
-
-    .back-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 7px;
-      padding: 11px 17px;
-      border-radius: 12px;
-      background: #eef5f4;
-      color: #173c3b;
-      text-decoration: none;
-      font-weight: 700;
-      cursor: pointer;
-    }
-
-    .back-btn:hover {
-      background: #e1edeb;
-    }
-
-    .notes-grid {
-      max-width: 1050px;
-      margin: 0 auto;
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 20px;
-    }
-
-    /* =========================
-       SEMESTER / SUBJECT / UNIT
-    ========================= */
-
-    .level-card {
-      background: #fff;
-      border: 1px solid #e2e8e7;
-      border-radius: 20px;
-      padding: 24px;
-      min-height: 170px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      cursor: pointer;
-      box-shadow: 0 8px 25px rgba(0,0,0,.045);
-      transition: .2s ease;
-    }
-
-    .level-card:hover {
-      transform: translateY(-4px);
-      border-color: #0f8b82;
-      box-shadow: 0 15px 35px rgba(15,118,110,.12);
-    }
-
-    .level-icon {
-      width: 48px;
-      height: 48px;
-      display: grid;
-      place-items: center;
-      border-radius: 14px;
-      background: #e9f7f5;
-      font-size: 22px;
-      margin-bottom: 18px;
-    }
-
-    .level-card h3 {
-      margin: 0 0 8px;
-      font-size: 20px;
-      line-height: 1.35;
-    }
-
-    .level-card p {
-      margin: 0;
-      color: #65716f;
-      line-height: 1.5;
-      font-size: 14px;
-    }
-
-    .level-arrow {
-      margin-top: 18px;
-      color: #08786f;
-      font-weight: 800;
-    }
-
-    /* =========================
-       PDF CARD
-    ========================= */
-
-    .pdf-card {
-      background: #fff;
-      border: 1px solid #e1e7e6;
-      border-radius: 20px;
-      padding: 24px;
-      box-shadow: 0 8px 25px rgba(0,0,0,.045);
-      transition: .2s ease;
-    }
-
-    .pdf-card:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 14px 35px rgba(0,0,0,.08);
-    }
-
-    .pdf-top {
-      display: flex;
-      align-items: flex-start;
-      gap: 14px;
-    }
-
-    .pdf-icon {
-      width: 52px;
-      height: 52px;
-      flex-shrink: 0;
-      display: grid;
-      place-items: center;
-      border-radius: 14px;
-      background: #fff0ef;
-      color: #d63b30;
-      font-size: 13px;
-      font-weight: 900;
-    }
-
-    .pdf-label {
-      color: #d63b30;
-      font-size: 11px;
-      font-weight: 900;
-      letter-spacing: .08em;
-      margin-bottom: 5px;
-    }
-
-    .pdf-card h3 {
-      margin: 0;
-      font-size: 19px;
-      line-height: 1.4;
-    }
-
-    .pdf-card p {
-      color: #687371;
-      line-height: 1.6;
-      margin: 15px 0 20px;
-    }
-
-    .pdf-actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
-
-    .pdf-btn {
-      border: 0;
-      border-radius: 11px;
-      padding: 11px 15px;
-      font-size: 14px;
-      font-weight: 800;
-      cursor: pointer;
-      text-decoration: none;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 7px;
-    }
-
-    .preview-btn {
-      background: #087f76;
-      color: white;
-    }
-
-    .preview-btn:hover {
-      background: #066b64;
-    }
-
-    .download-btn {
-      background: #edf3f2;
-      color: #183b39;
-    }
-
-    .download-btn:hover {
-      background: #dfe9e7;
-    }
-
-    /* =========================
-       EMPTY / ERROR
-    ========================= */
-
-    .empty {
-      grid-column: 1 / -1;
-      text-align: center;
-      padding: 45px 20px;
-      border-radius: 20px;
-      background: #f7f9f9;
-      color: #65716f;
-      line-height: 1.7;
-    }
-
-    .error-box {
-      grid-column: 1 / -1;
-      padding: 25px;
-      border-radius: 18px;
-      background: #fff4f3;
-      border: 1px solid #ffd3cf;
-      color: #a52820;
-      line-height: 1.6;
-      overflow-wrap: anywhere;
-    }
-
-    /* =========================
-       PDF MODAL
-    ========================= */
-
-    .pdf-modal {
-      position: fixed;
-      inset: 0;
-      z-index: 99999;
-      background: rgba(5,20,20,.90);
-      display: none;
-      flex-direction: column;
-      backdrop-filter: blur(7px);
-    }
-
-    .pdf-modal.open {
-      display: flex;
-    }
-
-    .pdf-modal-header {
-      height: 64px;
-      flex-shrink: 0;
-      background: #102b2a;
-      color: white;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 15px;
-      padding: 0 18px;
-    }
-
-    .pdf-modal-title {
-      min-width: 0;
-    }
-
-    .pdf-modal-title strong {
-      display: block;
-      max-width: 65vw;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .pdf-modal-title small {
-      display: block;
-      margin-top: 2px;
-      opacity: .65;
-    }
-
-    .modal-close {
-      width: 40px;
-      height: 40px;
-      border: 0;
-      border-radius: 10px;
-      background: rgba(255,255,255,.1);
-      color: white;
-      font-size: 26px;
-      cursor: pointer;
-    }
-
-    .pdf-viewer {
-      flex: 1;
-      overflow: auto;
-      padding: 25px 15px 105px;
-      text-align: center;
-    }
-
-    .pdf-page-wrap {
-      max-width: 900px;
-      margin: 0 auto 22px;
-      background: white;
-      box-shadow: 0 10px 35px rgba(0,0,0,.35);
-      overflow: hidden;
-    }
-
-    .pdf-page-wrap canvas {
-      display: block;
-      width: 100%;
-      height: auto;
-    }
-
-    .page-number {
-      background: #102b2a;
-      color: rgba(255,255,255,.75);
-      padding: 7px;
-      font-size: 12px;
-    }
-
-    .pdf-loading {
-      color: white;
-      padding: 60px 20px;
-      text-align: center;
-    }
-
-    .spinner {
-      width: 38px;
-      height: 38px;
-      border: 3px solid rgba(255,255,255,.25);
-      border-top-color: white;
-      border-radius: 50%;
-      margin: 0 auto 15px;
-      animation: spin .8s linear infinite;
-    }
-
-    @keyframes spin {
-      to {
-        transform: rotate(360deg);
-      }
-    }
-
-    /* =========================
-       PDF TOOLBAR
-    ========================= */
-
-    .pdf-toolbar {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      z-index: 100000;
-      background: rgba(16,43,42,.98);
-      border-top: 1px solid rgba(255,255,255,.1);
-      padding: 10px 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-    }
-
-    .page-nav-btn,
-    .full-download {
-      border: 0;
-      border-radius: 10px;
-      padding: 10px 14px;
-      font-size: 13px;
-      font-weight: 800;
-      cursor: pointer;
-      text-decoration: none;
-    }
-
-    .page-nav-btn {
-      background: rgba(255,255,255,.1);
-      color: white;
-    }
-
-    .page-nav-btn:disabled {
-      opacity: .35;
-    }
-
-    .page-counter {
-      color: white;
-      min-width: 90px;
-      text-align: center;
-      font-size: 13px;
-    }
-
-    .full-download {
-      background: #0d8d83;
-      color: white;
-    }
-
-    /* =========================
-       MOBILE
-    ========================= */
-
-    @media (max-width: 850px) {
-
-      .notes-grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
-
-    }
-
-    @media (max-width: 600px) {
-
-      .notes-page {
-        padding: 32px 15px 65px;
-      }
-
-      .notes-head h1 {
-        font-size: 37px;
-      }
-
-      .notes-head p {
-        font-size: 15px;
-      }
-
-      .notes-grid {
-        grid-template-columns: 1fr;
-        gap: 15px;
-      }
-
-      .pdf-actions {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-      }
-
-      .pdf-btn {
-        width: 100%;
-        box-sizing: border-box;
-      }
-
-      .pdf-modal-header {
-        height: 58px;
-      }
-
-      .pdf-modal-title strong {
-        max-width: 65vw;
-        font-size: 14px;
-      }
-
-      .pdf-toolbar {
-        gap: 5px;
-        padding: 8px 6px;
-      }
-
-      .page-nav-btn,
-      .full-download {
-        padding: 9px 9px;
-        font-size: 11px;
-      }
-
-      .page-counter {
-        min-width: 60px;
-        font-size: 11px;
-      }
-
-    }
-
-  </style>
-
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>B.Pharm Notes | Pharmistry World</title>
+<link rel="icon" href="logo.png">
+<link rel="stylesheet" href="style.css">
+
+<style>
+.notes-page{padding:45px 20px 80px;min-height:70vh}
+.notes-head{max-width:1050px;margin:0 auto 35px}
+.notes-head h1{font-size:clamp(36px,7vw,56px);margin:8px 0 12px}
+.notes-head p{font-size:17px;line-height:1.7;opacity:.72;max-width:750px}
+.breadcrumb{max-width:1050px;margin:0 auto 25px;min-height:45px}
+.breadcrumb h2{margin:12px 0;font-size:27px}
+.back-btn{display:inline-block;background:#eef5f4;color:#173c3b;padding:11px 17px;border-radius:12px;font-weight:700;cursor:pointer}
+.notes-grid{max-width:1050px;margin:auto;display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+
+.level-card{
+background:#fff;border:1px solid #e2e8e7;border-radius:20px;padding:24px;
+min-height:160px;display:flex;flex-direction:column;justify-content:space-between;
+cursor:pointer;box-shadow:0 8px 25px rgba(0,0,0,.05);transition:.2s
+}
+.level-card:hover{transform:translateY(-4px);border-color:#0f8b82}
+.level-icon{width:48px;height:48px;border-radius:14px;background:#e9f7f5;display:grid;place-items:center;font-size:22px;margin-bottom:15px}
+.level-card h3{margin:0 0 8px;font-size:20px;line-height:1.4}
+.level-card p{margin:0;color:#65716f}
+.level-arrow{margin-top:18px;color:#08786f;font-weight:800}
+
+.pdf-card{
+background:#fff;border:1px solid #e1e7e6;border-radius:20px;padding:24px;
+box-shadow:0 8px 25px rgba(0,0,0,.05)
+}
+.pdf-top{display:flex;gap:14px;align-items:flex-start}
+.pdf-icon{width:52px;height:52px;flex-shrink:0;border-radius:14px;background:#fff0ef;color:#d63b30;display:grid;place-items:center;font-size:13px;font-weight:900}
+.pdf-card h3{margin:4px 0 0;font-size:19px;line-height:1.4}
+.pdf-label{font-size:11px;font-weight:900;color:#d63b30;letter-spacing:.08em}
+.pdf-card p{color:#687371;line-height:1.6;margin:15px 0 20px}
+.pdf-actions{display:flex;gap:10px;flex-wrap:wrap}
+.pdf-btn{border:0;border-radius:11px;padding:11px 15px;font-size:14px;font-weight:800;text-decoration:none;cursor:pointer}
+.preview-btn{background:#087f76;color:#fff}
+.download-btn{background:#edf3f2;color:#183b39}
+.empty{grid-column:1/-1;text-align:center;padding:45px 20px;border-radius:20px;background:#f7f9f9;color:#65716f}
+
+.pdf-modal{position:fixed;inset:0;z-index:99999;background:rgba(5,20,20,.92);display:none;flex-direction:column}
+.pdf-modal.open{display:flex}
+.pdf-header{height:62px;flex-shrink:0;background:#102b2a;color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 16px}
+.pdf-header strong{max-width:75vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.close-pdf{width:40px;height:40px;border:0;border-radius:10px;background:#ffffff18;color:#fff;font-size:25px}
+.pdf-viewer{flex:1;overflow:auto;text-align:center;padding:20px 12px 95px}
+.pdf-page{background:#fff;max-width:900px;margin:0 auto 20px;box-shadow:0 10px 30px #0006}
+.pdf-page canvas{width:100%;display:block}
+.page-label{background:#102b2a;color:#fff;padding:7px;font-size:12px}
+.pdf-toolbar{position:fixed;bottom:0;left:0;right:0;background:#102b2af7;padding:10px;display:flex;justify-content:center;align-items:center;gap:8px}
+.pdf-toolbar button,.pdf-toolbar a{border:0;border-radius:9px;padding:10px 13px;font-weight:700;text-decoration:none;cursor:pointer}
+.pdf-toolbar button{background:#ffffff18;color:#fff}
+.pdf-toolbar button:disabled{opacity:.35}
+.pdf-toolbar a{background:#0d8d83;color:#fff}
+.counter{color:#fff;font-size:13px;min-width:75px;text-align:center}
+
+@media(max-width:850px){.notes-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:600px){
+.notes-page{padding:30px 15px 60px}
+.notes-grid{grid-template-columns:1fr}
+.notes-head h1{font-size:37px}
+.pdf-actions{display:grid;grid-template-columns:1fr 1fr}
+.pdf-btn{text-align:center}
+.pdf-toolbar{gap:4px;padding:8px 5px}
+.pdf-toolbar button,.pdf-toolbar a{padding:9px 8px;font-size:11px}
+.counter{min-width:55px;font-size:11px}
+}
+</style>
 </head>
-
 
 <body>
 
-
-<!-- =========================
-     HEADER
-========================= -->
-
 <header>
+<div class="container nav">
 
-  <div class="container nav">
+<a class="brand" href="index.html">
+<img src="logo.png" alt="Pharmistry World logo">
+<span>
+<b>Pharmistry World</b>
+<small>Learn. Explore. Grow in Pharma.</small>
+</span>
+</a>
 
-    <a
-      class="brand"
-      href="index.html"
-    >
+<button class="menu-btn" id="menuBtn" type="button">☰</button>
 
-      <img
-        src="logo.png"
-        alt="Pharmistry World logo"
-      >
+<nav id="mainNav">
+<a href="index.html">Home</a>
+<a class="active" href="notes.html">B.Pharm Notes</a>
+<a href="industry.html">Pharma Industry</a>
+<a href="career.html">Career</a>
+<a href="contact.html">Contact Us</a>
+</nav>
 
-      <span>
-        <b>Pharmistry World</b>
-        <small>Learn. Explore. Grow in Pharma.</small>
-      </span>
-
-    </a>
-
-
-    <button
-      class="menu-btn"
-      id="menuBtn"
-      type="button"
-      aria-label="Menu"
-      aria-expanded="false"
-    >
-      ☰
-    </button>
-
-
-    <nav id="mainNav">
-
-      <a href="index.html">
-        Home
-      </a>
-
-      <a
-        class="active"
-        href="notes.html"
-      >
-        B.Pharm Notes
-      </a>
-
-      <a href="industry.html">
-        Pharma Industry
-      </a>
-
-      <a href="career.html">
-        Career
-      </a>
-
-      <a href="contact.html">
-        Contact Us
-      </a>
-
-    </nav>
-
-  </div>
-
+</div>
 </header>
-
-
-<!-- =========================
-     MAIN
-========================= -->
 
 <main class="notes-page">
 
+<section class="notes-head">
+<span class="eyebrow">B.PHARM STUDY RESOURCES</span>
+<h1>B.Pharm Notes</h1>
+<p>
+Find study material semester-wise, subject-wise and unit-wise.
+Preview PDFs before downloading.
+</p>
+</section>
 
-  <section class="notes-head">
+<div id="breadcrumb" class="breadcrumb"></div>
 
-    <span class="eyebrow">
-      B.PHARM STUDY RESOURCES
-    </span>
+<section id="notes" class="notes-grid"></section>
 
-    <h1>
-      B.Pharm Notes
-    </h1>
+</main>
 
-    <p>
-      Find study material semester-wise, subject-wise
-      and unit-wise. Preview PDFs before downloading.
-    </p>
+<footer>
+<div class="container foot">
+<div>
+<b>Pharmistry World</b>
+<p>Learn. Explore. Grow in Pharma.</p>
+</div>
+<div>
+<a href="notes.html">Notes</a>
+<a href="industry.html">Industry</a>
+<a href="career.html">Career</a>
+<a href="contact.html">Contact Us</a>
+</div>
+</div>
+<div class="container copy">
+© 2026 Pharmistry World. All rights reserved.
+</div>
+</footer>
 
-  </section>
+
+<!-- PDF MODAL -->
+
+<div id="pdfModal" class="pdf-modal">
+
+<div class="pdf-header">
+<strong id="pdfTitle">PDF Preview</strong>
+<button class="close-pdf" id="closePdf">×</button>
+</div>
+
+<div id="pdfViewer" class="pdf-viewer"></div>
+
+<div class="pdf-toolbar">
+
+<button id="prevPdf">← Prev</button>
+
+<span id="pdfCounter" class="counter">
+Page 1 / 5
+</span>
+
+<button id="nextPdf">Next →</button>
+
+<a id="downloadPdf" href="#" target="_blank">
+↓ Full PDF
+</a>
+
+</div>
+
+</div>
 
 
-  <div
-    id="breadcrumb"
-    class="breadcrumb"
-  ></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+
+<script>
+
+const SUPABASE_URL =
+'https://qgmpwanxqytoakmnklvy.supabase.co';
+
+const SUPABASE_KEY =
+'sb_publishable_qlOg73Ee92_uzX9YsaRPIA_dMQX9gub';
+
+const supabaseClient =
+window.supabase.createClient(
+SUPABASE_URL,
+SUPABASE_KEY
+);
 
 
-  <section
-    id="notes"
-    class="notes-grid"
-  >
+/* =========================
+   SUBJECT STRUCTURE
+========================= */
 
-    <div class="empty">
-      Loading B.Pharm Notes...
-    </div>
+const SUBJECTS = {
 
-  </section
+'1st Semester':[
+'Human Anatomy and Physiology I',
+'Pharmaceutical Analysis I',
+'Pharmaceutics I',
+'Pharmaceutical Inorganic Chemistry',
+'Communication Skills',
+'Remedial Biology / Remedial Mathematics'
+],
+
+'2nd Semester':[
+'Human Anatomy and Physiology II',
+'Pharmaceutical Organic Chemistry I',
+'Biochemistry',
+'Pathophysiology',
+'Computer Applications in Pharmacy',
+'Environmental Sciences'
+],
+
+'3rd Semester':[
+'Pharmaceutical Organic Chemistry II',
+'Physical Pharmaceutics I',
+'Pharmaceutical Microbiology',
+'Pharmaceutical Engineering'
+],
+
+'4th Semester':[
+'Pharmaceutical Organic Chemistry III',
+'Medicinal Chemistry I',
+'Physical Pharmaceutics II',
+'Pharmacology I',
+'Pharmacognosy and Phytochemistry I'
+],
+
+'5th Semester':[
+'Medicinal Chemistry II',
+'Industrial Pharmacy I',
+'Pharmacology II',
+'Pharmacognosy and Phytochemistry II',
+'Pharmaceutical Jurisprudence'
+],
+
+'6th Semester':[
+'Medicinal Chemistry III',
+'Pharmacology III',
+'Herbal Drug Technology',
+'Biopharmaceutics and Pharmacokinetics',
+'Pharmaceutical Biotechnology',
+'Quality Assurance'
+],
+
+'7th Semester':[
+'Instrumental Methods of Analysis',
+'Industrial Pharmacy II',
+'Pharmacy Practice',
+'Novel Drug Delivery System'
+],
+
+'8th Semester':[
+'Biostatistics and Research Methodology',
+'Social and Preventive Pharmacy',
+'Pharma Marketing Management',
+'Pharmaceutical Regulatory Science',
+'Pharmacovigilance',
+'Quality Control and Standardization of Herbals',
+'Computer Aided Drug Design',
+'Cell and Molecular Biology',
+'Cosmetic Science',
+'Experimental Pharmacology',
+'Advanced Instrumentation Techniques',
+'Dietary Supplements and Nutraceuticals',
+'Project Work'
+]
+
+};
+
+
+/* =========================
+   VARIABLES
+========================= */
+
+let notes = [];
+
+let currentPdf = null;
+
+let currentPage = 1;
+
+let previewPages = 0;
+
+
+/* =========================
+   HELPERS
+========================= */
+
+const notesBox =
+document.getElementById('notes');
+
+const breadcrumb =
+document.getElementById('breadcrumb');
+
+function esc(v){
+
+return String(v ?? '')
+.replace(/[&<>"']/g,c=>({
+'&':'&amp;',
+'<':'&lt;',
+'>':'&gt;',
+'"':'&quot;',
+"'":'&#039;'
+}[c]));
+
+}
+
+function semesterKey(v){
+
+const s =
+String(v || '').toLowerCase();
+
+const m =
+s.match(/([1-8])/);
+
+return m ? m[1] : s;
+
+}
+
+function safeUrl(v){
+
+try{
+
+const u = new URL(v);
+
+return (
+u.protocol === 'https:' ||
+u.protocol === 'http:'
+) ? u.href : '';
+
+}catch(e){
+
+return '';
+
+}
+
+}
+
+
+/* =========================
+   MOBILE MENU
+========================= */
+
+const menuBtn =
+document.getElementById('menuBtn');
+
+const mainNav =
+document.getElementById('mainNav');
+
+menuBtn.onclick = function(){
+
+const open =
+mainNav.classList.toggle('open');
+
+menuBtn.setAttribute(
+'aria-expanded',
+String(open)
+);
+
+};
+
+
+/* =========================
+   SEMESTERS
+========================= */
+
+function showSemesters(push=true){
+
+if(push){
+
+history.pushState(
+{level:'semester'},
+'',
+'#semester'
+);
+
+}
+
+breadcrumb.innerHTML =
+'<h2>Choose Semester</h2>';
+
+const semesters =
+Object.keys(SUBJECTS);
+
+notesBox.innerHTML =
+semesters.map(function(sem){
+
+return `
+
+<article
+class="level-card"
+onclick='showSubjects(${JSON.stringify(sem)})'
+>
+
+<div>
+
+<div class="level-icon">📚</div>
+
+<h3>${sem}</h3>
+
+<p>Semester study resources</p>
+
+</div>
+
+<span class="level-arrow">
+Explore →
+</span>
+
+</article>
+
+`;
+
+}).join('');
+
+}
+
+
+/* =========================
+   SUBJECTS
+========================= */
+
+window.showSubjects =
+function(semester,push=true){
+
+if(push){
+
+history.pushState(
+{
+level:'subject',
+semester:semester
+},
+'',
+'#subject'
+);
+
+}
+
+breadcrumb.innerHTML = `
+
+<a
+class="back-btn"
+onclick="history.back()"
+>
+← All Semesters
+</a>
+
+<h2>${esc(semester)}</h2>
+
+`;
+
+const subjects =
+SUBJECTS[semester] || [];
+
+notesBox.innerHTML =
+subjects.map(function(subject){
+
+return `
+
+<article
+class="level-card"
+onclick='showUnits(
+${JSON.stringify(encodeURIComponent(semester))},
+${JSON.stringify(encodeURIComponent(subject))}
+)'
+>
+
+<div>
+
+<div class="level-icon">🧪</div>
+
+<h3>${esc(subject)}</h3>
+
+<p>View available units</p>
+
+</div>
+
+<span class="level-arrow">
+View Units →
+</span>
+
+</article>
+
+`;
+
+}).join('');
+
+};
+
+
+/* =========================
+   UNITS
+========================= */
+
+window.showUnits =
+function(
+encodedSemester,
+encodedSubject,
+push=true
+){
+
+const semester =
+decodeURIComponent(encodedSemester);
+
+const subject =
+decodeURIComponent(encodedSubject);
+
+if(push){
+
+history.pushState(
+{
+level:'unit',
+semester:semester,
+subject:subject
+},
+'',
+'#unit'
+);
+
+}
+
+breadcrumb.innerHTML = `
+
+<a
+class="back-btn"
+onclick="history.back()"
+>
+← ${esc(semester)}
+</a>
+
+<h2>${esc(subject)}</h2>
+
+`;
+
+const units = [
+'Unit 1',
+'Unit 2',
+'Unit 3',
+'Unit 4',
+'Unit 5',
+'All Units / Complete Notes'
+];
+
+notesBox.innerHTML =
+units.map(function(unit){
+
+return `
+
+<article
+class="level-card"
+onclick='showPDFs(
+${JSON.stringify(encodeURIComponent(semester))},
+${JSON.stringify(encodeURIComponent(subject))},
+${JSON.stringify(encodeURIComponent(unit))}
+)'
+>
+
+<div>
+
+<div class="level-icon">📖</div>
+
+<h3>${unit}</h3>
+
+<p>Open study material</p>
+
+</div>
+
+<span class="level-arrow">
+View PDFs →
+</span>
+
+</article>
+
+`;
+
+}).join('');
+
+};
+
+
+/* =========================
+   PDFS
+========================= */
+
+window.showPDFs =
+async function(
+encodedSemester,
+encodedSubject,
+encodedUnit,
+push=true
+){
+
+const semester =
+decodeURIComponent(encodedSemester);
+
+const subject =
+decodeURIComponent(encodedSubject);
+
+const unit =
+decodeURIComponent(encodedUnit);
+
+if(push){
+
+history.pushState(
+{
+level:'pdf',
+semester:semester,
+subject:subject,
+unit:unit
+},
+'',
+'#pdf'
+);
+
+}
+
+breadcrumb.innerHTML = `
+
+<a
+class="back-btn"
+onclick="history.back()"
+>
+← ${esc(subject)}
+</a>
+
+<h2>${esc(unit)}</h2>
+
+`;
+
+notesBox.innerHTML = `
+<div class="empty">
+Loading PDFs...
+</div>
+`;
+
+
+/* DATABASE QUERY ONLY HERE */
+
+try{
+
+const {data,error} =
+await supabaseClient
+.from('notes')
+.select('*')
+.eq('semester',semester)
+.eq('subject',subject)
+.eq('unit',unit)
+.order('created_at',{ascending:false});
+
+if(error) throw error;
+
+notes = data || [];
+
+if(!notes.length){
+
+notesBox.innerHTML = `
+
+<div class="empty">
+
+No PDF uploaded for
+<strong>${esc(unit)}</strong> yet.
+
+</div>
+
+`;
+
+return;
+
+}
+
+renderPDFCards(notes);
+
+}catch(error){
+
+console.error(error);
+
+notesBox.innerHTML = `
+
+<div class="empty">
+
+<strong>
+PDFs load nahi ho paaye.
+</strong>
+
+<br><br>
+
+${esc(error.message)}
+
+</div>
+
+`;
+
+}
+
+};
+
+
+/* =========================
+   PDF CARDS
+========================= */
+
+function renderPDFCards(items){
+
+notesBox.innerHTML =
+items.map(function(note){
+
+const url =
+safeUrl(note.pdf_url);
+
+return `
+
+<article class="pdf-card">
+
+<div class="pdf-top">
+
+<div class="pdf-icon">
+PDF
+</div>
+
+<div>
+
+<div class="pdf-label">
+STUDY RESOURCE
+</div>
+
+<h3>
+${esc(note.title || 'Untitled PDF')}
+</h3>
+
+</div>
+
+</div>
+
+<p>
+${esc(
+note.description ||
+'B.Pharm study resource.'
+)}
+</p>
+
+<div class="pdf-actions">
+
+<button
+class="pdf-btn preview-btn"
+onclick='openPdf(
+${JSON.stringify(url)},
+${JSON.stringify(note.title || "PDF Preview")}
+)'
+>
+👁 View PDF
+</button>
+
+<a
+class="pdf-btn download-btn"
+href="${esc(url)}"
+target="_blank"
+rel="noopener"
+>
+↓ Full PDF
+</a>
+
+</div>
+
+</article>
+
+`;
+
+}).join('');
+
+}
+
+
+/* =========================
+   PDF PREVIEW
+========================= */
+
+const modal =
+document.getElementById('pdfModal');
+
+const viewer =
+document.getElementById('pdfViewer');
+
+const pdfTitle =
+document.getElementById('pdfTitle');
+
+const downloadPdf =
+document.getElementById('downloadPdf');
+
+const counter =
+document.getElementById('pdfCounter');
+
+const prevPdf =
+document.getElementById('prevPdf');
+
+const nextPdf =
+document.getElementById('nextPdf');
+
+const closePdfBtn =
+document.getElementById('closePdf');
+
+
+window.openPdf =
+async function(url,title){
+
+if(!url){
+
+alert('PDF link is not valid.');
+
+return;
+
+}
+
+modal.classList.add('open');
+
+document.body.style.overflow='hidden';
+
+pdfTitle.textContent=title;
+
+downloadPdf.href=url;
+
+viewer.innerHTML=`
+
+<div class="pdf-loading">
+Loading PDF preview...
+</div>
+
+`;
+
+currentPage=1;
+
+try{
+
+currentPdf =
+await pdfjsLib
+.getDocument(url)
+.promise;
+
+previewPages =
+Math.min(
+currentPdf.numPages,
+5
+);
+
+await renderPdfPage();
+
+}catch(error){
+
+console.error(error);
+
+viewer.innerHTML=`
+
+<div class="pdf-loading">
+
+PDF preview load nahi ho paya.
+
+<br><br>
+
+<a
+class="full-download"
+href="${esc(url)}"
+target="_blank"
+>
+Open Full PDF
+</a>
+
+</div>
+
+`;
+
+}
+
+};
+
+
+async function renderPdfPage(){
+
+const page =
+await currentPdf.getPage(
+currentPage
+);
+
+const base =
+page.getViewport({
+scale:1
+});
+
+const width =
+Math.min(
+viewer.clientWidth-25,
+900
+);
+
+const scale =
+width/base.width;
+
+const viewport =
+page.getViewport({
+scale:scale
+});
+
+const wrap =
+document.createElement('div');
+
+wrap.className='pdf-page';
+
+const canvas =
+document.createElement('canvas');
+
+canvas.width =
+viewport.width;
+
+canvas.height =
+viewport.height;
+
+wrap.appendChild(canvas);
+
+const label =
+document.createElement('div');
+
+label.className='page-label';
+
+label.textContent =
+'Preview Page ' +
+currentPage +
+' of ' +
+previewPages;
+
+wrap.appendChild(label);
+
+viewer.innerHTML='';
+
+viewer.appendChild(wrap);
+
+await page.render({
+
+canvasContext:
+canvas.getContext('2d'),
+
+viewport:viewport
+
+}).promise;
+
+counter.textContent =
+'Page '+
+currentPage+
+' / '+
+previewPages;
+
+prevPdf.disabled =
+currentPage<=1;
+
+nextPdf.disabled =
+currentPage>=previewPages;
+
+}
+
+
+nextPdf.onclick =
+async function(){
+
+if(currentPage<previewPages){
+
+currentPage++;
+
+await renderPdfPage();
+
+}
+
+};
+
+
+prevPdf.onclick =
+async function(){
+
+if(currentPage>1){
+
+currentPage--;
+
+await renderPdfPage();
+
+}
+
+};
+
+
+function closePdf(){
+
+modal.classList.remove('open');
+
+document.body.style.overflow='';
+
+viewer.innerHTML='';
+
+currentPdf=null;
+
+}
+
+closePdfBtn.onclick=closePdf;
+
+
+/* =========================
+   BACK NAVIGATION
+========================= */
+
+window.addEventListener(
+'popstate',
+function(event){
+
+if(modal.classList.contains('open')){
+
+closePdf();
+
+}
+
+const state=event.state;
+
+if(!state || state.level==='semester'){
+
+showSemesters(false);
+
+return;
+
+}
+
+if(state.level==='subject'){
+
+showSubjects(
+state.semester,
+false
+);
+
+return;
+
+}
+
+if(state.level==='unit'){
+
+showUnits(
+encodeURIComponent(state.semester),
+encodeURIComponent(state.subject),
+false
+);
+
+return;
+
+}
+
+if(state.level==='pdf'){
+
+showPDFs(
+encodeURIComponent(state.semester),
+encodeURIComponent(state.subject),
+encodeURIComponent(state.unit),
+false
+);
+
+}
+
+});
+
+
+/* =========================
+   START
+========================= */
+
+history.replaceState(
+{level:'semester'},
+'',
+'#semester'
+);
+
+showSemesters(false);
+
+</script>
+
+</body>
+</html>

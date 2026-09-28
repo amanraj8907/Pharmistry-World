@@ -2,113 +2,465 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+
 <meta name="viewport" content="width=device-width,initial-scale=1">
+
+<!-- Cache control -->
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
 <title>B.Pharm Notes | Pharmistry World</title>
+
 <link rel="icon" href="logo.png">
 <link rel="stylesheet" href="style.css">
 
 <style>
-.notes-page{padding:45px 20px 80px;min-height:70vh}
-.notes-head{max-width:1050px;margin:0 auto 35px}
-.notes-head h1{font-size:clamp(36px,7vw,56px);margin:8px 0 12px}
-.notes-head p{font-size:17px;line-height:1.7;opacity:.72;max-width:750px}
-.breadcrumb{max-width:1050px;margin:0 auto 25px;min-height:45px}
-.breadcrumb h2{margin:12px 0;font-size:27px}
-.back-btn{display:inline-block;background:#eef5f4;color:#173c3b;padding:11px 17px;border-radius:12px;font-weight:700;cursor:pointer}
-.notes-grid{max-width:1050px;margin:auto;display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+
+.notes-page{
+padding:45px 20px 80px;
+min-height:70vh
+}
+
+.notes-head{
+max-width:1050px;
+margin:0 auto 35px
+}
+
+.notes-head h1{
+font-size:clamp(36px,7vw,56px);
+margin:8px 0 12px
+}
+
+.notes-head p{
+font-size:17px;
+line-height:1.7;
+opacity:.72;
+max-width:750px
+}
+
+.breadcrumb{
+max-width:1050px;
+margin:0 auto 25px;
+min-height:45px
+}
+
+.breadcrumb h2{
+margin:12px 0;
+font-size:27px
+}
+
+.back-btn{
+display:inline-block;
+background:#eef5f4;
+color:#173c3b;
+padding:11px 17px;
+border-radius:12px;
+font-weight:700;
+cursor:pointer
+}
+
+.notes-grid{
+max-width:1050px;
+margin:auto;
+display:grid;
+grid-template-columns:repeat(3,1fr);
+gap:20px
+}
 
 .level-card{
-background:#fff;border:1px solid #e2e8e7;border-radius:20px;padding:24px;
-min-height:160px;display:flex;flex-direction:column;justify-content:space-between;
-cursor:pointer;box-shadow:0 8px 25px rgba(0,0,0,.05);transition:.2s
+background:#fff;
+border:1px solid #e2e8e7;
+border-radius:20px;
+padding:24px;
+min-height:160px;
+display:flex;
+flex-direction:column;
+justify-content:space-between;
+cursor:pointer;
+box-shadow:0 8px 25px rgba(0,0,0,.05);
+transition:.2s
 }
-.level-card:hover{transform:translateY(-4px);border-color:#0f8b82}
-.level-icon{width:48px;height:48px;border-radius:14px;background:#e9f7f5;display:grid;place-items:center;font-size:22px;margin-bottom:15px}
-.level-card h3{margin:0 0 8px;font-size:20px;line-height:1.4}
-.level-card p{margin:0;color:#65716f}
-.level-arrow{margin-top:18px;color:#08786f;font-weight:800}
+
+.level-card:hover{
+transform:translateY(-4px);
+border-color:#0f8b82
+}
+
+.level-icon{
+width:48px;
+height:48px;
+border-radius:14px;
+background:#e9f7f5;
+display:grid;
+place-items:center;
+font-size:22px;
+margin-bottom:15px
+}
+
+.level-card h3{
+margin:0 0 8px;
+font-size:20px;
+line-height:1.4
+}
+
+.level-card p{
+margin:0;
+color:#65716f
+}
+
+.level-arrow{
+margin-top:18px;
+color:#08786f;
+font-weight:800
+}
 
 .pdf-card{
-background:#fff;border:1px solid #e1e7e6;border-radius:20px;padding:24px;
+background:#fff;
+border:1px solid #e1e7e6;
+border-radius:20px;
+padding:24px;
 box-shadow:0 8px 25px rgba(0,0,0,.05)
 }
-.pdf-top{display:flex;gap:14px;align-items:flex-start}
-.pdf-icon{width:52px;height:52px;flex-shrink:0;border-radius:14px;background:#fff0ef;color:#d63b30;display:grid;place-items:center;font-size:13px;font-weight:900}
-.pdf-card h3{margin:4px 0 0;font-size:19px;line-height:1.4}
-.pdf-label{font-size:11px;font-weight:900;color:#d63b30;letter-spacing:.08em}
-.pdf-card p{color:#687371;line-height:1.6;margin:15px 0 20px}
-.pdf-actions{display:flex;gap:10px;flex-wrap:wrap}
-.pdf-btn{border:0;border-radius:11px;padding:11px 15px;font-size:14px;font-weight:800;text-decoration:none;cursor:pointer}
-.preview-btn{background:#087f76;color:#fff}
-.download-btn{background:#edf3f2;color:#183b39}
-.empty{grid-column:1/-1;text-align:center;padding:45px 20px;border-radius:20px;background:#f7f9f9;color:#65716f}
 
-.pdf-modal{position:fixed;inset:0;z-index:99999;background:rgba(5,20,20,.92);display:none;flex-direction:column}
-.pdf-modal.open{display:flex}
-.pdf-header{height:62px;flex-shrink:0;background:#102b2a;color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 16px}
-.pdf-header strong{max-width:75vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.close-pdf{width:40px;height:40px;border:0;border-radius:10px;background:#ffffff18;color:#fff;font-size:25px}
-.pdf-viewer{flex:1;overflow:auto;text-align:center;padding:20px 12px 95px}
-.pdf-page{background:#fff;max-width:900px;margin:0 auto 20px;box-shadow:0 10px 30px #0006}
-.pdf-page canvas{width:100%;display:block}
-.page-label{background:#102b2a;color:#fff;padding:7px;font-size:12px}
-.pdf-toolbar{position:fixed;bottom:0;left:0;right:0;background:#102b2af7;padding:10px;display:flex;justify-content:center;align-items:center;gap:8px}
-.pdf-toolbar button,.pdf-toolbar a{border:0;border-radius:9px;padding:10px 13px;font-weight:700;text-decoration:none;cursor:pointer}
-.pdf-toolbar button{background:#ffffff18;color:#fff}
-.pdf-toolbar button:disabled{opacity:.35}
-.pdf-toolbar a{background:#0d8d83;color:#fff}
-.counter{color:#fff;font-size:13px;min-width:75px;text-align:center}
-
-@media(max-width:850px){.notes-grid{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:600px){
-.notes-page{padding:30px 15px 60px}
-.notes-grid{grid-template-columns:1fr}
-.notes-head h1{font-size:37px}
-.pdf-actions{display:grid;grid-template-columns:1fr 1fr}
-.pdf-btn{text-align:center}
-.pdf-toolbar{gap:4px;padding:8px 5px}
-.pdf-toolbar button,.pdf-toolbar a{padding:9px 8px;font-size:11px}
-.counter{min-width:55px;font-size:11px}
+.pdf-top{
+display:flex;
+gap:14px;
+align-items:flex-start
 }
+
+.pdf-icon{
+width:52px;
+height:52px;
+flex-shrink:0;
+border-radius:14px;
+background:#fff0ef;
+color:#d63b30;
+display:grid;
+place-items:center;
+font-size:13px;
+font-weight:900
+}
+
+.pdf-card h3{
+margin:4px 0 0;
+font-size:19px;
+line-height:1.4
+}
+
+.pdf-label{
+font-size:11px;
+font-weight:900;
+color:#d63b30;
+letter-spacing:.08em
+}
+
+.pdf-card p{
+color:#687371;
+line-height:1.6;
+margin:15px 0 20px
+}
+
+.pdf-actions{
+display:flex;
+gap:10px;
+flex-wrap:wrap
+}
+
+.pdf-btn{
+border:0;
+border-radius:11px;
+padding:11px 15px;
+font-size:14px;
+font-weight:800;
+text-decoration:none;
+cursor:pointer
+}
+
+.preview-btn{
+background:#087f76;
+color:#fff
+}
+
+.download-btn{
+background:#edf3f2;
+color:#183b39
+}
+
+.empty{
+grid-column:1/-1;
+text-align:center;
+padding:45px 20px;
+border-radius:20px;
+background:#f7f9f9;
+color:#65716f
+}
+
+/* PDF MODAL */
+
+.pdf-modal{
+position:fixed;
+inset:0;
+z-index:99999;
+background:rgba(5,20,20,.94);
+display:none;
+flex-direction:column
+}
+
+.pdf-modal.open{
+display:flex
+}
+
+.pdf-header{
+height:62px;
+flex-shrink:0;
+background:#102b2a;
+color:#fff;
+display:flex;
+align-items:center;
+justify-content:space-between;
+padding:0 16px
+}
+
+.pdf-header strong{
+max-width:75vw;
+white-space:nowrap;
+overflow:hidden;
+text-overflow:ellipsis
+}
+
+.close-pdf{
+width:40px;
+height:40px;
+border:0;
+border-radius:10px;
+background:#ffffff18;
+color:#fff;
+font-size:25px;
+cursor:pointer
+}
+
+.pdf-viewer{
+flex:1;
+overflow:auto;
+text-align:center;
+padding:20px 12px 95px;
+-webkit-overflow-scrolling:touch
+}
+
+.pdf-page{
+background:#fff;
+width:min(900px,100%);
+margin:0 auto 20px;
+box-shadow:0 10px 30px #0006;
+overflow:hidden
+}
+
+/*
+IMPORTANT:
+Canvas CSS size is normal,
+but actual bitmap size is multiplied
+by devicePixelRatio in JavaScript.
+This removes blur on mobile.
+*/
+
+.pdf-page canvas{
+display:block;
+width:100%;
+height:auto
+}
+
+.page-label{
+background:#102b2a;
+color:#fff;
+padding:7px;
+font-size:12px
+}
+
+.pdf-loading{
+color:#fff;
+font-size:16px;
+padding:50px 20px
+}
+
+.full-download{
+display:inline-block;
+background:#0d8d83;
+color:#fff;
+padding:12px 18px;
+border-radius:10px;
+text-decoration:none;
+font-weight:700
+}
+
+.pdf-toolbar{
+position:fixed;
+bottom:0;
+left:0;
+right:0;
+background:#102b2af7;
+padding:10px;
+display:flex;
+justify-content:center;
+align-items:center;
+gap:8px
+}
+
+.pdf-toolbar button,
+.pdf-toolbar a{
+border:0;
+border-radius:9px;
+padding:10px 13px;
+font-weight:700;
+text-decoration:none;
+cursor:pointer
+}
+
+.pdf-toolbar button{
+background:#ffffff18;
+color:#fff
+}
+
+.pdf-toolbar button:disabled{
+opacity:.35
+}
+
+.pdf-toolbar a{
+background:#0d8d83;
+color:#fff
+}
+
+.counter{
+color:#fff;
+font-size:13px;
+min-width:75px;
+text-align:center
+}
+
+@media(max-width:850px){
+
+.notes-grid{
+grid-template-columns:repeat(2,1fr)
+}
+
+}
+
+@media(max-width:600px){
+
+.notes-page{
+padding:30px 15px 60px
+}
+
+.notes-grid{
+grid-template-columns:1fr
+}
+
+.notes-head h1{
+font-size:37px
+}
+
+.pdf-actions{
+display:grid;
+grid-template-columns:1fr 1fr
+}
+
+.pdf-btn{
+text-align:center
+}
+
+.pdf-toolbar{
+gap:4px;
+padding:8px 5px
+}
+
+.pdf-toolbar button,
+.pdf-toolbar a{
+padding:9px 8px;
+font-size:11px
+}
+
+.counter{
+min-width:55px;
+font-size:11px
+}
+
+}
+
 </style>
 </head>
 
 <body>
 
 <header>
+
 <div class="container nav">
 
 <a class="brand" href="index.html">
+
 <img src="logo.png" alt="Pharmistry World logo">
+
 <span>
 <b>Pharmistry World</b>
 <small>Learn. Explore. Grow in Pharma.</small>
 </span>
+
 </a>
 
-<button class="menu-btn" id="menuBtn" type="button">☰</button>
+<button
+class="menu-btn"
+id="menuBtn"
+type="button"
+aria-expanded="false"
+>
+☰
+</button>
 
 <nav id="mainNav">
+
 <a href="index.html">Home</a>
-<a class="active" href="notes.html">B.Pharm Notes</a>
-<a href="industry.html">Pharma Industry</a>
-<a href="career.html">Career</a>
-<a href="contact.html">Contact Us</a>
+
+<a class="active" href="notes.html">
+B.Pharm Notes
+</a>
+
+<a href="industry.html">
+Pharma Industry
+</a>
+
+<a href="career.html">
+Career
+</a>
+
+<a href="contact.html">
+Contact Us
+</a>
+
 </nav>
 
 </div>
+
 </header>
+
 
 <main class="notes-page">
 
 <section class="notes-head">
-<span class="eyebrow">B.PHARM STUDY RESOURCES</span>
-<h1>B.Pharm Notes</h1>
+
+<span class="eyebrow">
+B.PHARM STUDY RESOURCES
+</span>
+
+<h1>
+B.Pharm Notes
+</h1>
+
 <p>
 Find study material semester-wise, subject-wise and unit-wise.
-Preview PDFs before downloading.
+Preview the first 5 pages before opening the full PDF.
 </p>
+
 </section>
+
 
 <div id="breadcrumb" class="breadcrumb"></div>
 
@@ -116,22 +468,38 @@ Preview PDFs before downloading.
 
 </main>
 
+
 <footer>
+
 <div class="container foot">
+
 <div>
+
 <b>Pharmistry World</b>
-<p>Learn. Explore. Grow in Pharma.</p>
+
+<p>
+Learn. Explore. Grow in Pharma.
+</p>
+
 </div>
+
 <div>
+
 <a href="notes.html">Notes</a>
 <a href="industry.html">Industry</a>
 <a href="career.html">Career</a>
 <a href="contact.html">Contact Us</a>
+
 </div>
+
 </div>
+
 <div class="container copy">
+
 © 2026 Pharmistry World. All rights reserved.
+
 </div>
+
 </footer>
 
 
@@ -140,23 +508,54 @@ Preview PDFs before downloading.
 <div id="pdfModal" class="pdf-modal">
 
 <div class="pdf-header">
-<strong id="pdfTitle">PDF Preview</strong>
-<button class="close-pdf" id="closePdf">×</button>
+
+<strong id="pdfTitle">
+PDF Preview
+</strong>
+
+<button
+class="close-pdf"
+id="closePdf"
+type="button"
+>
+×
+</button>
+
 </div>
+
 
 <div id="pdfViewer" class="pdf-viewer"></div>
 
+
 <div class="pdf-toolbar">
 
-<button id="prevPdf">← Prev</button>
+<button
+id="prevPdf"
+type="button"
+>
+← Prev
+</button>
 
-<span id="pdfCounter" class="counter">
+<span
+id="pdfCounter"
+class="counter"
+>
 Page 1 / 5
 </span>
 
-<button id="nextPdf">Next →</button>
+<button
+id="nextPdf"
+type="button"
+>
+Next →
+</button>
 
-<a id="downloadPdf" href="#" target="_blank">
+<a
+id="downloadPdf"
+href="#"
+target="_blank"
+rel="noopener noreferrer"
+>
 ↓ Full PDF
 </a>
 
@@ -165,11 +564,25 @@ Page 1 / 5
 </div>
 
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<!-- SUPABASE -->
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script
+src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+></script>
+
+
+<!-- PDF.JS -->
+
+<script
+src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"
+></script>
+
 
 <script>
+
+/* =========================
+   SUPABASE
+========================= */
 
 const SUPABASE_URL =
 'https://qgmpwanxqytoakmnklvy.supabase.co';
@@ -182,6 +595,18 @@ window.supabase.createClient(
 SUPABASE_URL,
 SUPABASE_KEY
 );
+
+
+/* =========================
+   PDF.JS WORKER
+========================= */
+
+if(window.pdfjsLib){
+
+pdfjsLib.GlobalWorkerOptions.workerSrc =
+'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+}
 
 
 /* =========================
@@ -278,9 +703,11 @@ let currentPage = 1;
 
 let previewPages = 0;
 
+let currentPdfUrl = '';
+
 
 /* =========================
-   HELPERS
+   ELEMENTS
 ========================= */
 
 const notesBox =
@@ -288,6 +715,35 @@ document.getElementById('notes');
 
 const breadcrumb =
 document.getElementById('breadcrumb');
+
+const modal =
+document.getElementById('pdfModal');
+
+const viewer =
+document.getElementById('pdfViewer');
+
+const pdfTitle =
+document.getElementById('pdfTitle');
+
+const downloadPdf =
+document.getElementById('downloadPdf');
+
+const counter =
+document.getElementById('pdfCounter');
+
+const prevPdf =
+document.getElementById('prevPdf');
+
+const nextPdf =
+document.getElementById('nextPdf');
+
+const closePdfBtn =
+document.getElementById('closePdf');
+
+
+/* =========================
+   HELPERS
+========================= */
 
 function esc(v){
 
@@ -302,28 +758,43 @@ return String(v ?? '')
 
 }
 
-function semesterKey(v){
 
-const s =
-String(v || '').toLowerCase();
+function normalizeText(v){
 
-const m =
-s.match(/([1-8])/);
-
-return m ? m[1] : s;
+return String(v ?? '')
+.trim()
+.toLowerCase()
+.replace(/\s+/g,' ');
 
 }
+
+
+function normalizeSemester(v){
+
+const s =
+normalizeText(v);
+
+const match =
+s.match(/([1-8])/);
+
+return match ? match[1] : s;
+
+}
+
 
 function safeUrl(v){
 
 try{
 
-const u = new URL(v);
+const u =
+new URL(v);
 
 return (
 u.protocol === 'https:' ||
 u.protocol === 'http:'
-) ? u.href : '';
+)
+? u.href
+: '';
 
 }catch(e){
 
@@ -344,7 +815,7 @@ document.getElementById('menuBtn');
 const mainNav =
 document.getElementById('mainNav');
 
-menuBtn.onclick = function(){
+menuBtn.onclick=function(){
 
 const open =
 mainNav.classList.toggle('open');
@@ -391,11 +862,17 @@ onclick='showSubjects(${JSON.stringify(sem)})'
 
 <div>
 
-<div class="level-icon">📚</div>
+<div class="level-icon">
+📚
+</div>
 
-<h3>${sem}</h3>
+<h3>
+${esc(sem)}
+</h3>
 
-<p>Semester study resources</p>
+<p>
+Semester study resources
+</p>
 
 </div>
 
@@ -441,7 +918,9 @@ onclick="history.back()"
 ← All Semesters
 </a>
 
-<h2>${esc(semester)}</h2>
+<h2>
+${esc(semester)}
+</h2>
 
 `;
 
@@ -463,11 +942,17 @@ ${JSON.stringify(encodeURIComponent(subject))}
 
 <div>
 
-<div class="level-icon">🧪</div>
+<div class="level-icon">
+🧪
+</div>
 
-<h3>${esc(subject)}</h3>
+<h3>
+${esc(subject)}
+</h3>
 
-<p>View available units</p>
+<p>
+View available units
+</p>
 
 </div>
 
@@ -524,17 +1009,21 @@ onclick="history.back()"
 ← ${esc(semester)}
 </a>
 
-<h2>${esc(subject)}</h2>
+<h2>
+${esc(subject)}
+</h2>
 
 `;
 
 const units = [
+
 'Unit 1',
 'Unit 2',
 'Unit 3',
 'Unit 4',
 'Unit 5',
 'All Units / Complete Notes'
+
 ];
 
 notesBox.innerHTML =
@@ -553,11 +1042,17 @@ ${JSON.stringify(encodeURIComponent(unit))}
 
 <div>
 
-<div class="level-icon">📖</div>
+<div class="level-icon">
+📖
+</div>
 
-<h3>${unit}</h3>
+<h3>
+${esc(unit)}
+</h3>
 
-<p>Open study material</p>
+<p>
+Open study material
+</p>
 
 </div>
 
@@ -619,33 +1114,100 @@ onclick="history.back()"
 ← ${esc(subject)}
 </a>
 
-<h2>${esc(unit)}</h2>
+<h2>
+${esc(unit)}
+</h2>
 
 `;
 
 notesBox.innerHTML = `
+
 <div class="empty">
 Loading PDFs...
 </div>
+
 `;
 
 
-/* DATABASE QUERY ONLY HERE */
-
 try{
+
+/*
+Fetch by semester + subject first.
+
+This is more reliable than exact
+unit matching because older records
+may have:
+- different capitalization
+- extra spaces
+- empty/null unit
+*/
 
 const {data,error} =
 await supabaseClient
 .from('notes')
 .select('*')
-.eq('semester',semester)
-.eq('subject',subject)
-.eq('unit',unit)
-.order('created_at',{ascending:false});
+.order('created_at',{
+ascending:false
+});
 
-if(error) throw error;
+if(error){
 
-notes = data || [];
+throw error;
+
+}
+
+
+/* FILTER IN JAVASCRIPT */
+
+const semesterWanted =
+normalizeSemester(semester);
+
+const subjectWanted =
+normalizeText(subject);
+
+let filtered =
+(data || []).filter(function(note){
+
+const sameSemester =
+normalizeSemester(note.semester) ===
+semesterWanted;
+
+const sameSubject =
+normalizeText(note.subject) ===
+subjectWanted;
+
+return sameSemester && sameSubject;
+
+});
+
+
+/*
+All Units / Complete Notes:
+show every PDF of that subject.
+*/
+
+if(
+unit !== 'All Units / Complete Notes'
+){
+
+const wantedUnit =
+normalizeText(unit);
+
+filtered =
+filtered.filter(function(note){
+
+const noteUnit =
+normalizeText(note.unit);
+
+return noteUnit === wantedUnit;
+
+});
+
+}
+
+
+notes = filtered;
+
 
 if(!notes.length){
 
@@ -654,7 +1216,16 @@ notesBox.innerHTML = `
 <div class="empty">
 
 No PDF uploaded for
-<strong>${esc(unit)}</strong> yet.
+<strong>${esc(unit)}</strong>
+yet.
+
+<br><br>
+
+<small>
+If a PDF exists but is not showing,
+check its Semester, Subject and Unit
+in the Admin panel.
+</small>
 
 </div>
 
@@ -664,7 +1235,9 @@ return;
 
 }
 
+
 renderPDFCards(notes);
+
 
 }catch(error){
 
@@ -703,6 +1276,10 @@ items.map(function(note){
 const url =
 safeUrl(note.pdf_url);
 
+const unitText =
+note.unit ||
+'Complete Notes';
+
 return `
 
 <article class="pdf-card">
@@ -716,11 +1293,14 @@ PDF
 <div>
 
 <div class="pdf-label">
-STUDY RESOURCE
+${esc(unitText)}
 </div>
 
 <h3>
-${esc(note.title || 'Untitled PDF')}
+${esc(
+note.title ||
+'Untitled PDF'
+)}
 </h3>
 
 </div>
@@ -740,7 +1320,10 @@ note.description ||
 class="pdf-btn preview-btn"
 onclick='openPdf(
 ${JSON.stringify(url)},
-${JSON.stringify(note.title || "PDF Preview")}
+${JSON.stringify(
+note.title ||
+"PDF Preview"
+)}
 )'
 >
 👁 View PDF
@@ -750,7 +1333,7 @@ ${JSON.stringify(note.title || "PDF Preview")}
 class="pdf-btn download-btn"
 href="${esc(url)}"
 target="_blank"
-rel="noopener"
+rel="noopener noreferrer"
 >
 ↓ Full PDF
 </a>
@@ -767,57 +1350,50 @@ rel="noopener"
 
 
 /* =========================
-   PDF PREVIEW
+   OPEN PDF
 ========================= */
-
-const modal =
-document.getElementById('pdfModal');
-
-const viewer =
-document.getElementById('pdfViewer');
-
-const pdfTitle =
-document.getElementById('pdfTitle');
-
-const downloadPdf =
-document.getElementById('downloadPdf');
-
-const counter =
-document.getElementById('pdfCounter');
-
-const prevPdf =
-document.getElementById('prevPdf');
-
-const nextPdf =
-document.getElementById('nextPdf');
-
-const closePdfBtn =
-document.getElementById('closePdf');
-
 
 window.openPdf =
 async function(url,title){
 
 if(!url){
 
-alert('PDF link is not valid.');
+alert(
+'PDF link is not valid.'
+);
 
 return;
 
 }
 
+if(!window.pdfjsLib){
+
+alert(
+'PDF preview service is still loading. Please try again.'
+);
+
+return;
+
+}
+
+
 modal.classList.add('open');
 
 document.body.style.overflow='hidden';
 
-pdfTitle.textContent=title;
+pdfTitle.textContent =
+title;
 
-downloadPdf.href=url;
+downloadPdf.href =
+url;
 
-viewer.innerHTML=`
+currentPdfUrl =
+url;
+
+viewer.innerHTML = `
 
 <div class="pdf-loading">
-Loading PDF preview...
+Loading high-resolution PDF preview...
 </div>
 
 `;
@@ -828,7 +1404,11 @@ try{
 
 currentPdf =
 await pdfjsLib
-.getDocument(url)
+.getDocument({
+url:url,
+disableAutoFetch:false,
+disableStream:false
+})
 .promise;
 
 previewPages =
@@ -843,7 +1423,7 @@ await renderPdfPage();
 
 console.error(error);
 
-viewer.innerHTML=`
+viewer.innerHTML = `
 
 <div class="pdf-loading">
 
@@ -855,6 +1435,7 @@ PDF preview load nahi ho paya.
 class="full-download"
 href="${esc(url)}"
 target="_blank"
+rel="noopener noreferrer"
 >
 Open Full PDF
 </a>
@@ -868,52 +1449,155 @@ Open Full PDF
 };
 
 
+/* =========================
+   HIGH RESOLUTION PDF PAGE
+========================= */
+
 async function renderPdfPage(){
+
+if(!currentPdf){
+
+return;
+
+}
 
 const page =
 await currentPdf.getPage(
 currentPage
 );
 
-const base =
+
+/*
+Base viewport.
+*/
+
+const baseViewport =
 page.getViewport({
 scale:1
 });
 
-const width =
+
+/*
+Available CSS width.
+*/
+
+const availableWidth =
+Math.max(
+280,
 Math.min(
-viewer.clientWidth-25,
+viewer.clientWidth - 24,
 900
+)
 );
 
-const scale =
-width/base.width;
 
-const viewport =
+/*
+Normal CSS scale.
+*/
+
+const cssScale =
+availableWidth /
+baseViewport.width;
+
+
+/*
+Device Pixel Ratio.
+
+Mobile phones can have DPR 2 or 3.
+This is the main fix for blurry PDF text.
+*/
+
+const dpr =
+Math.min(
+window.devicePixelRatio || 1,
+3
+);
+
+
+/*
+High-resolution viewport.
+*/
+
+const renderScale =
+cssScale * dpr;
+
+const renderViewport =
 page.getViewport({
-scale:scale
+scale:renderScale
 });
+
+
+/*
+CSS-size viewport.
+*/
+
+const cssViewport =
+page.getViewport({
+scale:cssScale
+});
+
 
 const wrap =
 document.createElement('div');
 
-wrap.className='pdf-page';
+wrap.className =
+'pdf-page';
+
 
 const canvas =
 document.createElement('canvas');
 
+
+/*
+Actual bitmap = high resolution.
+*/
+
 canvas.width =
-viewport.width;
+Math.ceil(
+renderViewport.width
+);
 
 canvas.height =
-viewport.height;
+Math.ceil(
+renderViewport.height
+);
+
+
+/*
+Displayed CSS size = normal size.
+*/
+
+canvas.style.width =
+Math.ceil(
+cssViewport.width
+) + 'px';
+
+canvas.style.height =
+Math.ceil(
+cssViewport.height
+) + 'px';
+
+
+const context =
+canvas.getContext(
+'2d',
+{
+alpha:false
+});
+
+
+context.imageSmoothingEnabled =
+true;
+
 
 wrap.appendChild(canvas);
+
 
 const label =
 document.createElement('div');
 
-label.className='page-label';
+label.className =
+'page-label';
 
 label.textContent =
 'Preview Page ' +
@@ -923,38 +1607,53 @@ previewPages;
 
 wrap.appendChild(label);
 
+
 viewer.innerHTML='';
 
-viewer.appendChild(wrap);
+viewer.appendChild(
+wrap
+);
+
+
+/*
+Render at high resolution.
+*/
 
 await page.render({
 
-canvasContext:
-canvas.getContext('2d'),
+canvasContext:context,
 
-viewport:viewport
+viewport:renderViewport
 
 }).promise;
 
+
 counter.textContent =
-'Page '+
-currentPage+
-' / '+
+'Page ' +
+currentPage +
+' / ' +
 previewPages;
 
 prevPdf.disabled =
-currentPage<=1;
+currentPage <= 1;
 
 nextPdf.disabled =
-currentPage>=previewPages;
+currentPage >= previewPages;
 
 }
 
 
+/* =========================
+   NEXT PAGE
+========================= */
+
 nextPdf.onclick =
 async function(){
 
-if(currentPage<previewPages){
+if(
+currentPdf &&
+currentPage < previewPages
+){
 
 currentPage++;
 
@@ -965,10 +1664,17 @@ await renderPdfPage();
 };
 
 
+/* =========================
+   PREVIOUS PAGE
+========================= */
+
 prevPdf.onclick =
 async function(){
 
-if(currentPage>1){
+if(
+currentPdf &&
+currentPage > 1
+){
 
 currentPage--;
 
@@ -979,95 +1685,14 @@ await renderPdfPage();
 };
 
 
+/* =========================
+   CLOSE PDF
+========================= */
+
 function closePdf(){
 
-modal.classList.remove('open');
-
-document.body.style.overflow='';
-
-viewer.innerHTML='';
-
-currentPdf=null;
-
-}
-
-closePdfBtn.onclick=closePdf;
-
-
-/* =========================
-   BACK NAVIGATION
-========================= */
-
-window.addEventListener(
-'popstate',
-function(event){
-
-if(modal.classList.contains('open')){
-
-closePdf();
-
-}
-
-const state=event.state;
-
-if(!state || state.level==='semester'){
-
-showSemesters(false);
-
-return;
-
-}
-
-if(state.level==='subject'){
-
-showSubjects(
-state.semester,
-false
+modal.classList.remove(
+'open'
 );
 
-return;
-
-}
-
-if(state.level==='unit'){
-
-showUnits(
-encodeURIComponent(state.semester),
-encodeURIComponent(state.subject),
-false
-);
-
-return;
-
-}
-
-if(state.level==='pdf'){
-
-showPDFs(
-encodeURIComponent(state.semester),
-encodeURIComponent(state.subject),
-encodeURIComponent(state.unit),
-false
-);
-
-}
-
-});
-
-
-/* =========================
-   START
-========================= */
-
-history.replaceState(
-{level:'semester'},
-'',
-'#semester'
-);
-
-showSemesters(false);
-
-</script>
-
-</body>
-</html>
+   

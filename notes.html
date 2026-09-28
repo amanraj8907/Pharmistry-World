@@ -202,7 +202,7 @@ cursor:pointer
 .pdf-viewer{
 flex:1;
 overflow:auto;
-padding:15px 8px 85px;
+padding:15px 8px 90px;
 -webkit-overflow-scrolling:touch;
 text-align:center
 }
@@ -305,9 +305,7 @@ font-size:13px
 </span>
 </a>
 
-<button class="menu-btn" id="menuBtn" type="button">
-☰
-</button>
+<button class="menu-btn" id="menuBtn" type="button">☰</button>
 
 <nav id="mainNav">
 <a href="index.html">Home</a>
@@ -325,9 +323,7 @@ font-size:13px
 
 <section class="notes-head">
 
-<span class="eyebrow">
-B.PHARM STUDY RESOURCES
-</span>
+<span class="eyebrow">B.PHARM STUDY RESOURCES</span>
 
 <h1>B.Pharm Notes</h1>
 
@@ -338,9 +334,94 @@ Preview the first 5 pages before opening the full PDF.
 
 </section>
 
-<div id="breadcrumb" class="breadcrumb"></div>
 
-<section id="notes" class="notes-grid"></section>
+<div id="breadcrumb" class="breadcrumb">
+<h2>Choose Semester</h2>
+</div>
+
+
+<!--
+IMPORTANT:
+Semester cards are written directly in HTML.
+Therefore they will appear even if JavaScript,
+Supabase or PDF.js has a loading problem.
+-->
+
+<section id="notes" class="notes-grid">
+
+<article class="level-card" onclick="showSubjects('1st Semester')">
+<div>
+<div class="level-icon">📚</div>
+<h3>1st Semester</h3>
+<p>Semester study resources</p>
+</div>
+<span class="level-arrow">Explore →</span>
+</article>
+
+<article class="level-card" onclick="showSubjects('2nd Semester')">
+<div>
+<div class="level-icon">📚</div>
+<h3>2nd Semester</h3>
+<p>Semester study resources</p>
+</div>
+<span class="level-arrow">Explore →</span>
+</article>
+
+<article class="level-card" onclick="showSubjects('3rd Semester')">
+<div>
+<div class="level-icon">📚</div>
+<h3>3rd Semester</h3>
+<p>Semester study resources</p>
+</div>
+<span class="level-arrow">Explore →</span>
+</article>
+
+<article class="level-card" onclick="showSubjects('4th Semester')">
+<div>
+<div class="level-icon">📚</div>
+<h3>4th Semester</h3>
+<p>Semester study resources</p>
+</div>
+<span class="level-arrow">Explore →</span>
+</article>
+
+<article class="level-card" onclick="showSubjects('5th Semester')">
+<div>
+<div class="level-icon">📚</div>
+<h3>5th Semester</h3>
+<p>Semester study resources</p>
+</div>
+<span class="level-arrow">Explore →</span>
+</article>
+
+<article class="level-card" onclick="showSubjects('6th Semester')">
+<div>
+<div class="level-icon">📚</div>
+<h3>6th Semester</h3>
+<p>Semester study resources</p>
+</div>
+<span class="level-arrow">Explore →</span>
+</article>
+
+<article class="level-card" onclick="showSubjects('7th Semester')">
+<div>
+<div class="level-icon">📚</div>
+<h3>7th Semester</h3>
+<p>Semester study resources</p>
+</div>
+<span class="level-arrow">Explore →</span>
+</article>
+
+<article class="level-card" onclick="showSubjects('8th Semester')">
+<div>
+<div class="level-icon">📚</div>
+<h3>8th Semester</h3>
+<p>Semester study resources</p>
+</div>
+<span class="level-arrow">Explore →</span>
+</article>
+
+</section>
 
 </main>
 
@@ -376,13 +457,9 @@ Preview the first 5 pages before opening the full PDF.
 
 <div class="pdf-header">
 
-<strong id="pdfTitle">
-PDF Preview
-</strong>
+<strong id="pdfTitle">PDF Preview</strong>
 
-<button class="close-pdf" id="closePdf" type="button">
-×
-</button>
+<button class="close-pdf" id="closePdf" type="button">×</button>
 
 </div>
 
@@ -408,301 +485,368 @@ rel="noopener noreferrer">
 
 <script>
 
-/* =================================
-   SUBJECT STRUCTURE
-================================= */
+/* =====================================
+   SUBJECTS
+===================================== */
 
-const SUBJECTS={
+const SUBJECTS = {
 
-'1st Semester':[
-'Human Anatomy and Physiology I',
-'Pharmaceutical Analysis I',
-'Pharmaceutics I',
-'Pharmaceutical Inorganic Chemistry',
-'Communication Skills',
-'Remedial Biology / Remedial Mathematics'
+"1st Semester":[
+"Human Anatomy and Physiology I",
+"Pharmaceutical Analysis I",
+"Pharmaceutics I",
+"Pharmaceutical Inorganic Chemistry",
+"Communication Skills",
+"Remedial Biology / Remedial Mathematics"
 ],
 
-'2nd Semester':[
-'Human Anatomy and Physiology II',
-'Pharmaceutical Organic Chemistry I',
-'Biochemistry',
-'Pathophysiology',
-'Computer Applications in Pharmacy',
-'Environmental Sciences'
+"2nd Semester":[
+"Human Anatomy and Physiology II",
+"Pharmaceutical Organic Chemistry I",
+"Biochemistry",
+"Pathophysiology",
+"Computer Applications in Pharmacy",
+"Environmental Sciences"
 ],
 
-'3rd Semester':[
-'Pharmaceutical Organic Chemistry II',
-'Physical Pharmaceutics I',
-'Pharmaceutical Microbiology',
-'Pharmaceutical Engineering'
+"3rd Semester":[
+"Pharmaceutical Organic Chemistry II",
+"Physical Pharmaceutics I",
+"Pharmaceutical Microbiology",
+"Pharmaceutical Engineering"
 ],
 
-'4th Semester':[
-'Pharmaceutical Organic Chemistry III',
-'Medicinal Chemistry I',
-'Physical Pharmaceutics II',
-'Pharmacology I',
-'Pharmacognosy and Phytochemistry I'
+"4th Semester":[
+"Pharmaceutical Organic Chemistry III",
+"Medicinal Chemistry I",
+"Physical Pharmaceutics II",
+"Pharmacology I",
+"Pharmacognosy and Phytochemistry I"
 ],
 
-'5th Semester':[
-'Medicinal Chemistry II',
-'Industrial Pharmacy I',
-'Pharmacology II',
-'Pharmacognosy and Phytochemistry II',
-'Pharmaceutical Jurisprudence'
+"5th Semester":[
+"Medicinal Chemistry II",
+"Industrial Pharmacy I",
+"Pharmacology II",
+"Pharmacognosy and Phytochemistry II",
+"Pharmaceutical Jurisprudence"
 ],
 
-'6th Semester':[
-'Medicinal Chemistry III',
-'Pharmacology III',
-'Herbal Drug Technology',
-'Biopharmaceutics and Pharmacokinetics',
-'Pharmaceutical Biotechnology',
-'Quality Assurance'
+"6th Semester":[
+"Medicinal Chemistry III",
+"Pharmacology III",
+"Herbal Drug Technology",
+"Biopharmaceutics and Pharmacokinetics",
+"Pharmaceutical Biotechnology",
+"Quality Assurance"
 ],
 
-'7th Semester':[
-'Instrumental Methods of Analysis',
-'Industrial Pharmacy II',
-'Pharmacy Practice',
-'Novel Drug Delivery System'
+"7th Semester":[
+"Instrumental Methods of Analysis",
+"Industrial Pharmacy II",
+"Pharmacy Practice",
+"Novel Drug Delivery System"
 ],
 
-'8th Semester':[
-'Biostatistics and Research Methodology',
-'Social and Preventive Pharmacy',
-'Pharma Marketing Management',
-'Pharmaceutical Regulatory Science',
-'Pharmacovigilance',
-'Quality Control and Standardization of Herbals',
-'Computer Aided Drug Design',
-'Cell and Molecular Biology',
-'Cosmetic Science',
-'Experimental Pharmacology',
-'Advanced Instrumentation Techniques',
-'Dietary Supplements and Nutraceuticals',
-'Project Work'
+"8th Semester":[
+"Biostatistics and Research Methodology",
+"Social and Preventive Pharmacy",
+"Pharma Marketing Management",
+"Pharmaceutical Regulatory Science",
+"Pharmacovigilance",
+"Quality Control and Standardization of Herbals",
+"Computer Aided Drug Design",
+"Cell and Molecular Biology",
+"Cosmetic Science",
+"Experimental Pharmacology",
+"Advanced Instrumentation Techniques",
+"Dietary Supplements and Nutraceuticals",
+"Project Work"
 ]
 
 };
 
 
-/* =================================
-   SUPABASE SETTINGS
-================================= */
+/* =====================================
+   SUPABASE
+===================================== */
 
-const SUPABASE_URL=
-'https://qgmpwanxqytoakmnklvy.supabase.co';
+const SUPABASE_URL =
+"https://qgmpwanxqytoakmnklvy.supabase.co";
 
-const SUPABASE_KEY=
-'sb_publishable_qlOg73Ee92_uzX9YsaRPIA_dMQX9gub';
+const SUPABASE_KEY =
+"sb_publishable_qlOg73Ee92_uzX9YsaRPIA_dMQX9gub";
 
-let supabaseClient=null;
-
-
-/*
-IMPORTANT:
-Do NOT initialize Supabase here.
-
-The semester cards must work even if
-the external Supabase library fails.
-*/
+let supabaseClient = null;
 
 
-/* =================================
+/* =====================================
    ELEMENTS
-================================= */
+===================================== */
 
-const notesBox=
-document.getElementById('notes');
+const notesBox =
+document.getElementById("notes");
 
-const breadcrumb=
-document.getElementById('breadcrumb');
+const breadcrumb =
+document.getElementById("breadcrumb");
 
-const menuBtn=
-document.getElementById('menuBtn');
+const menuBtn =
+document.getElementById("menuBtn");
 
-const mainNav=
-document.getElementById('mainNav');
+const mainNav =
+document.getElementById("mainNav");
 
-const modal=
-document.getElementById('pdfModal');
+const modal =
+document.getElementById("pdfModal");
 
-const viewer=
-document.getElementById('pdfViewer');
+const viewer =
+document.getElementById("pdfViewer");
 
-const pdfTitle=
-document.getElementById('pdfTitle');
+const pdfTitle =
+document.getElementById("pdfTitle");
 
-const downloadPdf=
-document.getElementById('downloadPdf');
+const downloadPdf =
+document.getElementById("downloadPdf");
 
-const counter=
-document.getElementById('pdfCounter');
+const counter =
+document.getElementById("pdfCounter");
 
-const closePdfBtn=
-document.getElementById('closePdf');
+const closePdfBtn =
+document.getElementById("closePdf");
 
 
-/* =================================
+/* =====================================
    HELPERS
-================================= */
+===================================== */
 
-function esc(v){
+function esc(value){
 
-return String(v??'')
-.replace(/[&<>"']/g,c=>({
+return String(value ?? "")
+.replace(/[&<>"']/g,function(c){
 
-'&':'&amp;',
-'<':'&lt;',
-'>':'&gt;',
-'"':'&quot;',
-"'":'&#039;'
+return {
+"&":"&amp;",
+"<":"&lt;",
+">":"&gt;",
+'"':"&quot;",
+"'":"&#039;"
+}[c];
 
-}[c]));
+});
 
 }
 
 
-function normalizeText(v){
+function normalizeText(value){
 
-return String(v??'')
+return String(value ?? "")
 .trim()
 .toLowerCase()
-.replace(/\s+/g,' ');
+.replace(/\s+/g," ");
 
 }
 
 
-function normalizeSemester(v){
+function normalizeSemester(value){
 
-const m=
-normalizeText(v).match(/([1-8])/);
+const match =
+normalizeText(value).match(/([1-8])/);
 
-return m?m[1]:'';
+return match ? match[1] : "";
 
 }
 
 
-function safeUrl(v){
+function safeUrl(value){
 
 try{
 
-const u=new URL(v);
+const url = new URL(value);
 
-return(
-u.protocol==='https:'||
-u.protocol==='http:'
-)?u.href:'';
+if(
+url.protocol === "https:" ||
+url.protocol === "http:"
+){
 
-}catch(e){
+return url.href;
 
-return '';
+}
+
+return "";
+
+}catch(error){
+
+return "";
 
 }
 
 }
 
 
-/* =================================
+/* =====================================
    MOBILE MENU
-================================= */
+===================================== */
 
-menuBtn.onclick=function(){
+menuBtn.onclick = function(){
 
-const open=
-mainNav.classList.toggle('open');
+const open =
+mainNav.classList.toggle("open");
 
 menuBtn.setAttribute(
-'aria-expanded',
+"aria-expanded",
 String(open)
 );
 
 };
 
 
-/* =================================
-   SEMESTERS
-================================= */
+/* =====================================
+   SUPABASE LOADER
+===================================== */
 
-function showSemesters(push=true){
+function getSupabase(){
 
-if(push){
+return new Promise(function(resolve,reject){
 
-history.pushState(
-{level:'semester'},
-'',
-'#semester'
+if(window.supabase){
+
+if(!supabaseClient){
+
+supabaseClient =
+window.supabase.createClient(
+SUPABASE_URL,
+SUPABASE_KEY
 );
 
 }
 
-breadcrumb.innerHTML=
-'<h2>Choose Semester</h2>';
+resolve(supabaseClient);
 
-notesBox.innerHTML=
-Object.keys(SUBJECTS).map(function(sem){
-
-return `
-
-<article
-class="level-card"
-onclick='showSubjects(${JSON.stringify(sem)})'
->
-
-<div>
-
-<div class="level-icon">
-📚
-</div>
-
-<h3>
-${esc(sem)}
-</h3>
-
-<p>
-Semester study resources
-</p>
-
-</div>
-
-<span class="level-arrow">
-Explore →
-</span>
-
-</article>
-
-`;
-
-}).join('');
+return;
 
 }
 
 
-/* =================================
-   SUBJECTS
-================================= */
+const existing =
+document.querySelector(
+'script[data-supabase-loader="true"]'
+);
 
-window.showSubjects=
+if(existing){
+
+existing.addEventListener(
+"load",
+function(){
+
+if(window.supabase){
+
+supabaseClient =
+window.supabase.createClient(
+SUPABASE_URL,
+SUPABASE_KEY
+);
+
+resolve(supabaseClient);
+
+}else{
+
+reject(
+new Error("Supabase failed to load.")
+);
+
+}
+
+},
+{once:true}
+);
+
+existing.addEventListener(
+"error",
+function(){
+
+reject(
+new Error("Supabase failed to load.")
+);
+
+},
+{once:true}
+);
+
+return;
+
+}
+
+
+const script =
+document.createElement("script");
+
+script.src =
+"https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2";
+
+script.dataset.supabaseLoader =
+"true";
+
+script.onload =
+function(){
+
+if(!window.supabase){
+
+reject(
+new Error("Supabase failed to load.")
+);
+
+return;
+
+}
+
+supabaseClient =
+window.supabase.createClient(
+SUPABASE_URL,
+SUPABASE_KEY
+);
+
+resolve(supabaseClient);
+
+};
+
+script.onerror =
+function(){
+
+reject(
+new Error("Supabase library could not be loaded.")
+);
+
+};
+
+document.head.appendChild(script);
+
+});
+
+}
+
+
+/* =====================================
+   SHOW SUBJECTS
+===================================== */
+
+window.showSubjects =
 function(semester,push=true){
 
 if(push){
 
 history.pushState(
 {
-level:'subject',
+level:"subject",
 semester:semester
 },
-'',
-'#subject'
+"",
+"#subject"
 );
 
 }
 
-breadcrumb.innerHTML=`
+
+breadcrumb.innerHTML = `
 
 <a
 class="back-btn"
@@ -716,36 +860,45 @@ ${esc(semester)}
 
 `;
 
-notesBox.innerHTML=
-(SUBJECTS[semester]||[]).map(function(subject){
 
-const project=
-subject==='Project Work';
+const subjects =
+SUBJECTS[semester] || [];
 
-const action=project
 
-?`showPDFs(
-${JSON.stringify(encodeURIComponent(semester))},
-${JSON.stringify(encodeURIComponent(subject))},
-${JSON.stringify(encodeURIComponent('All Units / Complete Notes'))}
-)`
+notesBox.innerHTML =
+subjects.map(function(subject){
 
-:`showUnits(
-${JSON.stringify(encodeURIComponent(semester))},
-${JSON.stringify(encodeURIComponent(subject))}
-)`;
+const project =
+subject === "Project Work";
+
 
 return `
 
 <article
 class="level-card"
-onclick='${action}'
->
+onclick="${
+project
+?
+"showPDFs(" +
+JSON.stringify(semester) +
+"," +
+JSON.stringify(subject) +
+"," +
+JSON.stringify("All Units / Complete Notes") +
+")"
+:
+"showUnits(" +
+JSON.stringify(semester) +
+"," +
+JSON.stringify(subject) +
+")"
+}
+">
 
 <div>
 
 <div class="level-icon">
-${project?'📋':'🧪'}
+${project ? "📋" : "🧪"}
 </div>
 
 <h3>
@@ -753,56 +906,59 @@ ${esc(subject)}
 </h3>
 
 <p>
-${project
-?'View project PDFs'
-:'View available units'}
+${
+project
+?
+"View project PDFs"
+:
+"View available units"
+}
 </p>
 
 </div>
 
 <span class="level-arrow">
-${project
-?'View PDFs →'
-:'View Units →'}
+${
+project
+?
+"View PDFs →"
+:
+"View Units →"
+}
 </span>
 
 </article>
 
 `;
 
-}).join('');
+}).join("");
 
 };
 
 
-/* =================================
-   UNITS
-================================= */
+/* =====================================
+   SHOW UNITS
+===================================== */
 
-window.showUnits=
-function(encodedSemester,encodedSubject,push=true){
-
-const semester=
-decodeURIComponent(encodedSemester);
-
-const subject=
-decodeURIComponent(encodedSubject);
+window.showUnits =
+function(semester,subject,push=true){
 
 if(push){
 
 history.pushState(
 {
-level:'unit',
+level:"unit",
 semester:semester,
 subject:subject
 },
-'',
-'#unit'
+"",
+"#unit"
 );
 
 }
 
-breadcrumb.innerHTML=`
+
+breadcrumb.innerHTML = `
 
 <a
 class="back-btn"
@@ -816,27 +972,33 @@ ${esc(subject)}
 
 `;
 
-const units=[
-'Unit 1',
-'Unit 2',
-'Unit 3',
-'Unit 4',
-'Unit 5',
-'All Units / Complete Notes'
+
+const units = [
+"Unit 1",
+"Unit 2",
+"Unit 3",
+"Unit 4",
+"Unit 5",
+"All Units / Complete Notes"
 ];
 
-notesBox.innerHTML=
+
+notesBox.innerHTML =
 units.map(function(unit){
 
 return `
 
 <article
 class="level-card"
-onclick='showPDFs(
-${JSON.stringify(encodeURIComponent(semester))},
-${JSON.stringify(encodeURIComponent(subject))},
-${JSON.stringify(encodeURIComponent(unit))}
-)'
+onclick="${
+"showPDFs(" +
+JSON.stringify(semester) +
+"," +
+JSON.stringify(subject) +
+"," +
+JSON.stringify(unit) +
+")"
+}"
 >
 
 <div>
@@ -863,175 +1025,40 @@ View PDFs →
 
 `;
 
-}).join('');
+}).join("");
 
 };
 
 
-/* =================================
-   LOAD SUPABASE ONLY WHEN NEEDED
-================================= */
+/* =====================================
+   SHOW PDFs
+===================================== */
 
-function loadSupabase(){
-
-return new Promise(function(resolve,reject){
-
-if(window.supabase){
-
-supabaseClient=
-window.supabase.createClient(
-SUPABASE_URL,
-SUPABASE_KEY
-);
-
-resolve();
-
-return;
-
-}
-
-
-const script=
-document.createElement('script');
-
-script.src=
-'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
-
-script.onload=function(){
-
-if(!window.supabase){
-
-reject(
-new Error('Supabase library could not be loaded.')
-);
-
-return;
-
-}
-
-supabaseClient=
-window.supabase.createClient(
-SUPABASE_URL,
-SUPABASE_KEY
-);
-
-resolve();
-
-};
-
-script.onerror=function(){
-
-reject(
-new Error(
-'Internet connection or Supabase service could not be loaded.'
-)
-);
-
-};
-
-document.head.appendChild(script);
-
-});
-
-}
-
-
-/* =================================
-   LOAD PDF.JS ONLY WHEN NEEDED
-================================= */
-
-function loadPdfJs(){
-
-return new Promise(function(resolve,reject){
-
-if(window.pdfjsLib){
-
-pdfjsLib.GlobalWorkerOptions.workerSrc=
-'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-
-resolve();
-
-return;
-
-}
-
-const script=
-document.createElement('script');
-
-script.src=
-'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
-
-script.onload=function(){
-
-if(!window.pdfjsLib){
-
-reject(
-new Error('PDF preview library could not be loaded.')
-);
-
-return;
-
-}
-
-pdfjsLib.GlobalWorkerOptions.workerSrc=
-'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-
-resolve();
-
-};
-
-script.onerror=function(){
-
-reject(
-new Error('PDF preview service could not be loaded.')
-);
-
-};
-
-document.head.appendChild(script);
-
-});
-
-}
-
-
-/* =================================
-   PDF LIST
-================================= */
-
-window.showPDFs=
+window.showPDFs =
 async function(
-encodedSemester,
-encodedSubject,
-encodedUnit,
+semester,
+subject,
+unit,
 push=true
 ){
-
-const semester=
-decodeURIComponent(encodedSemester);
-
-const subject=
-decodeURIComponent(encodedSubject);
-
-const unit=
-decodeURIComponent(encodedUnit);
 
 if(push){
 
 history.pushState(
 {
-level:'pdf',
+level:"pdf",
 semester:semester,
 subject:subject,
 unit:unit
 },
-'',
-'#pdf'
+"",
+"#pdf"
 );
 
 }
 
-breadcrumb.innerHTML=`
+
+breadcrumb.innerHTML = `
 
 <a
 class="back-btn"
@@ -1045,7 +1072,8 @@ ${esc(unit)}
 
 `;
 
-notesBox.innerHTML=`
+
+notesBox.innerHTML = `
 
 <div class="empty">
 Loading PDFs...
@@ -1053,20 +1081,24 @@ Loading PDFs...
 
 `;
 
+
 try{
 
-await loadSupabase();
+const client =
+await getSupabase();
 
-const result=
-await supabaseClient
-.from('notes')
-.select('*')
+
+const result =
+await client
+.from("notes")
+.select("*")
 .order(
-'created_at',
+"created_at",
 {
 ascending:false
 }
 );
+
 
 if(result.error){
 
@@ -1074,32 +1106,60 @@ throw result.error;
 
 }
 
-let filtered=
-(result.data||[]).filter(function(note){
 
-return(
+let filtered =
+(result.data || []).filter(
+function(note){
 
-normalizeSemester(note.semester)===
-normalizeSemester(semester)
+const sameSemester =
+normalizeSemester(
+note.semester
+) ===
+normalizeSemester(
+semester
+);
 
-&&
+const sameSubject =
+normalizeText(
+note.subject
+) ===
+normalizeText(
+subject
+);
 
-normalizeText(note.subject)===
-normalizeText(subject)
-
+return (
+sameSemester &&
+sameSubject
 );
 
 });
 
 
-if(unit!=='All Units / Complete Notes'){
+/*
+Normal subjects:
+filter by Unit.
 
-filtered=
-filtered.filter(function(note){
+Project Work:
+unit = All Units / Complete Notes,
+so show every Project Work PDF.
+*/
 
-return(
-normalizeText(note.unit)===
-normalizeText(unit)
+if(
+unit !==
+"All Units / Complete Notes"
+){
+
+filtered =
+filtered.filter(
+function(note){
+
+return (
+normalizeText(
+note.unit
+) ===
+normalizeText(
+unit
+)
 );
 
 });
@@ -1109,7 +1169,7 @@ normalizeText(unit)
 
 if(!filtered.length){
 
-notesBox.innerHTML=`
+notesBox.innerHTML = `
 
 <div class="empty">
 
@@ -1130,11 +1190,12 @@ return;
 
 renderPDFCards(filtered);
 
+
 }catch(error){
 
 console.error(error);
 
-notesBox.innerHTML=`
+notesBox.innerHTML = `
 
 <div class="empty">
 
@@ -1155,17 +1216,18 @@ ${esc(error.message)}
 };
 
 
-/* =================================
+/* =====================================
    PDF CARDS
-================================= */
+===================================== */
 
 function renderPDFCards(items){
 
-notesBox.innerHTML=
+notesBox.innerHTML =
 items.map(function(note){
 
-const url=
+const url =
 safeUrl(note.pdf_url);
+
 
 return `
 
@@ -1180,11 +1242,17 @@ PDF
 <div>
 
 <div class="pdf-label">
-${esc(note.unit||'Complete Notes')}
+${esc(
+note.unit ||
+"Complete Notes"
+)}
 </div>
 
 <h3>
-${esc(note.title||'Untitled PDF')}
+${esc(
+note.title ||
+"Untitled PDF"
+)}
 </h3>
 
 </div>
@@ -1193,8 +1261,8 @@ ${esc(note.title||'Untitled PDF')}
 
 <p>
 ${esc(
-note.description||
-'B.Pharm study resource.'
+note.description ||
+"B.Pharm study resource."
 )}
 </p>
 
@@ -1202,9 +1270,13 @@ note.description||
 
 <button
 class="pdf-btn preview-btn"
+type="button"
 onclick='openPdf(
 ${JSON.stringify(url)},
-${JSON.stringify(note.title||'PDF Preview')}
+${JSON.stringify(
+note.title ||
+"PDF Preview"
+)}
 )'
 >
 👁 View PDF
@@ -1225,65 +1297,183 @@ rel="noopener noreferrer"
 
 `;
 
-}).join('');
+}).join("");
 
 }
 
 
-/* =================================
-   OPEN PDF
-================================= */
+/* =====================================
+   PDF.JS LOADER
+===================================== */
 
-window.openPdf=
-async function(url,title){
+function getPdfJs(){
 
-if(!url){
+return new Promise(function(resolve,reject){
 
-alert(
-'PDF link is not valid.'
+if(window.pdfjsLib){
+
+pdfjsLib.GlobalWorkerOptions.workerSrc =
+"https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+
+resolve(window.pdfjsLib);
+
+return;
+
+}
+
+
+const existing =
+document.querySelector(
+'script[data-pdfjs-loader="true"]'
+);
+
+if(existing){
+
+existing.addEventListener(
+"load",
+function(){
+
+if(window.pdfjsLib){
+
+pdfjsLib.GlobalWorkerOptions.workerSrc =
+"https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+
+resolve(window.pdfjsLib);
+
+}else{
+
+reject(
+new Error("PDF.js failed to load.")
+);
+
+}
+
+},
+{once:true}
 );
 
 return;
 
 }
 
-modal.classList.add('open');
 
-document.body.style.overflow='hidden';
+const script =
+document.createElement("script");
 
-pdfTitle.textContent=title;
+script.src =
+"https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js";
 
-downloadPdf.href=url;
+script.dataset.pdfjsLoader =
+"true";
 
-viewer.innerHTML=`
+script.onload =
+function(){
+
+if(!window.pdfjsLib){
+
+reject(
+new Error("PDF.js failed to load.")
+);
+
+return;
+
+}
+
+pdfjsLib.GlobalWorkerOptions.workerSrc =
+"https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+
+resolve(window.pdfjsLib);
+
+};
+
+script.onerror =
+function(){
+
+reject(
+new Error("PDF preview library could not be loaded.")
+);
+
+};
+
+document.head.appendChild(script);
+
+});
+
+}
+
+
+/* =====================================
+   OPEN PDF
+===================================== */
+
+window.openPdf =
+async function(url,title){
+
+if(!url){
+
+alert(
+"PDF link is not valid."
+);
+
+return;
+
+}
+
+
+modal.classList.add("open");
+
+document.body.style.overflow =
+"hidden";
+
+pdfTitle.textContent =
+title;
+
+downloadPdf.href =
+url;
+
+counter.textContent =
+"Loading...";
+
+viewer.innerHTML = `
 
 <div class="pdf-loading">
+
 Loading high-resolution preview...
+
 </div>
 
 `;
 
+
 try{
 
-await loadPdfJs();
+const pdfjs =
+await getPdfJs();
 
-currentPdf=
-await pdfjsLib
+
+const pdf =
+await pdfjs
 .getDocument({
 url:url
 })
 .promise;
 
-const total=
+
+const total =
 Math.min(
-currentPdf.numPages,
+pdf.numPages,
 5
 );
 
-counter.textContent=
-'First '+total+' pages';
 
-viewer.innerHTML='';
+counter.textContent =
+"First " +
+total +
+" pages";
+
+
+viewer.innerHTML =
+"";
 
 
 for(
@@ -1292,17 +1482,20 @@ pageNumber<=total;
 pageNumber++
 ){
 
-await renderHighQualityPage(
-pageNumber
+await renderPage(
+pdf,
+pageNumber,
+total
 );
 
 }
+
 
 }catch(error){
 
 console.error(error);
 
-viewer.innerHTML=`
+viewer.innerHTML = `
 
 <div class="pdf-loading">
 
@@ -1328,241 +1521,6 @@ Open Full PDF
 };
 
 
-/* =================================
-   HIGH QUALITY PDF
-================================= */
-
-async function renderHighQualityPage(pageNumber){
-
-const page=
-await currentPdf.getPage(
-pageNumber
-);
-
-const base=
-page.getViewport({
-scale:1
-});
-
-const availableWidth=
-Math.max(
-280,
-Math.min(
-viewer.clientWidth-12,
-1000
-)
-);
-
-const cssScale=
-availableWidth/base.width;
-
-
-/*
-4x rendering for sharp text.
-*/
-
-const renderScale=
-cssScale*4;
-
-const renderViewport=
-page.getViewport({
-scale:renderScale
-});
-
-const cssViewport=
-page.getViewport({
-scale:cssScale
-});
-
-const wrap=
-document.createElement('div');
-
-wrap.className=
-'pdf-page';
-
-const canvas=
-document.createElement('canvas');
-
-canvas.width=
-Math.ceil(
-renderViewport.width
-);
-
-canvas.height=
-Math.ceil(
-renderViewport.height
-);
-
-canvas.style.width=
-Math.ceil(
-cssViewport.width
-)+'px';
-
-canvas.style.height=
-Math.ceil(
-cssViewport.height
-)+'px';
-
-const context=
-canvas.getContext(
-'2d',
-{
-alpha:false
-}
-);
-
-context.imageSmoothingEnabled=true;
-
-context.imageSmoothingQuality='high';
-
-wrap.appendChild(canvas);
-
-const label=
-document.createElement('div');
-
-label.className=
-'page-label';
-
-label.textContent=
-'Preview Page '+
-pageNumber+
-' of '+
-Math.min(
-currentPdf.numPages,
-5
-);
-
-wrap.appendChild(label);
-
-viewer.appendChild(wrap);
-
-await page.render({
-
-canvasContext:context,
-
-viewport:renderViewport,
-
-intent:'display'
-
-}).promise;
-
-}
-
-
-/* =================================
-   CLOSE PDF
-================================= */
-
-function closePdf(){
-
-modal.classList.remove('open');
-
-document.body.style.overflow='';
-
-viewer.innerHTML='';
-
-currentPdf=null;
-
-}
-
-closePdfBtn.onclick=
-closePdf;
-
-
-modal.addEventListener(
-'click',
-function(e){
-
-if(e.target===modal){
-
-closePdf();
-
-}
-
-});
-
-
-document.addEventListener(
-'keydown',
-function(e){
-
-if(
-e.key==='Escape' &&
-modal.classList.contains('open')
-){
-
-closePdf();
-
-}
-
-});
-
-
-/* =================================
-   BACK NAVIGATION
-================================= */
-
-window.addEventListener(
-'popstate',
-function(event){
-
-if(
-modal.classList.contains('open')
-){
-
-closePdf();
-
-}
-
-const state=
-event.state;
-
-if(
-!state ||
-state.level==='semester'
-){
-
-showSemesters(false);
-
-return;
-
-}
-
-if(
-state.level==='subject'
-){
-
-showSubjects(
-state.semester,
-false
-);
-
-return;
-
-}
-
-if(
-state.level==='unit'
-){
-
-showUnits(
-encodeURIComponent(
-state.semester
-),
-encodeURIComponent(
-state.subject
-),
-false
-);
-
-return;
-
-}
-
-if(
-state.level==='pdf'
-){
-
-showPDFs(
-encodeURIComponent(
-state.sem
+/* =====================================
+   HIGH QUALITY PDF PAGE
+==========

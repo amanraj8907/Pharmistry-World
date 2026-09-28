@@ -2,8 +2,13 @@
 <html lang="en">
 
 <head>
+
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+
+  <meta
+    name="viewport"
+    content="width=device-width,initial-scale=1"
+  >
 
   <meta
     name="description"
@@ -13,513 +18,33 @@
   <title>B.Pharm Notes | Pharmistry World</title>
 
   <link rel="icon" href="logo.png">
-  <link rel="stylesheet" href="style.css?v=20260928-1">
 
-  <!-- PDF.js -->
-  <script
-    src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.mjs"
-    type="module"
-  ></script>
+  <link
+    rel="stylesheet"
+    href="style.css?v=20260928-2"
+  >
 
-  <style>
+  <!-- SUPABASE MUST LOAD FIRST -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-    /* =========================
-       PAGE
-    ========================= */
-
-    .notes-page {
-      padding: 45px 20px 80px;
-      min-height: 70vh;
-    }
-
-    .notes-head {
-      max-width: 1050px;
-      margin: 0 auto 35px;
-    }
-
-    .notes-head h1 {
-      margin: 8px 0 10px;
-      font-size: clamp(34px, 6vw, 52px);
-      line-height: 1.05;
-    }
-
-    .notes-head p {
-      max-width: 700px;
-      opacity: .72;
-      font-size: 17px;
-      line-height: 1.7;
-    }
-
-    /* =========================
-       BREADCRUMB
-    ========================= */
-
-    .breadcrumb {
-      max-width: 1050px;
-      margin: 0 auto 28px;
-      min-height: 52px;
-    }
-
-    .breadcrumb h2 {
-      margin: 10px 0 0;
-      font-size: 28px;
-    }
-
-    .back-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 7px;
-      padding: 12px 18px;
-      border-radius: 12px;
-      background: #f1f5f5;
-      color: #173c3b;
-      text-decoration: none;
-      font-weight: 600;
-      cursor: pointer;
-      transition: .2s ease;
-    }
-
-    .back-btn:hover {
-      background: #e2eeee;
-      transform: translateX(-2px);
-    }
-
-    /* =========================
-       GRID
-    ========================= */
-
-    .notes-grid {
-      max-width: 1050px;
-      margin: 0 auto;
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 20px;
-    }
-
-    /* =========================
-       SEMESTER / SUBJECT / UNIT
-    ========================= */
-
-    .level-card {
-      background: #fff;
-      border: 1px solid #e4e9e8;
-      border-radius: 20px;
-      padding: 25px;
-      min-height: 145px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      text-decoration: none;
-      color: inherit;
-      box-shadow: 0 8px 25px rgba(0,0,0,.045);
-      transition:
-        transform .2s ease,
-        box-shadow .2s ease,
-        border-color .2s ease;
-      cursor: pointer;
-    }
-
-    .level-card:hover {
-      transform: translateY(-4px);
-      border-color: #0f8b82;
-      box-shadow: 0 15px 35px rgba(15,118,110,.12);
-    }
-
-    .level-icon {
-      width: 48px;
-      height: 48px;
-      display: grid;
-      place-items: center;
-      border-radius: 14px;
-      background: #e9f7f5;
-      color: #08786f;
-      font-size: 23px;
-      margin-bottom: 18px;
-    }
-
-    .level-card h3 {
-      margin: 0 0 8px;
-      font-size: 20px;
-    }
-
-    .level-card p {
-      margin: 0;
-      color: #64716f;
-      line-height: 1.5;
-      font-size: 14px;
-    }
-
-    .level-arrow {
-      margin-top: 20px;
-      color: #08786f;
-      font-weight: 700;
-    }
-
-    /* =========================
-       PDF RESOURCE CARD
-    ========================= */
-
-    .pdf-card {
-      background: #fff;
-      border: 1px solid #e2e7e6;
-      border-radius: 20px;
-      padding: 24px;
-      box-shadow: 0 8px 25px rgba(0,0,0,.045);
-      transition: .2s ease;
-    }
-
-    .pdf-card:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 14px 35px rgba(0,0,0,.08);
-    }
-
-    .pdf-top {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      margin-bottom: 18px;
-    }
-
-    .pdf-icon {
-      width: 50px;
-      height: 50px;
-      border-radius: 14px;
-      display: grid;
-      place-items: center;
-      background: #fff0ef;
-      color: #d63b30;
-      font-size: 23px;
-      flex-shrink: 0;
-    }
-
-    .pdf-label {
-      font-size: 12px;
-      font-weight: 800;
-      color: #d63b30;
-      letter-spacing: .08em;
-    }
-
-    .pdf-card h3 {
-      margin: 5px 0 0;
-      font-size: 20px;
-      line-height: 1.35;
-    }
-
-    .pdf-card p {
-      color: #687371;
-      line-height: 1.6;
-      margin: 12px 0 20px;
-    }
-
-    .pdf-actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
-
-    .pdf-btn {
-      border: 0;
-      border-radius: 11px;
-      padding: 11px 15px;
-      font-weight: 700;
-      font-size: 14px;
-      cursor: pointer;
-      text-decoration: none;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 7px;
-      transition: .2s ease;
-    }
-
-    .preview-btn {
-      background: #087f76;
-      color: white;
-    }
-
-    .preview-btn:hover {
-      background: #066b64;
-      transform: translateY(-1px);
-    }
-
-    .download-btn {
-      background: #eef3f2;
-      color: #183b39;
-    }
-
-    .download-btn:hover {
-      background: #e0e9e7;
-    }
-
-    /* =========================
-       EMPTY / LOADING
-    ========================= */
-
-    .empty {
-      max-width: 1050px;
-      margin: 35px auto;
-      text-align: center;
-      padding: 50px 20px;
-      border-radius: 20px;
-      background: #f7f9f9;
-      color: #64716f;
-    }
-
-    /* =========================
-       PDF MODAL
-    ========================= */
-
-    .pdf-modal {
-      position: fixed;
-      inset: 0;
-      z-index: 9999;
-      background: rgba(5, 20, 20, .88);
-      display: none;
-      flex-direction: column;
-      backdrop-filter: blur(7px);
-    }
-
-    .pdf-modal.open {
-      display: flex;
-    }
-
-    .pdf-modal-header {
-      height: 64px;
-      flex-shrink: 0;
-      background: #102b2a;
-      color: white;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 18px;
-      gap: 12px;
-    }
-
-    .pdf-modal-title {
-      min-width: 0;
-    }
-
-    .pdf-modal-title strong {
-      display: block;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      max-width: 55vw;
-    }
-
-    .pdf-modal-title small {
-      opacity: .65;
-      display: block;
-      margin-top: 2px;
-    }
-
-    .modal-close {
-      width: 40px;
-      height: 40px;
-      border: 0;
-      border-radius: 10px;
-      background: rgba(255,255,255,.1);
-      color: white;
-      font-size: 25px;
-      cursor: pointer;
-    }
-
-    .modal-close:hover {
-      background: rgba(255,255,255,.18);
-    }
-
-    /* =========================
-       PDF VIEWER
-    ========================= */
-
-    .pdf-viewer {
-      flex: 1;
-      overflow: auto;
-      padding: 25px 15px 100px;
-      text-align: center;
-    }
-
-    .pdf-page-wrap {
-      margin: 0 auto 22px;
-      max-width: 900px;
-      background: white;
-      box-shadow: 0 10px 35px rgba(0,0,0,.35);
-      border-radius: 4px;
-      overflow: hidden;
-    }
-
-    .pdf-page-wrap canvas {
-      display: block;
-      width: 100%;
-      height: auto;
-    }
-
-    .page-number {
-      background: #102b2a;
-      color: rgba(255,255,255,.75);
-      padding: 7px;
-      font-size: 12px;
-      text-align: center;
-    }
-
-    /* =========================
-       MODAL BOTTOM BAR
-    ========================= */
-
-    .pdf-toolbar {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      z-index: 10000;
-      background: rgba(16,43,42,.97);
-      border-top: 1px solid rgba(255,255,255,.1);
-      padding: 12px 15px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 12px;
-    }
-
-    .page-nav-btn {
-      border: 0;
-      border-radius: 10px;
-      padding: 10px 16px;
-      background: rgba(255,255,255,.1);
-      color: white;
-      font-weight: 700;
-      cursor: pointer;
-    }
-
-    .page-nav-btn:disabled {
-      opacity: .35;
-      cursor: not-allowed;
-    }
-
-    .page-counter {
-      color: white;
-      font-size: 14px;
-      min-width: 95px;
-      text-align: center;
-    }
-
-    .full-download {
-      background: #0d8d83;
-      color: white;
-      text-decoration: none;
-      padding: 10px 16px;
-      border-radius: 10px;
-      font-weight: 700;
-    }
-
-    /* =========================
-       LOADER
-    ========================= */
-
-    .pdf-loading {
-      color: white;
-      padding: 60px 20px;
-      font-size: 16px;
-    }
-
-    .spinner {
-      width: 38px;
-      height: 38px;
-      border: 3px solid rgba(255,255,255,.25);
-      border-top-color: white;
-      border-radius: 50%;
-      margin: 0 auto 15px;
-      animation: spin .8s linear infinite;
-    }
-
-    @keyframes spin {
-      to {
-        transform: rotate(360deg);
-      }
-    }
-
-    /* =========================
-       MOBILE
-    ========================= */
-
-    @media (max-width: 850px) {
-
-      .notes-grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
-
-    }
-
-    @media (max-width: 600px) {
-
-      .notes-page {
-        padding: 30px 15px 60px;
-      }
-
-      .notes-grid {
-        grid-template-columns: 1fr;
-        gap: 15px;
-      }
-
-      .notes-head h1 {
-        font-size: 35px;
-      }
-
-      .notes-head p {
-        font-size: 15px;
-      }
-
-      .pdf-card {
-        padding: 20px;
-      }
-
-      .pdf-actions {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-      }
-
-      .pdf-btn {
-        width: 100%;
-      }
-
-      .pdf-modal-header {
-        height: 58px;
-      }
-
-      .pdf-modal-title strong {
-        max-width: 65vw;
-        font-size: 14px;
-      }
-
-      .pdf-toolbar {
-        gap: 7px;
-        padding: 9px 7px;
-      }
-
-      .page-nav-btn,
-      .full-download {
-        padding: 9px 10px;
-        font-size: 12px;
-      }
-
-      .page-counter {
-        min-width: 65px;
-        font-size: 12px;
-      }
-
-    }
-
-  </style>
 </head>
 
 
 <body>
 
+
+<!-- =========================
+     HEADER
+========================= -->
+
 <header>
 
   <div class="container nav">
 
-    <a class="brand" href="index.html">
+    <a
+      class="brand"
+      href="index.html"
+    >
 
       <img
         src="logo.png"
@@ -527,10 +52,15 @@
       >
 
       <span>
-        <b>Pharmistry World</b>
+
+        <b>
+          Pharmistry World
+        </b>
+
         <small>
           Learn. Explore. Grow in Pharma.
         </small>
+
       </span>
 
     </a>
@@ -538,13 +68,16 @@
 
     <button
       class="menu-btn"
+      id="menuBtn"
       aria-label="Menu"
+      aria-expanded="false"
+      type="button"
     >
       ☰
     </button>
 
 
-    <nav>
+    <nav id="mainNav">
 
       <a href="index.html">
         Home
@@ -576,7 +109,12 @@
 </header>
 
 
+<!-- =========================
+     MAIN
+========================= -->
+
 <main class="notes-page">
+
 
   <section class="notes-head">
 
@@ -584,17 +122,21 @@
       B.PHARM STUDY RESOURCES
     </span>
 
+
     <h1>
       B.Pharm Notes
     </h1>
 
+
     <p>
-      Find study material semester-wise, subject-wise and
-      unit-wise. Preview PDFs before downloading.
+      Find study material semester-wise, subject-wise
+      and unit-wise. Preview PDFs before downloading.
     </p>
 
   </section>
 
+
+  <!-- BREADCRUMB -->
 
   <div
     id="breadcrumb"
@@ -602,13 +144,26 @@
   ></div>
 
 
+  <!-- NOTES -->
+
   <section
     id="notes"
     class="notes-grid"
-  ></section>
+  >
+
+    <div class="empty">
+      Loading B.Pharm Notes...
+    </div>
+
+  </section>
+
 
 </main>
 
+
+<!-- =========================
+     FOOTER
+========================= -->
 
 <footer>
 
@@ -651,7 +206,9 @@
 
 
   <div class="container copy">
+
     © 2026 Pharmistry World. All rights reserved.
+
   </div>
 
 </footer>
@@ -667,7 +224,9 @@
   aria-hidden="true"
 >
 
+
   <header class="pdf-modal-header">
+
 
     <div class="pdf-modal-title">
 
@@ -685,6 +244,7 @@
     <button
       id="closeModal"
       class="modal-close"
+      type="button"
       aria-label="Close PDF"
     >
       ×
@@ -710,6 +270,7 @@
 
 
   <div class="pdf-toolbar">
+
 
     <button
       id="prevPage"
@@ -752,445 +313,1640 @@
 </div>
 
 
-<script src="script.js"></script>
+<!-- =========================
+     STYLES
+========================= -->
+
+<style>
 
 
-<script type="module">
+/* =========================
+   PAGE
+========================= */
 
-  /* =========================
-     SUPABASE
-  ========================= */
+.notes-page {
 
-  const SUPABASE_URL =
-    'https://qgmpwanxqytoakmnklvy.supabase.co';
+  padding:
+    45px
+    20px
+    80px;
 
-  const SUPABASE_KEY =
-    'sb_publishable_qlOg73Ee92_uzX9YsaRPIA_dMQX9gub';
+  min-height:
+    70vh;
 
-
-  const supabaseClient =
-    window.supabase?.createClient
-      ? window.supabase.createClient(
-          SUPABASE_URL,
-          SUPABASE_KEY
-        )
-      : null;
+}
 
 
-  /* =========================
-     PDF.JS
-  ========================= */
+.notes-head {
 
-  import(
-    'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.mjs'
-  ).then(async pdfjsLib => {
+  max-width:
+    1050px;
 
-    pdfjsLib.GlobalWorkerOptions.workerSrc =
-      'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.worker.min.mjs';
+  margin:
+    0 auto 35px;
 
-    window.pdfjsLib = pdfjsLib;
-
-  }).catch(error => {
-
-    console.error(
-      'PDF.js failed to load:',
-      error
-    );
-
-  });
+}
 
 
-  /* =========================
-     HELPERS
-  ========================= */
+.notes-head h1 {
 
-  const notesBox =
-    document.getElementById('notes');
+  margin:
+    8px 0 10px;
 
-  const breadcrumb =
-    document.getElementById('breadcrumb');
+  font-size:
+    clamp(34px, 6vw, 52px);
 
-  const modal =
-    document.getElementById('pdfModal');
+  line-height:
+    1.05;
 
-  const viewer =
-    document.getElementById('pdfViewer');
-
-  const modalTitle =
-    document.getElementById('modalTitle');
-
-  const downloadBtn =
-    document.getElementById('modalDownload');
-
-  const pageCounter =
-    document.getElementById('pageCounter');
-
-  const prevBtn =
-    document.getElementById('prevPage');
-
-  const nextBtn =
-    document.getElementById('nextPage');
-
-  const closeBtn =
-    document.getElementById('closeModal');
+}
 
 
-  let notes = [];
+.notes-head p {
 
-  let currentPdf = null;
+  max-width:
+    700px;
 
-  let currentPage = 1;
+  opacity:
+    .72;
 
-  let totalPreviewPages = 0;
+  font-size:
+    17px;
 
-  let currentPdfUrl = '';
+  line-height:
+    1.7;
+
+}
 
 
-  function escapeHtml(value) {
+/* =========================
+   BREADCRUMB
+========================= */
 
-    return String(value ?? '')
-      .replace(
-        /[&<>"']/g,
-        c => ({
-          '&': '&amp;',
-          '<': '&lt;',
-          '>': '&gt;',
-          '"': '&quot;',
-          "'": '&#039;'
-        }[c])
+.breadcrumb {
+
+  max-width:
+    1050px;
+
+  margin:
+    0 auto 28px;
+
+  min-height:
+    52px;
+
+}
+
+
+.breadcrumb h2 {
+
+  margin:
+    10px 0 0;
+
+  font-size:
+    28px;
+
+}
+
+
+.back-btn {
+
+  display:
+    inline-flex;
+
+  align-items:
+    center;
+
+  gap:
+    7px;
+
+  padding:
+    12px 18px;
+
+  border-radius:
+    12px;
+
+  background:
+    #f1f5f5;
+
+  color:
+    #173c3b;
+
+  text-decoration:
+    none;
+
+  font-weight:
+    600;
+
+  cursor:
+    pointer;
+
+  transition:
+    .2s ease;
+
+}
+
+
+.back-btn:hover {
+
+  background:
+    #e2eeee;
+
+  transform:
+    translateX(-2px);
+
+}
+
+
+/* =========================
+   GRID
+========================= */
+
+.notes-grid {
+
+  max-width:
+    1050px;
+
+  margin:
+    0 auto;
+
+  display:
+    grid;
+
+  grid-template-columns:
+    repeat(3,1fr);
+
+  gap:
+    20px;
+
+}
+
+
+/* =========================
+   LEVEL CARDS
+========================= */
+
+.level-card {
+
+  background:
+    #fff;
+
+  border:
+    1px solid #e4e9e8;
+
+  border-radius:
+    20px;
+
+  padding:
+    25px;
+
+  min-height:
+    145px;
+
+  display:
+    flex;
+
+  flex-direction:
+    column;
+
+  justify-content:
+    space-between;
+
+  text-decoration:
+    none;
+
+  color:
+    inherit;
+
+  box-shadow:
+    0 8px 25px rgba(0,0,0,.045);
+
+  transition:
+    transform .2s ease,
+    box-shadow .2s ease,
+    border-color .2s ease;
+
+  cursor:
+    pointer;
+
+}
+
+
+.level-card:hover {
+
+  transform:
+    translateY(-4px);
+
+  border-color:
+    #0f8b82;
+
+  box-shadow:
+    0 15px 35px
+    rgba(15,118,110,.12);
+
+}
+
+
+.level-icon {
+
+  width:
+    48px;
+
+  height:
+    48px;
+
+  display:
+    grid;
+
+  place-items:
+    center;
+
+  border-radius:
+    14px;
+
+  background:
+    #e9f7f5;
+
+  color:
+    #08786f;
+
+  font-size:
+    23px;
+
+  margin-bottom:
+    18px;
+
+}
+
+
+.level-card h3 {
+
+  margin:
+    0 0 8px;
+
+  font-size:
+    20px;
+
+}
+
+
+.level-card p {
+
+  margin:
+    0;
+
+  color:
+    #64716f;
+
+  line-height:
+    1.5;
+
+  font-size:
+    14px;
+
+}
+
+
+.level-arrow {
+
+  margin-top:
+    20px;
+
+  color:
+    #08786f;
+
+  font-weight:
+    700;
+
+}
+
+
+/* =========================
+   PDF CARD
+========================= */
+
+.pdf-card {
+
+  background:
+    #fff;
+
+  border:
+    1px solid #e2e7e6;
+
+  border-radius:
+    20px;
+
+  padding:
+    24px;
+
+  box-shadow:
+    0 8px 25px
+    rgba(0,0,0,.045);
+
+  transition:
+    .2s ease;
+
+}
+
+
+.pdf-card:hover {
+
+  transform:
+    translateY(-3px);
+
+  box-shadow:
+    0 14px 35px
+    rgba(0,0,0,.08);
+
+}
+
+
+.pdf-top {
+
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  gap:
+    14px;
+
+  margin-bottom:
+    18px;
+
+}
+
+
+.pdf-icon {
+
+  width:
+    50px;
+
+  height:
+    50px;
+
+  border-radius:
+    14px;
+
+  display:
+    grid;
+
+  place-items:
+    center;
+
+  background:
+    #fff0ef;
+
+  color:
+    #d63b30;
+
+  font-size:
+    14px;
+
+  font-weight:
+    800;
+
+  flex-shrink:
+    0;
+
+}
+
+
+.pdf-label {
+
+  font-size:
+    12px;
+
+  font-weight:
+    800;
+
+  color:
+    #d63b30;
+
+  letter-spacing:
+    .08em;
+
+}
+
+
+.pdf-card h3 {
+
+  margin:
+    5px 0 0;
+
+  font-size:
+    20px;
+
+  line-height:
+    1.35;
+
+}
+
+
+.pdf-card p {
+
+  color:
+    #687371;
+
+  line-height:
+    1.6;
+
+  margin:
+    12px 0 20px;
+
+}
+
+
+.pdf-actions {
+
+  display:
+    flex;
+
+  flex-wrap:
+    wrap;
+
+  gap:
+    10px;
+
+}
+
+
+.pdf-btn {
+
+  border:
+    0;
+
+  border-radius:
+    11px;
+
+  padding:
+    11px 15px;
+
+  font-weight:
+    700;
+
+  font-size:
+    14px;
+
+  cursor:
+    pointer;
+
+  text-decoration:
+    none;
+
+  display:
+    inline-flex;
+
+  align-items:
+    center;
+
+  justify-content:
+    center;
+
+  gap:
+    7px;
+
+  transition:
+    .2s ease;
+
+}
+
+
+.preview-btn {
+
+  background:
+    #087f76;
+
+  color:
+    white;
+
+}
+
+
+.preview-btn:hover {
+
+  background:
+    #066b64;
+
+  transform:
+    translateY(-1px);
+
+}
+
+
+.download-btn {
+
+  background:
+    #eef3f2;
+
+  color:
+    #183b39;
+
+}
+
+
+.download-btn:hover {
+
+  background:
+    #e0e9e7;
+
+}
+
+
+/* =========================
+   EMPTY
+========================= */
+
+.empty {
+
+  max-width:
+    1050px;
+
+  margin:
+    35px auto;
+
+  text-align:
+    center;
+
+  padding:
+    50px 20px;
+
+  border-radius:
+    20px;
+
+  background:
+    #f7f9f9;
+
+  color:
+    #64716f;
+
+}
+
+
+/* =========================
+   PDF MODAL
+========================= */
+
+.pdf-modal {
+
+  position:
+    fixed;
+
+  inset:
+    0;
+
+  z-index:
+    9999;
+
+  background:
+    rgba(5,20,20,.88);
+
+  display:
+    none;
+
+  flex-direction:
+    column;
+
+  backdrop-filter:
+    blur(7px);
+
+}
+
+
+.pdf-modal.open {
+
+  display:
+    flex;
+
+}
+
+
+.pdf-modal-header {
+
+  height:
+    64px;
+
+  flex-shrink:
+    0;
+
+  background:
+    #102b2a;
+
+  color:
+    white;
+
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  justify-content:
+    space-between;
+
+  padding:
+    0 18px;
+
+  gap:
+    12px;
+
+}
+
+
+.pdf-modal-title {
+
+  min-width:
+    0;
+
+}
+
+
+.pdf-modal-title strong {
+
+  display:
+    block;
+
+  white-space:
+    nowrap;
+
+  overflow:
+    hidden;
+
+  text-overflow:
+    ellipsis;
+
+  max-width:
+    55vw;
+
+}
+
+
+.pdf-modal-title small {
+
+  opacity:
+    .65;
+
+  display:
+    block;
+
+  margin-top:
+    2px;
+
+}
+
+
+.modal-close {
+
+  width:
+    40px;
+
+  height:
+    40px;
+
+  border:
+    0;
+
+  border-radius:
+    10px;
+
+  background:
+    rgba(255,255,255,.1);
+
+  color:
+    white;
+
+  font-size:
+    25px;
+
+  cursor:
+    pointer;
+
+}
+
+
+.modal-close:hover {
+
+  background:
+    rgba(255,255,255,.18);
+
+}
+
+
+/* =========================
+   PDF VIEWER
+========================= */
+
+.pdf-viewer {
+
+  flex:
+    1;
+
+  overflow:
+    auto;
+
+  padding:
+    25px 15px 100px;
+
+  text-align:
+    center;
+
+}
+
+
+.pdf-page-wrap {
+
+  margin:
+    0 auto 22px;
+
+  max-width:
+    900px;
+
+  background:
+    white;
+
+  box-shadow:
+    0 10px 35px
+    rgba(0,0,0,.35);
+
+  border-radius:
+    4px;
+
+  overflow:
+    hidden;
+
+}
+
+
+.pdf-page-wrap canvas {
+
+  display:
+    block;
+
+  width:
+    100%;
+
+  height:
+    auto;
+
+}
+
+
+.page-number {
+
+  background:
+    #102b2a;
+
+  color:
+    rgba(255,255,255,.75);
+
+  padding:
+    7px;
+
+  font-size:
+    12px;
+
+  text-align:
+    center;
+
+}
+
+
+/* =========================
+   TOOLBAR
+========================= */
+
+.pdf-toolbar {
+
+  position:
+    fixed;
+
+  bottom:
+    0;
+
+  left:
+    0;
+
+  right:
+    0;
+
+  z-index:
+    10000;
+
+  background:
+    rgba(16,43,42,.97);
+
+  border-top:
+    1px solid
+    rgba(255,255,255,.1);
+
+  padding:
+    12px 15px;
+
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  justify-content:
+    center;
+
+  gap:
+    12px;
+
+}
+
+
+.page-nav-btn {
+
+  border:
+    0;
+
+  border-radius:
+    10px;
+
+  padding:
+    10px 16px;
+
+  background:
+    rgba(255,255,255,.1);
+
+  color:
+    white;
+
+  font-weight:
+    700;
+
+  cursor:
+    pointer;
+
+}
+
+
+.page-nav-btn:disabled {
+
+  opacity:
+    .35;
+
+  cursor:
+    not-allowed;
+
+}
+
+
+.page-counter {
+
+  color:
+    white;
+
+  font-size:
+    14px;
+
+  min-width:
+    95px;
+
+  text-align:
+    center;
+
+}
+
+
+.full-download {
+
+  background:
+    #0d8d83;
+
+  color:
+    white;
+
+  text-decoration:
+    none;
+
+  padding:
+    10px 16px;
+
+  border-radius:
+    10px;
+
+  font-weight:
+    700;
+
+}
+
+
+/* =========================
+   LOADING
+========================= */
+
+.pdf-loading {
+
+  color:
+    white;
+
+  padding:
+    60px 20px;
+
+  font-size:
+    16px;
+
+}
+
+
+.spinner {
+
+  width:
+    38px;
+
+  height:
+    38px;
+
+  border:
+    3px solid
+    rgba(255,255,255,.25);
+
+  border-top-color:
+    white;
+
+  border-radius:
+    50%;
+
+  margin:
+    0 auto 15px;
+
+  animation:
+    spin .8s linear infinite;
+
+}
+
+
+@keyframes spin {
+
+  to {
+    transform:
+      rotate(360deg);
+  }
+
+}
+
+
+/* =========================
+   MOBILE
+========================= */
+
+@media (max-width:850px) {
+
+  .notes-grid {
+
+    grid-template-columns:
+      repeat(2,1fr);
+
+  }
+
+}
+
+
+@media (max-width:600px) {
+
+  .notes-page {
+
+    padding:
+      30px 15px 60px;
+
+  }
+
+
+  .notes-grid {
+
+    grid-template-columns:
+      1fr;
+
+    gap:
+      15px;
+
+  }
+
+
+  .notes-head h1 {
+
+    font-size:
+      35px;
+
+  }
+
+
+  .notes-head p {
+
+    font-size:
+      15px;
+
+  }
+
+
+  .pdf-card {
+
+    padding:
+      20px;
+
+  }
+
+
+  .pdf-actions {
+
+    display:
+      grid;
+
+    grid-template-columns:
+      1fr 1fr;
+
+  }
+
+
+  .pdf-btn {
+
+    width:
+      100%;
+
+  }
+
+
+  .pdf-modal-header {
+
+    height:
+      58px;
+
+  }
+
+
+  .pdf-modal-title strong {
+
+    max-width:
+      65vw;
+
+    font-size:
+      14px;
+
+  }
+
+
+  .pdf-toolbar {
+
+    gap:
+      7px;
+
+    padding:
+      9px 7px;
+
+  }
+
+
+  .page-nav-btn,
+  .full-download {
+
+    padding:
+      9px 10px;
+
+    font-size:
+      12px;
+
+  }
+
+
+  .page-counter {
+
+    min-width:
+      65px;
+
+    font-size:
+      12px;
+
+  }
+
+}
+
+
+</style>
+
+
+<!-- =========================
+     JAVASCRIPT
+========================= -->
+
+<script>
+
+
+/* =========================
+   SUPABASE
+========================= */
+
+const SUPABASE_URL =
+  'https://qgmpwanxqytoakmnklvy.supabase.co';
+
+
+const SUPABASE_KEY =
+  'sb_publishable_qlOg73Ee92_uzX9YsaRPIA_dMQX9gub';
+
+
+const supabaseClient =
+  window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+  );
+
+
+/* =========================
+   MOBILE MENU
+========================= */
+
+const menuBtn =
+  document.getElementById('menuBtn');
+
+const mainNav =
+  document.getElementById('mainNav');
+
+
+if (menuBtn && mainNav) {
+
+  menuBtn.addEventListener(
+    'click',
+    () => {
+
+      const opened =
+        mainNav.classList.toggle('open');
+
+      menuBtn.setAttribute(
+        'aria-expanded',
+        String(opened)
       );
 
+    }
+  );
+
+
+  mainNav
+    .querySelectorAll('a')
+    .forEach(link => {
+
+      link.addEventListener(
+        'click',
+        () => {
+
+          mainNav.classList.remove(
+            'open'
+          );
+
+          menuBtn.setAttribute(
+            'aria-expanded',
+            'false'
+          );
+
+        }
+      );
+
+    });
+
+}
+
+
+/* =========================
+   ELEMENTS
+========================= */
+
+const notesBox =
+  document.getElementById('notes');
+
+
+const breadcrumb =
+  document.getElementById(
+    'breadcrumb'
+  );
+
+
+const modal =
+  document.getElementById(
+    'pdfModal'
+  );
+
+
+const viewer =
+  document.getElementById(
+    'pdfViewer'
+  );
+
+
+const modalTitle =
+  document.getElementById(
+    'modalTitle'
+  );
+
+
+const downloadBtn =
+  document.getElementById(
+    'modalDownload'
+  );
+
+
+const pageCounter =
+  document.getElementById(
+    'pageCounter'
+  );
+
+
+const prevBtn =
+  document.getElementById(
+    'prevPage'
+  );
+
+
+const nextBtn =
+  document.getElementById(
+    'nextPage'
+  );
+
+
+const closeBtn =
+  document.getElementById(
+    'closeModal'
+  );
+
+
+/* =========================
+   VARIABLES
+========================= */
+
+let notes = [];
+
+let currentPdf = null;
+
+let currentPage = 1;
+
+let totalPreviewPages = 0;
+
+
+/* =========================
+   PDF.JS
+========================= */
+
+let pdfjsLib = null;
+
+
+async function loadPdfJs() {
+
+  if (pdfjsLib) {
+    return pdfjsLib;
   }
 
 
-  function safeUrl(value) {
+  pdfjsLib =
+    await import(
+      'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.mjs'
+    );
 
-    try {
 
-      const url =
-        new URL(value);
+  pdfjsLib.GlobalWorkerOptions.workerSrc =
+    'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.worker.min.mjs';
 
-      if (
-        url.protocol === 'https:' ||
-        url.protocol === 'http:'
-      ) {
 
-        return url.href;
+  return pdfjsLib;
 
-      }
+}
 
-    } catch (_) {}
 
-    return '#';
+/* =========================
+   HELPERS
+========================= */
+
+function escapeHtml(value) {
+
+  return String(value ?? '')
+    .replace(
+      /[&<>"']/g,
+      c => ({
+
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+
+      }[c])
+    );
+
+}
+
+
+function safeUrl(value) {
+
+  try {
+
+    const url =
+      new URL(value);
+
+
+    if (
+      url.protocol === 'https:' ||
+      url.protocol === 'http:'
+    ) {
+
+      return url.href;
+
+    }
+
+  } catch (_) {}
+
+
+  return '#';
+
+}
+
+
+function normalizeSemester(value) {
+
+  const s =
+    String(value || '')
+      .toLowerCase()
+      .trim();
+
+
+  const match =
+    s.match(
+      /([1-8])\s*(st|nd|rd|th)?/
+    );
+
+
+  return match
+    ? `${match[1]}th`
+    : s;
+
+}
+
+
+/* =========================
+   SEMESTER
+========================= */
+
+function showSemesters(
+  addHistory = true
+) {
+
+
+  if (addHistory) {
+
+    history.pushState(
+      {
+        level:
+          'semester'
+      },
+      '',
+      '#semester'
+    );
 
   }
 
 
-  function normalizeSemester(value) {
+  breadcrumb.innerHTML = `
 
-    const s =
-      String(value || '')
-        .toLowerCase()
-        .trim();
+    <h2>
+      Choose Semester
+    </h2>
 
-    const match =
-      s.match(/([1-8])\s*(st|nd|rd|th)?/);
-
-    return match
-      ? `${match[1]}th`
-      : s;
-  }
+  `;
 
 
-  /* =========================
-     HISTORY NAVIGATION
-  ========================= */
+  const semesters = [
 
-  function showSemesters(
+    '1st Semester',
+    '2nd Semester',
+    '3rd Semester',
+    '4th Semester',
+    '5th Semester',
+    '6th Semester',
+    '7th Semester',
+    '8th Semester'
+
+  ];
+
+
+  notesBox.innerHTML =
+
+    semesters
+      .map(
+        semester => `
+
+          <article
+            class="level-card"
+            onclick="showSubjects(
+              ${JSON.stringify(semester)}
+            )"
+          >
+
+            <div>
+
+              <div class="level-icon">
+                📚
+              </div>
+
+              <h3>
+                ${semester}
+              </h3>
+
+              <p>
+                Semester study resources
+              </p>
+
+            </div>
+
+
+            <span class="level-arrow">
+              Explore →
+            </span>
+
+          </article>
+
+        `
+      )
+      .join('');
+
+}
+
+
+/* =========================
+   SUBJECTS
+========================= */
+
+window.showSubjects =
+  function(
+    semester,
     addHistory = true
   ) {
+
 
     if (addHistory) {
 
       history.pushState(
-        { level: 'semester' },
+        {
+          level:
+            'subject',
+
+          semester
+
+        },
         '',
-        '#semester'
+        '#subject'
       );
 
     }
 
+
     breadcrumb.innerHTML = `
-      <h2>Choose Semester</h2>
+
+      <a
+        class="back-btn"
+        onclick="history.back()"
+      >
+        ← All Semesters
+      </a>
+
+
+      <h2>
+        ${escapeHtml(semester)}
+      </h2>
+
     `;
 
-    const semesters = [
-      '1st Semester',
-      '2nd Semester',
-      '3rd Semester',
-      '4th Semester',
-      '5th Semester',
-      '6th Semester',
-      '7th Semester',
-      '8th Semester'
-    ];
+
+    const subjects =
+
+      [
+        ...new Set(
+
+          notes
+            .filter(
+              note =>
+
+                normalizeSemester(
+                  note.semester
+                ) ===
+                normalizeSemester(
+                  semester
+                )
+
+            )
+            .map(
+              note =>
+                note.subject
+            )
+            .filter(Boolean)
+
+        )
+      ];
+
+
+    if (!subjects.length) {
+
+      notesBox.innerHTML = `
+
+        <div class="empty">
+
+          No subjects available yet.
+
+        </div>
+
+      `;
+
+      return;
+
+    }
+
 
     notesBox.innerHTML =
-      semesters.map((semester, index) => `
 
-        <article
-          class="level-card"
-          onclick="showSubjects('${semester}')"
-        >
+      subjects
+        .map(
+          subject => `
 
-          <div>
+            <article
+              class="level-card"
+              onclick="showUnits(
+                ${JSON.stringify(
+                  encodeURIComponent(
+                    semester
+                  )
+                )},
+                ${JSON.stringify(
+                  encodeURIComponent(
+                    subject
+                  )
+                )}
+              )"
+            >
 
-            <div class="level-icon">
-              📚
-            </div>
+              <div>
 
-            <h3>
-              ${semester}
-            </h3>
-
-            <p>
-              Semester study resources
-            </p>
-
-          </div>
-
-          <span class="level-arrow">
-            Explore →
-          </span>
-
-        </article>
-
-      `).join('');
-
-  }
+                <div class="level-icon">
+                  🧪
+                </div>
 
 
-  window.showSubjects =
-    function(
-      semester,
-      addHistory = true
-    ) {
-
-      if (addHistory) {
-
-        history.pushState(
-          {
-            level: 'subject',
-            semester
-          },
-          '',
-          '#subject'
-        );
-
-      }
-
-      breadcrumb.innerHTML = `
-
-        <a
-          class="back-btn"
-          onclick="history.back()"
-        >
-          ← All Semesters
-        </a>
-
-        <h2>
-          ${escapeHtml(semester)}
-        </h2>
-
-      `;
+                <h3>
+                  ${escapeHtml(
+                    subject
+                  )}
+                </h3>
 
 
-      const filtered =
-        notes.filter(
-          n =>
-            normalizeSemester(n.semester) ===
-            normalizeSemester(semester)
-        );
+                <p>
+                  View available units
+                </p>
 
-
-      const subjects =
-        [...new Set(
-          filtered
-            .map(n => n.subject)
-            .filter(Boolean)
-        )];
-
-
-      if (!subjects.length) {
-
-        notesBox.innerHTML =
-          `<div class="empty">
-            No subjects available yet.
-          </div>`;
-
-        return;
-
-      }
-
-
-      notesBox.innerHTML =
-        subjects.map(subject => `
-
-          <article
-            class="level-card"
-            onclick="showUnits(
-              '${encodeURIComponent(semester)}',
-              '${encodeURIComponent(subject)}'
-            )"
-          >
-
-            <div>
-
-              <div class="level-icon">
-                🧪
               </div>
 
-              <h3>
-                ${escapeHtml(subject)}
-              </h3>
 
-              <p>
-                View available units
-              </p>
+              <span class="level-arrow">
+                View Units →
+              </span>
 
-            </div>
+            </article>
 
-            <span class="level-arrow">
-              View Units →
-            </span>
+          `
+        )
+        .join('');
 
-          </article>
-
-        `).join('');
-
-    };
+  };
 
 
-  window.showUnits =
-    function(
-      encodedSemester,
-      encodedSubject,
-      addHistory = true
-    ) {
+/* =========================
+   UNITS
+========================= */
 
-      const semester =
-        decodeURIComponent(
-          encodedSemester
-        );
-
-      const subject =
-        decodeURIComponent(
-          encodedSubject
-        );
+window.showUnits =
+  function(
+    encodedSemester,
+    encodedSubject,
+    addHistory = true
+  ) {
 
 
-      if (addHistory) {
-
-        history.pushState(
-          {
-            level: 'unit',
-            semester,
-            subject
-          },
-          '',
-          '#unit'
-        );
-
-      }
+    const semester =
+      decodeURIComponent(
+        encodedSemester
+      );
 
 
-      breadcrumb.innerHTML = `
-
-        <a
-          class="back-btn"
-          onclick="history.back()"
-        >
-          ← ${escapeHtml(semester)}
-        </a>
-
-        <h2>
-          ${escapeHtml(subject)}
-        </h2>
-
-      `;
+    const subject =
+      decodeURIComponent(
+        encodedSubject
+      );
 
 
-      const units =
-        [...new Set(
-          notes
-            .filter(n =>
-              normalizeSemester(n.semester) ===
-                normalizeSemester(semester) &&
-              String(n.subject || '') ===
-                subject
-            )
-            .map(n => n.unit)
-            .filter(Boolean)
-        )];
+    if (addHistory) {
 
+      history.pushState(
+        {
+          level:
+            'unit',
 
-      if (!units.length) {
+          semester,
 
-        notesBox.innerHTML =
-          `<div class="empty">
-            No units available yet.
-          </div>`;
+          subject
 
-        return;
-
-      }
-
-
-      notesBox.innerHTML =
-        units.map(unit => `
-
-          <article
-            class="level-card"
-            onclick="showPDFs(
-              '${encodeURIComponent(semester)}',
-              '${encodeURIComponent(subject)}',
-              '${encodeURIComponent(unit)}'
-            )"
-          >
-
-            <div>
-
-              <div class="level-icon">
-                📖
-              </div>
-
-              <h3>
-                ${escapeHtml(unit)}
-              </h3>
-
-              <p>
-                Open study material
-              </p>
-
-            </div>
-
-            <span class="level-arrow">
-              View PDFs →
-            </span>
-
-          </article>
-
-        `).join('');
-
-    };
-
-
-  window.showPDFs =
-    function(
-      encodedSemester,
-      encodedSubject,
-      encodedUnit,
-      addHistory = true
-    ) {
-
-      const se
+       

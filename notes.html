@@ -10,347 +10,372 @@
 <link rel="stylesheet" href="style.css">
 
 <style>
-.notes-page{padding:45px 20px 80px;min-height:70vh}
-.notes-head{max-width:1050px;margin:0 auto 35px}
-.notes-head h1{font-size:clamp(36px,7vw,56px);margin:8px 0 12px}
-.notes-head p{font-size:17px;line-height:1.7;opacity:.72;max-width:750px}
+.notes-page{
+  padding:45px 20px 80px;
+  min-height:70vh
+}
 
-.breadcrumb{max-width:1050px;margin:0 auto 25px;min-height:45px}
-.breadcrumb h2{margin:12px 0;font-size:27px}
+.notes-head{
+  max-width:1050px;
+  margin:0 auto 35px
+}
+
+.notes-head h1{
+  font-size:clamp(36px,7vw,56px);
+  margin:8px 0 12px
+}
+
+.notes-head p{
+  font-size:17px;
+  line-height:1.7;
+  opacity:.72;
+  max-width:750px
+}
+
+.breadcrumb{
+  max-width:1050px;
+  margin:0 auto 25px;
+  min-height:45px
+}
+
+.breadcrumb h2{
+  margin:12px 0;
+  font-size:27px
+}
 
 .back-btn{
-display:inline-block;
-background:#eef5f4;
-color:#173c3b;
-padding:11px 17px;
-border-radius:12px;
-font-weight:700;
-cursor:pointer;
-text-decoration:none
+  display:inline-block;
+  background:#eef5f4;
+  color:#173c3b;
+  padding:11px 17px;
+  border-radius:12px;
+  font-weight:700;
+  cursor:pointer;
+  text-decoration:none;
+  border:0
 }
 
 .notes-grid{
-max-width:1050px;
-margin:auto;
-display:grid;
-grid-template-columns:repeat(3,1fr);
-gap:20px
+  max-width:1050px;
+  margin:auto;
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:20px
 }
 
 .level-card{
-background:#fff;
-border:1px solid #e2e8e7;
-border-radius:20px;
-padding:24px;
-min-height:160px;
-display:flex;
-flex-direction:column;
-justify-content:space-between;
-cursor:pointer;
-box-shadow:0 8px 25px rgba(0,0,0,.05);
-transition:.2s
+  background:#fff;
+  border:1px solid #e2e8e7;
+  border-radius:20px;
+  padding:24px;
+  min-height:160px;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+  cursor:pointer;
+  box-shadow:0 8px 25px rgba(0,0,0,.05);
+  transition:.2s
 }
 
 .level-card:hover{
-transform:translateY(-4px);
-border-color:#0f8b82
+  transform:translateY(-4px);
+  border-color:#0f8b82
 }
 
 .level-icon{
-width:48px;
-height:48px;
-border-radius:14px;
-background:#e9f7f5;
-display:grid;
-place-items:center;
-font-size:22px;
-margin-bottom:15px
+  width:48px;
+  height:48px;
+  border-radius:14px;
+  background:#e9f7f5;
+  display:grid;
+  place-items:center;
+  font-size:22px;
+  margin-bottom:15px
 }
 
 .level-card h3{
-margin:0 0 8px;
-font-size:20px;
-line-height:1.4
+  margin:0 0 8px;
+  font-size:20px;
+  line-height:1.4
 }
 
 .level-card p{
-margin:0;
-color:#65716f
+  margin:0;
+  color:#65716f
 }
 
 .level-arrow{
-margin-top:18px;
-color:#08786f;
-font-weight:800
+  margin-top:18px;
+  color:#08786f;
+  font-weight:800
 }
 
 .pdf-card{
-background:#fff;
-border:1px solid #e1e7e6;
-border-radius:20px;
-padding:24px;
-box-shadow:0 8px 25px rgba(0,0,0,.05)
+  background:#fff;
+  border:1px solid #e1e7e6;
+  border-radius:20px;
+  padding:24px;
+  box-shadow:0 8px 25px rgba(0,0,0,.05)
 }
 
 .pdf-top{
-display:flex;
-gap:14px;
-align-items:flex-start
+  display:flex;
+  gap:14px;
+  align-items:flex-start
 }
 
 .pdf-icon{
-width:52px;
-height:52px;
-flex-shrink:0;
-border-radius:14px;
-background:#fff0ef;
-color:#d63b30;
-display:grid;
-place-items:center;
-font-size:13px;
-font-weight:900
+  width:52px;
+  height:52px;
+  flex-shrink:0;
+  border-radius:14px;
+  background:#fff0ef;
+  color:#d63b30;
+  display:grid;
+  place-items:center;
+  font-size:13px;
+  font-weight:900
 }
 
 .pdf-card h3{
-margin:4px 0 0;
-font-size:19px;
-line-height:1.4
+  margin:4px 0 0;
+  font-size:19px;
+  line-height:1.4
 }
 
 .pdf-label{
-font-size:11px;
-font-weight:900;
-color:#d63b30;
-letter-spacing:.08em
+  font-size:11px;
+  font-weight:900;
+  color:#d63b30;
+  letter-spacing:.08em
 }
 
 .pdf-card p{
-color:#687371;
-line-height:1.6;
-margin:15px 0 20px
+  color:#687371;
+  line-height:1.6;
+  margin:15px 0 20px
 }
 
 .pdf-actions{
-display:flex;
-gap:10px;
-flex-wrap:wrap
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap
 }
 
 .pdf-btn{
-border:0;
-border-radius:11px;
-padding:11px 15px;
-font-size:14px;
-font-weight:800;
-text-decoration:none;
-cursor:pointer
+  border:0;
+  border-radius:11px;
+  padding:11px 15px;
+  font-size:14px;
+  font-weight:800;
+  text-decoration:none;
+  cursor:pointer
 }
 
-.preview-btn{background:#087f76;color:#fff}
-.download-btn{background:#edf3f2;color:#183b39}
+.preview-btn{
+  background:#087f76;
+  color:#fff
+}
+
+.download-btn{
+  background:#edf3f2;
+  color:#183b39
+}
 
 .empty{
-grid-column:1/-1;
-text-align:center;
-padding:45px 20px;
-border-radius:20px;
-background:#f7f9f9;
-color:#65716f
+  grid-column:1/-1;
+  text-align:center;
+  padding:45px 20px;
+  border-radius:20px;
+  background:#f7f9f9;
+  color:#65716f
 }
 
-
-/* =========================
-   PDF MODAL
-========================= */
+/* PDF MODAL */
 
 .pdf-modal{
-position:fixed;
-inset:0;
-z-index:99999;
-background:rgba(5,20,20,.96);
-display:none;
-flex-direction:column
+  position:fixed;
+  inset:0;
+  z-index:99999;
+  background:rgba(5,20,20,.96);
+  display:none;
+  flex-direction:column
 }
 
 .pdf-modal.open{
-display:flex
+  display:flex
 }
 
 .pdf-header{
-height:62px;
-flex-shrink:0;
-background:#102b2a;
-color:#fff;
-display:flex;
-align-items:center;
-justify-content:space-between;
-padding:0 16px
+  height:62px;
+  flex-shrink:0;
+  background:#102b2a;
+  color:#fff;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 16px
 }
 
 .pdf-header strong{
-max-width:75vw;
-white-space:nowrap;
-overflow:hidden;
-text-overflow:ellipsis
+  max-width:75vw;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis
 }
 
 .close-pdf{
-width:40px;
-height:40px;
-border:0;
-border-radius:10px;
-background:#ffffff18;
-color:#fff;
-font-size:25px;
-cursor:pointer
+  width:40px;
+  height:40px;
+  border:0;
+  border-radius:10px;
+  background:#ffffff18;
+  color:#fff;
+  font-size:25px;
+  cursor:pointer
 }
 
 .pdf-viewer{
-flex:1;
-overflow:auto;
-padding:15px 8px 90px;
--webkit-overflow-scrolling:touch;
-text-align:center
+  flex:1;
+  overflow:auto;
+  padding:15px 8px 90px;
+  -webkit-overflow-scrolling:touch;
+  text-align:center
 }
 
 .pdf-page{
-width:min(950px,100%);
-margin:0 auto 22px;
-background:#fff;
-box-shadow:0 8px 30px rgba(0,0,0,.45);
-overflow:hidden
+  width:min(950px,100%);
+  margin:0 auto 22px;
+  background:#fff;
+  box-shadow:0 8px 30px rgba(0,0,0,.45);
+  overflow:hidden
 }
 
 .pdf-page canvas{
-display:block;
-width:100%;
-height:auto;
-margin:0 auto
+  display:block;
+  width:100%;
+  height:auto;
+  margin:0 auto
 }
 
 .page-label{
-background:#102b2a;
-color:#fff;
-padding:8px;
-font-size:12px;
-text-align:center
+  background:#102b2a;
+  color:#fff;
+  padding:8px;
+  font-size:12px;
+  text-align:center
 }
 
 .pdf-loading{
-color:#fff;
-font-size:16px;
-padding:60px 20px
+  color:#fff;
+  font-size:16px;
+  padding:60px 20px
 }
 
 .full-download{
-display:inline-block;
-background:#0d8d83;
-color:#fff;
-padding:12px 18px;
-border-radius:10px;
-text-decoration:none;
-font-weight:700
+  display:inline-block;
+  background:#0d8d83;
+  color:#fff;
+  padding:12px 18px;
+  border-radius:10px;
+  text-decoration:none;
+  font-weight:700
 }
 
 .pdf-toolbar{
-position:fixed;
-bottom:0;
-left:0;
-right:0;
-z-index:100000;
-background:#102b2af7;
-padding:10px;
-display:flex;
-justify-content:center;
-align-items:center;
-gap:12px
+  position:fixed;
+  bottom:0;
+  left:0;
+  right:0;
+  z-index:100000;
+  background:#102b2af7;
+  padding:10px;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:12px
 }
 
 .pdf-toolbar a{
-border:0;
-border-radius:9px;
-padding:10px 15px;
-font-weight:700;
-text-decoration:none;
-background:#0d8d83;
-color:#fff
+  border:0;
+  border-radius:9px;
+  padding:10px 15px;
+  font-weight:700;
+  text-decoration:none;
+  background:#0d8d83;
+  color:#fff
 }
 
 .counter{
-color:#fff;
-font-size:13px
+  color:#fff;
+  font-size:13px
 }
-
 
 @media(max-width:850px){
-.notes-grid{
-grid-template-columns:repeat(2,1fr)
-}
+  .notes-grid{
+    grid-template-columns:repeat(2,1fr)
+  }
 }
 
 @media(max-width:600px){
 
-.notes-page{
-padding:30px 15px 60px
-}
+  .notes-page{
+    padding:30px 15px 60px
+  }
 
-.notes-grid{
-grid-template-columns:1fr
-}
+  .notes-grid{
+    grid-template-columns:1fr
+  }
 
-.notes-head h1{
-font-size:37px
-}
+  .notes-head h1{
+    font-size:37px
+  }
 
-.pdf-actions{
-display:grid;
-grid-template-columns:1fr 1fr
-}
+  .pdf-actions{
+    display:grid;
+    grid-template-columns:1fr 1fr
+  }
 
-.pdf-btn{
-text-align:center
-}
+  .pdf-btn{
+    text-align:center
+  }
 
-.pdf-toolbar{
-padding:8px
-}
+  .pdf-toolbar{
+    padding:8px
+  }
 
-.pdf-toolbar a{
-font-size:12px;
-padding:9px 12px
-}
+  .pdf-toolbar a{
+    font-size:12px;
+    padding:9px 12px
+  }
 
-.counter{
-font-size:11px
-}
-
+  .counter{
+    font-size:11px
+  }
 }
 </style>
 </head>
 
-
 <body>
 
-
 <header>
-
 <div class="container nav">
 
 <a class="brand" href="index.html">
-
 <img src="logo.png" alt="Pharmistry World logo">
 
 <span>
 <b>Pharmistry World</b>
 <small>Learn. Explore. Grow in Pharma.</small>
 </span>
-
 </a>
 
 <button
 class="menu-btn"
 id="menuBtn"
-type="button">
+type="button"
+aria-label="Open menu"
+aria-expanded="false">
 ☰
 </button>
 
@@ -365,12 +390,10 @@ type="button">
 </nav>
 
 </div>
-
 </header>
 
 
 <main class="notes-page">
-
 
 <section class="notes-head">
 
@@ -393,180 +416,118 @@ Preview the first 5 pages before opening the full PDF.
 </div>
 
 
-<!-- =========================
-     SEMESTERS
-========================= -->
-
 <section id="notes" class="notes-grid">
 
-
-<article
-class="level-card"
+<article class="level-card"
 onclick="showSubjects('1st Semester')">
 
 <div>
-
 <div class="level-icon">📚</div>
-
 <h3>1st Semester</h3>
-
 <p>Semester study resources</p>
-
 </div>
 
-<span class="level-arrow">
-Explore →
-</span>
+<span class="level-arrow">Explore →</span>
 
 </article>
 
 
-<article
-class="level-card"
+<article class="level-card"
 onclick="showSubjects('2nd Semester')">
 
 <div>
-
 <div class="level-icon">📚</div>
-
 <h3>2nd Semester</h3>
-
 <p>Semester study resources</p>
-
 </div>
 
-<span class="level-arrow">
-Explore →
-</span>
+<span class="level-arrow">Explore →</span>
 
 </article>
 
 
-<article
-class="level-card"
+<article class="level-card"
 onclick="showSubjects('3rd Semester')">
 
 <div>
-
 <div class="level-icon">📚</div>
-
 <h3>3rd Semester</h3>
-
 <p>Semester study resources</p>
-
 </div>
 
-<span class="level-arrow">
-Explore →
-</span>
+<span class="level-arrow">Explore →</span>
 
 </article>
 
 
-<article
-class="level-card"
+<article class="level-card"
 onclick="showSubjects('4th Semester')">
 
 <div>
-
 <div class="level-icon">📚</div>
-
 <h3>4th Semester</h3>
-
 <p>Semester study resources</p>
-
 </div>
 
-<span class="level-arrow">
-Explore →
-</span>
+<span class="level-arrow">Explore →</span>
 
 </article>
 
 
-<article
-class="level-card"
+<article class="level-card"
 onclick="showSubjects('5th Semester')">
 
 <div>
-
 <div class="level-icon">📚</div>
-
 <h3>5th Semester</h3>
-
 <p>Semester study resources</p>
-
 </div>
 
-<span class="level-arrow">
-Explore →
-</span>
+<span class="level-arrow">Explore →</span>
 
 </article>
 
 
-<article
-class="level-card"
+<article class="level-card"
 onclick="showSubjects('6th Semester')">
 
 <div>
-
 <div class="level-icon">📚</div>
-
 <h3>6th Semester</h3>
-
 <p>Semester study resources</p>
-
 </div>
 
-<span class="level-arrow">
-Explore →
-</span>
+<span class="level-arrow">Explore →</span>
 
 </article>
 
 
-<article
-class="level-card"
+<article class="level-card"
 onclick="showSubjects('7th Semester')">
 
 <div>
-
 <div class="level-icon">📚</div>
-
 <h3>7th Semester</h3>
-
 <p>Semester study resources</p>
-
 </div>
 
-<span class="level-arrow">
-Explore →
-</span>
+<span class="level-arrow">Explore →</span>
 
 </article>
 
 
-<article
-class="level-card"
+<article class="level-card"
 onclick="showSubjects('8th Semester')">
 
 <div>
-
 <div class="level-icon">📚</div>
-
 <h3>8th Semester</h3>
-
 <p>Semester study resources</p>
-
 </div>
 
-<span class="level-arrow">
-Explore →
-</span>
+<span class="level-arrow">Explore →</span>
 
 </article>
-
 
 </section>
 
@@ -578,43 +539,29 @@ Explore →
 <div class="container foot">
 
 <div>
-
 <b>Pharmistry World</b>
-
-<p>
-Learn. Explore. Grow in Pharma.
-</p>
-
+<p>Learn. Explore. Grow in Pharma.</p>
 </div>
 
 <div>
-
 <a href="notes.html">Notes</a>
 <a href="industry.html">Industry</a>
 <a href="career.html">Career</a>
 <a href="contact.html">Contact Us</a>
-
 </div>
 
 </div>
 
 <div class="container copy">
-
 © 2026 Pharmistry World. All rights reserved.
-
 </div>
 
 </footer>
 
 
-<!-- =========================
-     PDF MODAL
-========================= -->
+<!-- PDF MODAL -->
 
-<div
-id="pdfModal"
-class="pdf-modal">
-
+<div id="pdfModal" class="pdf-modal">
 
 <div class="pdf-header">
 
@@ -625,24 +572,20 @@ PDF Preview
 <button
 class="close-pdf"
 id="closePdf"
-type="button">
+type="button"
+aria-label="Close PDF">
 ×
 </button>
 
 </div>
 
 
-<div
-id="pdfViewer"
-class="pdf-viewer">
-</div>
+<div id="pdfViewer" class="pdf-viewer"></div>
 
 
 <div class="pdf-toolbar">
 
-<span
-id="pdfCounter"
-class="counter">
+<span id="pdfCounter" class="counter">
 First 5 pages
 </span>
 
@@ -661,9 +604,9 @@ rel="noopener noreferrer">
 
 <script>
 
-/* =====================================
-   SUBJECTS
-===================================== */
+/* =========================================
+   SUBJECT LIST
+========================================= */
 
 const SUBJECTS = {
 
@@ -743,9 +686,9 @@ const SUBJECTS = {
 };
 
 
-/* =====================================
+/* =========================================
    SUPABASE
-===================================== */
+========================================= */
 
 const SUPABASE_URL =
 "https://qgmpwanxqytoakmnklvy.supabase.co";
@@ -756,9 +699,9 @@ const SUPABASE_KEY =
 let supabaseClient = null;
 
 
-/* =====================================
+/* =========================================
    ELEMENTS
-===================================== */
+========================================= */
 
 const notesBox =
 document.getElementById("notes");
@@ -791,9 +734,9 @@ const closePdfBtn =
 document.getElementById("closePdf");
 
 
-/* =====================================
+/* =========================================
    HELPERS
-===================================== */
+========================================= */
 
 function esc(value){
 
@@ -825,8 +768,11 @@ return String(value ?? "")
 
 function normalizeSemester(value){
 
+const text =
+normalizeText(value);
+
 const match =
-normalizeText(value).match(/([1-8])/);
+text.match(/([1-8])/);
 
 return match ? match[1] : "";
 
@@ -840,12 +786,16 @@ try{
 const url =
 new URL(value);
 
-return(
-url.protocol === "https:" ||
-url.protocol === "http:"
-)
-? url.href
-: "";
+if(
+url.protocol !== "https:" &&
+url.protocol !== "http:"
+){
+
+return "";
+
+}
+
+return url.href;
 
 }catch(error){
 
@@ -856,11 +806,14 @@ return "";
 }
 
 
-/* =====================================
+/* =========================================
    MOBILE MENU
-===================================== */
+========================================= */
 
-menuBtn.onclick =
+if(menuBtn && mainNav){
+
+menuBtn.addEventListener(
+"click",
 function(){
 
 const open =
@@ -871,18 +824,78 @@ menuBtn.setAttribute(
 String(open)
 );
 
-};
+}
+);
+
+mainNav.querySelectorAll("a").forEach(
+function(link){
+
+link.addEventListener(
+"click",
+function(){
+
+mainNav.classList.remove("open");
+
+menuBtn.setAttribute(
+"aria-expanded",
+"false"
+);
+
+}
+);
+
+}
+);
+
+}
 
 
-/* =====================================
+/* =========================================
+   BREADCRUMB
+========================================= */
+
+function setBreadcrumb(backText,title){
+
+breadcrumb.innerHTML = `
+
+<button
+class="back-btn"
+type="button"
+id="breadcrumbBack">
+← ${esc(backText)}
+</button>
+
+<h2>${esc(title)}</h2>
+
+`;
+
+const back =
+document.getElementById(
+"breadcrumbBack"
+);
+
+if(back){
+
+back.addEventListener(
+"click",
+function(){
+
+history.back();
+
+}
+);
+
+}
+
+}
+
+
+/* =========================================
    SHOW SUBJECTS
-===================================== */
+========================================= */
 
 window.showSubjects =
-function(
-semester,
-push = true
-){
+function(semester,push=true){
 
 if(push){
 
@@ -898,64 +911,57 @@ semester:semester
 }
 
 
-breadcrumb.innerHTML = `
-
-<a
-class="back-btn"
-onclick="history.back()">
-← All Semesters
-</a>
-
-<h2>
-${esc(semester)}
-</h2>
-
-`;
+setBreadcrumb(
+"All Semesters",
+semester
+);
 
 
 const subjects =
 SUBJECTS[semester] || [];
 
 
+if(!subjects.length){
+
+notesBox.innerHTML = `
+
+<div class="empty">
+No subjects available.
+</div>
+
+`;
+
+return;
+
+}
+
+
 notesBox.innerHTML =
 subjects.map(
 function(subject){
 
-const project =
+const isProject =
 subject === "Project Work";
-
-
-const action =
-project
-
-?
-
-`showPDFs(${JSON.stringify(semester)},${JSON.stringify(subject)},${JSON.stringify("All Units / Complete Notes")})`
-
-:
-
-`showUnits(${JSON.stringify(semester)},${JSON.stringify(subject)})`;
 
 
 return `
 
 <article
 class="level-card"
-onclick='${action}'
->
+data-action="${isProject ? "project" : "subject"}"
+data-semester="${esc(semester)}"
+data-subject="${esc(subject)}">
 
 <div>
 
 <div class="level-icon">
-${project ? "📋" : "🧪"}
+${isProject ? "📋" : "🧪"}
 </div>
 
-<h3>
-${esc(subject)}
-</h3>
+<h3>${esc(subject)}</h3>
 
 <p>
-${project
+${isProject
 ? "View project PDFs"
 : "View available units"}
 </p>
@@ -963,7 +969,7 @@ ${project
 </div>
 
 <span class="level-arrow">
-${project
+${isProject
 ? "View PDFs →"
 : "View Units →"}
 </span>
@@ -975,18 +981,65 @@ ${project
 }
 ).join("");
 
+
+/* IMPORTANT:
+   Event listeners are added AFTER
+   cards are created.
+*/
+
+notesBox
+.querySelectorAll(".level-card")
+.forEach(
+function(card){
+
+card.addEventListener(
+"click",
+function(){
+
+const sem =
+card.dataset.semester;
+
+const sub =
+card.dataset.subject;
+
+if(
+card.dataset.action ===
+"project"
+){
+
+showPDFs(
+sem,
+sub,
+"All Units / Complete Notes"
+);
+
+}else{
+
+showUnits(
+sem,
+sub
+);
+
+}
+
+}
+);
+
+}
+);
+
 };
 
 
-/* =====================================
+/* =========================================
    SHOW UNITS
-===================================== */
+========================================= */
 
 window.showUnits =
 function(
 semester,
 subject,
-push = true
+push=true
 ){
 
 if(push){
@@ -1004,19 +1057,10 @@ subject:subject
 }
 
 
-breadcrumb.innerHTML = `
-
-<a
-class="back-btn"
-onclick="history.back()">
-← ${esc(semester)}
-</a>
-
-<h2>
-${esc(subject)}
-</h2>
-
-`;
+setBreadcrumb(
+semester,
+subject
+);
 
 
 const units = [
@@ -1038,13 +1082,10 @@ function(unit){
 return `
 
 <article
-class="level-card"
-onclick='showPDFs(
-${JSON.stringify(semester)},
-${JSON.stringify(subject)},
-${JSON.stringify(unit)}
-)'
->
+class="level-card unit-card"
+data-semester="${esc(semester)}"
+data-subject="${esc(subject)}"
+data-unit="${esc(unit)}">
 
 <div>
 
@@ -1052,9 +1093,7 @@ ${JSON.stringify(unit)}
 📖
 </div>
 
-<h3>
-${esc(unit)}
-</h3>
+<h3>${esc(unit)}</h3>
 
 <p>
 Open study material
@@ -1073,12 +1112,34 @@ View PDFs →
 }
 ).join("");
 
+
+notesBox
+.querySelectorAll(".unit-card")
+.forEach(
+function(card){
+
+card.addEventListener(
+"click",
+function(){
+
+showPDFs(
+card.dataset.semester,
+card.dataset.subject,
+card.dataset.unit
+);
+
+}
+);
+
+}
+);
+
 };
 
 
-/* =====================================
+/* =========================================
    LOAD SUPABASE
-===================================== */
+========================================= */
 
 function loadSupabase(){
 
@@ -1086,6 +1147,8 @@ return new Promise(
 function(resolve,reject){
 
 if(window.supabase){
+
+try{
 
 supabaseClient =
 window.supabase.createClient(
@@ -1096,6 +1159,12 @@ SUPABASE_KEY
 resolve(
 supabaseClient
 );
+
+}catch(error){
+
+reject(error);
+
+}
 
 return;
 
@@ -1108,7 +1177,6 @@ document.createElement("script");
 script.src =
 "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2";
 
-
 script.onload =
 function(){
 
@@ -1116,13 +1184,15 @@ if(!window.supabase){
 
 reject(
 new Error(
-"Supabase library failed."
+"Supabase library failed to load."
 )
 );
 
 return;
 
 }
+
+try{
 
 supabaseClient =
 window.supabase.createClient(
@@ -1133,6 +1203,12 @@ SUPABASE_KEY
 resolve(
 supabaseClient
 );
+
+}catch(error){
+
+reject(error);
+
+}
 
 };
 
@@ -1152,19 +1228,20 @@ new Error(
 document.head.appendChild(script);
 
 });
+
 }
 
 
-/* =====================================
+/* =========================================
    SHOW PDFS
-===================================== */
+========================================= */
 
 window.showPDFs =
 async function(
 semester,
 subject,
 unit,
-push = true
+push=true
 ){
 
 if(push){
@@ -1183,19 +1260,10 @@ unit:unit
 }
 
 
-breadcrumb.innerHTML = `
-
-<a
-class="back-btn"
-onclick="history.back()">
-← ${esc(subject)}
-</a>
-
-<h2>
-${esc(unit)}
-</h2>
-
-`;
+setBreadcrumb(
+subject,
+unit
+);
 
 
 notesBox.innerHTML = `
@@ -1259,15 +1327,16 @@ subject
 
 );
 
-});
+}
+);
 
 
 /*
-Project Work:
-show every PDF.
+Show all PDFs for Project Work /
+Complete Notes.
 
-Other subjects:
-show selected unit only.
+For normal subjects show
+selected unit only.
 */
 
 if(
@@ -1289,7 +1358,8 @@ unit
 )
 );
 
-});
+}
+);
 
 }
 
@@ -1301,9 +1371,7 @@ notesBox.innerHTML = `
 <div class="empty">
 
 No PDF uploaded for
-<strong>
-${esc(unit)}
-</strong>
+<strong>${esc(unit)}</strong>
 yet.
 
 </div>
@@ -1315,14 +1383,15 @@ return;
 }
 
 
-renderPDFCards(
-filtered
-);
+renderPDFCards(filtered);
 
 
 }catch(error){
 
-console.error(error);
+console.error(
+"Supabase PDF error:",
+error
+);
 
 notesBox.innerHTML = `
 
@@ -1334,7 +1403,7 @@ PDFs load nahi ho paaye.
 
 <br><br>
 
-${esc(error.message)}
+Please try again.
 
 </div>
 
@@ -1345,9 +1414,9 @@ ${esc(error.message)}
 };
 
 
-/* =====================================
+/* =========================================
    PDF CARDS
-===================================== */
+========================================= */
 
 function renderPDFCards(items){
 
@@ -1356,9 +1425,7 @@ items.map(
 function(note){
 
 const url =
-safeUrl(
-note.pdf_url
-);
+safeUrl(note.pdf_url);
 
 
 return `
@@ -1405,14 +1472,11 @@ note.description ||
 <button
 class="pdf-btn preview-btn"
 type="button"
-onclick='openPdf(
-${JSON.stringify(url)},
-${JSON.stringify(
+data-pdf-url="${esc(url)}"
+data-pdf-title="${esc(
 note.title ||
 "PDF Preview"
-)}
-)'
->
+)}">
 👁 View PDF
 </button>
 
@@ -1421,8 +1485,7 @@ note.title ||
 class="pdf-btn download-btn"
 href="${esc(url)}"
 target="_blank"
-rel="noopener noreferrer"
->
+rel="noopener noreferrer">
 ↓ Full PDF
 </a>
 
@@ -1435,12 +1498,33 @@ rel="noopener noreferrer"
 }
 ).join("");
 
+
+notesBox
+.querySelectorAll(".preview-btn")
+.forEach(
+function(button){
+
+button.addEventListener(
+"click",
+function(){
+
+openPdf(
+button.dataset.pdfUrl,
+button.dataset.pdfTitle
+);
+
+}
+);
+
+}
+);
+
 }
 
 
-/* =====================================
+/* =========================================
    LOAD PDF.JS
-===================================== */
+========================================= */
 
 function loadPdfJs(){
 
@@ -1449,7 +1533,9 @@ function(resolve,reject){
 
 if(window.pdfjsLib){
 
-pdfjsLib.GlobalWorkerOptions.workerSrc =
+window.pdfjsLib
+.GlobalWorkerOptions
+.workerSrc =
 "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
 
 resolve(
@@ -1467,7 +1553,6 @@ document.createElement("script");
 script.src =
 "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js";
 
-
 script.onload =
 function(){
 
@@ -1484,7 +1569,9 @@ return;
 }
 
 
-pdfjsLib.GlobalWorkerOptions.workerSrc =
+window.pdfjsLib
+.GlobalWorkerOptions
+.workerSrc =
 "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
 
 
@@ -1507,23 +1594,19 @@ new Error(
 };
 
 
-document.head.appendChild(
-script
-);
+document.head.appendChild(script);
 
 });
+
 }
 
 
-/* =====================================
-   OPEN PDF
-===================================== */
+/* =========================================
+   OPEN PDF PREVIEW
+========================================= */
 
 window.openPdf =
-async function(
-url,
-title
-){
+async function(url,title){
 
 if(!url){
 
@@ -1536,201 +1619,6 @@ return;
 }
 
 
-modal.classList.add(
-"open"
-);
+modal.classList.add("open");
 
-document.body.style.overflow =
-"hidden";
-
-pdfTitle.textContent =
-title;
-
-downloadPdf.href =
-url;
-
-counter.textContent =
-"Loading...";
-
-
-viewer.innerHTML = `
-
-<div class="pdf-loading">
-
-Loading high-resolution preview...
-
-</div>
-
-`;
-
-
-try{
-
-const pdfjs =
-await loadPdfJs();
-
-
-const pdf =
-await pdfjs
-.getDocument({
-url:url
-})
-.promise;
-
-
-const total =
-Math.min(
-pdf.numPages,
-5
-);
-
-
-counter.textContent =
-"First " +
-total +
-" pages";
-
-
-viewer.innerHTML =
-"";
-
-
-for(
-let page=1;
-page<=total;
-page++
-){
-
-await renderPdfPage(
-pdf,
-page,
-total
-);
-
-}
-
-
-}catch(error){
-
-console.error(error);
-
-viewer.innerHTML = `
-
-<div class="pdf-loading">
-
-PDF preview load nahi ho paya.
-
-<br><br>
-
-<a
-class="full-download"
-href="${esc(url)}"
-target="_blank"
-rel="noopener noreferrer">
-Open Full PDF
-</a>
-
-</div>
-
-`;
-
-}
-
-};
-
-
-/* =====================================
-   HIGH QUALITY PDF RENDER
-===================================== */
-
-async function renderPdfPage(
-pdf,
-pageNumber,
-total
-){
-
-const page =
-await pdf.getPage(
-pageNumber
-);
-
-
-const base =
-page.getViewport({
-scale:1
-});
-
-
-const availableWidth =
-Math.max(
-280,
-Math.min(
-viewer.clientWidth - 12,
-1000
-)
-);
-
-
-const cssScale =
-availableWidth /
-base.width;
-
-
-/*
-4x internal rendering
-for sharper mobile preview.
-*/
-
-const renderScale =
-cssScale * 4;
-
-
-const renderViewport =
-page.getViewport({
-scale:renderScale
-});
-
-
-const cssViewport =
-page.getViewport({
-scale:cssScale
-});
-
-
-const wrap =
-document.createElement(
-"div"
-);
-
-wrap.className =
-"pdf-page";
-
-
-const canvas =
-document.createElement(
-"canvas"
-);
-
-
-canvas.width =
-Math.ceil(
-renderViewport.width
-);
-
-canvas.height =
-Math.ceil(
-renderViewport.height
-);
-
-
-canvas.style.width =
-Math.ceil(
-cssViewport.width
-) +
-"px";
-
-canvas.style.height =
-Math.ceil(
-cssViewport.height
-) +
-"p
+document.body.s

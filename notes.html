@@ -2,10 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-
 <meta name="viewport" content="width=device-width,initial-scale=1">
 
-<!-- Cache control -->
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
@@ -196,13 +194,16 @@ background:#f7f9f9;
 color:#65716f
 }
 
-/* PDF MODAL */
+
+/* =========================
+   PDF PREVIEW
+========================= */
 
 .pdf-modal{
 position:fixed;
 inset:0;
 z-index:99999;
-background:rgba(5,20,20,.94);
+background:rgba(5,20,20,.96);
 display:none;
 flex-direction:column
 }
@@ -243,44 +244,39 @@ cursor:pointer
 .pdf-viewer{
 flex:1;
 overflow:auto;
-text-align:center;
-padding:20px 12px 95px;
--webkit-overflow-scrolling:touch
+padding:20px 12px 90px;
+-webkit-overflow-scrolling:touch;
+text-align:center
 }
 
+/* Sharp PDF page */
 .pdf-page{
+width:min(950px,100%);
+margin:0 auto 22px;
 background:#fff;
-width:min(900px,100%);
-margin:0 auto 20px;
-box-shadow:0 10px 30px #0006;
+box-shadow:0 8px 30px rgba(0,0,0,.45);
 overflow:hidden
 }
-
-/*
-IMPORTANT:
-Canvas CSS size is normal,
-but actual bitmap size is multiplied
-by devicePixelRatio in JavaScript.
-This removes blur on mobile.
-*/
 
 .pdf-page canvas{
 display:block;
 width:100%;
-height:auto
+height:auto;
+margin:0 auto
 }
 
 .page-label{
 background:#102b2a;
 color:#fff;
-padding:7px;
-font-size:12px
+padding:8px;
+font-size:12px;
+text-align:center
 }
 
 .pdf-loading{
 color:#fff;
 font-size:16px;
-padding:50px 20px
+padding:60px 20px
 }
 
 .full-download{
@@ -298,6 +294,7 @@ position:fixed;
 bottom:0;
 left:0;
 right:0;
+z-index:100000;
 background:#102b2af7;
 padding:10px;
 display:flex;
@@ -306,35 +303,20 @@ align-items:center;
 gap:8px
 }
 
-.pdf-toolbar button,
 .pdf-toolbar a{
 border:0;
 border-radius:9px;
-padding:10px 13px;
+padding:10px 15px;
 font-weight:700;
 text-decoration:none;
-cursor:pointer
-}
-
-.pdf-toolbar button{
-background:#ffffff18;
-color:#fff
-}
-
-.pdf-toolbar button:disabled{
-opacity:.35
-}
-
-.pdf-toolbar a{
+cursor:pointer;
 background:#0d8d83;
 color:#fff
 }
 
 .counter{
 color:#fff;
-font-size:13px;
-min-width:75px;
-text-align:center
+font-size:13px
 }
 
 @media(max-width:850px){
@@ -369,19 +351,20 @@ text-align:center
 }
 
 .pdf-toolbar{
-gap:4px;
-padding:8px 5px
+padding:8px
 }
 
-.pdf-toolbar button,
 .pdf-toolbar a{
-padding:9px 8px;
-font-size:11px
+font-size:12px;
+padding:9px 12px
 }
 
 .counter{
-min-width:55px;
 font-size:11px
+}
+
+.pdf-viewer{
+padding:12px 6px 80px
 }
 
 }
@@ -389,7 +372,9 @@ font-size:11px
 </style>
 </head>
 
+
 <body>
+
 
 <header>
 
@@ -410,30 +395,17 @@ font-size:11px
 class="menu-btn"
 id="menuBtn"
 type="button"
-aria-expanded="false"
->
+aria-expanded="false">
 ☰
 </button>
 
 <nav id="mainNav">
 
 <a href="index.html">Home</a>
-
-<a class="active" href="notes.html">
-B.Pharm Notes
-</a>
-
-<a href="industry.html">
-Pharma Industry
-</a>
-
-<a href="career.html">
-Career
-</a>
-
-<a href="contact.html">
-Contact Us
-</a>
+<a class="active" href="notes.html">B.Pharm Notes</a>
+<a href="industry.html">Pharma Industry</a>
+<a href="career.html">Career</a>
+<a href="contact.html">Contact Us</a>
 
 </nav>
 
@@ -450,9 +422,7 @@ Contact Us
 B.PHARM STUDY RESOURCES
 </span>
 
-<h1>
-B.Pharm Notes
-</h1>
+<h1>B.Pharm Notes</h1>
 
 <p>
 Find study material semester-wise, subject-wise and unit-wise.
@@ -474,1225 +444,5 @@ Preview the first 5 pages before opening the full PDF.
 <div class="container foot">
 
 <div>
-
 <b>Pharmistry World</b>
-
-<p>
-Learn. Explore. Grow in Pharma.
-</p>
-
-</div>
-
-<div>
-
-<a href="notes.html">Notes</a>
-<a href="industry.html">Industry</a>
-<a href="career.html">Career</a>
-<a href="contact.html">Contact Us</a>
-
-</div>
-
-</div>
-
-<div class="container copy">
-
-© 2026 Pharmistry World. All rights reserved.
-
-</div>
-
-</footer>
-
-
-<!-- PDF MODAL -->
-
-<div id="pdfModal" class="pdf-modal">
-
-<div class="pdf-header">
-
-<strong id="pdfTitle">
-PDF Preview
-</strong>
-
-<button
-class="close-pdf"
-id="closePdf"
-type="button"
->
-×
-</button>
-
-</div>
-
-
-<div id="pdfViewer" class="pdf-viewer"></div>
-
-
-<div class="pdf-toolbar">
-
-<button
-id="prevPdf"
-type="button"
->
-← Prev
-</button>
-
-<span
-id="pdfCounter"
-class="counter"
->
-Page 1 / 5
-</span>
-
-<button
-id="nextPdf"
-type="button"
->
-Next →
-</button>
-
-<a
-id="downloadPdf"
-href="#"
-target="_blank"
-rel="noopener noreferrer"
->
-↓ Full PDF
-</a>
-
-</div>
-
-</div>
-
-
-<!-- SUPABASE -->
-
-<script
-src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
-></script>
-
-
-<!-- PDF.JS -->
-
-<script
-src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"
-></script>
-
-
-<script>
-
-/* =========================
-   SUPABASE
-========================= */
-
-const SUPABASE_URL =
-'https://qgmpwanxqytoakmnklvy.supabase.co';
-
-const SUPABASE_KEY =
-'sb_publishable_qlOg73Ee92_uzX9YsaRPIA_dMQX9gub';
-
-const supabaseClient =
-window.supabase.createClient(
-SUPABASE_URL,
-SUPABASE_KEY
-);
-
-
-/* =========================
-   PDF.JS WORKER
-========================= */
-
-if(window.pdfjsLib){
-
-pdfjsLib.GlobalWorkerOptions.workerSrc =
-'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-
-}
-
-
-/* =========================
-   SUBJECT STRUCTURE
-========================= */
-
-const SUBJECTS = {
-
-'1st Semester':[
-'Human Anatomy and Physiology I',
-'Pharmaceutical Analysis I',
-'Pharmaceutics I',
-'Pharmaceutical Inorganic Chemistry',
-'Communication Skills',
-'Remedial Biology / Remedial Mathematics'
-],
-
-'2nd Semester':[
-'Human Anatomy and Physiology II',
-'Pharmaceutical Organic Chemistry I',
-'Biochemistry',
-'Pathophysiology',
-'Computer Applications in Pharmacy',
-'Environmental Sciences'
-],
-
-'3rd Semester':[
-'Pharmaceutical Organic Chemistry II',
-'Physical Pharmaceutics I',
-'Pharmaceutical Microbiology',
-'Pharmaceutical Engineering'
-],
-
-'4th Semester':[
-'Pharmaceutical Organic Chemistry III',
-'Medicinal Chemistry I',
-'Physical Pharmaceutics II',
-'Pharmacology I',
-'Pharmacognosy and Phytochemistry I'
-],
-
-'5th Semester':[
-'Medicinal Chemistry II',
-'Industrial Pharmacy I',
-'Pharmacology II',
-'Pharmacognosy and Phytochemistry II',
-'Pharmaceutical Jurisprudence'
-],
-
-'6th Semester':[
-'Medicinal Chemistry III',
-'Pharmacology III',
-'Herbal Drug Technology',
-'Biopharmaceutics and Pharmacokinetics',
-'Pharmaceutical Biotechnology',
-'Quality Assurance'
-],
-
-'7th Semester':[
-'Instrumental Methods of Analysis',
-'Industrial Pharmacy II',
-'Pharmacy Practice',
-'Novel Drug Delivery System'
-],
-
-'8th Semester':[
-'Biostatistics and Research Methodology',
-'Social and Preventive Pharmacy',
-'Pharma Marketing Management',
-'Pharmaceutical Regulatory Science',
-'Pharmacovigilance',
-'Quality Control and Standardization of Herbals',
-'Computer Aided Drug Design',
-'Cell and Molecular Biology',
-'Cosmetic Science',
-'Experimental Pharmacology',
-'Advanced Instrumentation Techniques',
-'Dietary Supplements and Nutraceuticals',
-'Project Work'
-]
-
-};
-
-
-/* =========================
-   VARIABLES
-========================= */
-
-let notes = [];
-
-let currentPdf = null;
-
-let currentPage = 1;
-
-let previewPages = 0;
-
-let currentPdfUrl = '';
-
-
-/* =========================
-   ELEMENTS
-========================= */
-
-const notesBox =
-document.getElementById('notes');
-
-const breadcrumb =
-document.getElementById('breadcrumb');
-
-const modal =
-document.getElementById('pdfModal');
-
-const viewer =
-document.getElementById('pdfViewer');
-
-const pdfTitle =
-document.getElementById('pdfTitle');
-
-const downloadPdf =
-document.getElementById('downloadPdf');
-
-const counter =
-document.getElementById('pdfCounter');
-
-const prevPdf =
-document.getElementById('prevPdf');
-
-const nextPdf =
-document.getElementById('nextPdf');
-
-const closePdfBtn =
-document.getElementById('closePdf');
-
-
-/* =========================
-   HELPERS
-========================= */
-
-function esc(v){
-
-return String(v ?? '')
-.replace(/[&<>"']/g,c=>({
-'&':'&amp;',
-'<':'&lt;',
-'>':'&gt;',
-'"':'&quot;',
-"'":'&#039;'
-}[c]));
-
-}
-
-
-function normalizeText(v){
-
-return String(v ?? '')
-.trim()
-.toLowerCase()
-.replace(/\s+/g,' ');
-
-}
-
-
-function normalizeSemester(v){
-
-const s =
-normalizeText(v);
-
-const match =
-s.match(/([1-8])/);
-
-return match ? match[1] : s;
-
-}
-
-
-function safeUrl(v){
-
-try{
-
-const u =
-new URL(v);
-
-return (
-u.protocol === 'https:' ||
-u.protocol === 'http:'
-)
-? u.href
-: '';
-
-}catch(e){
-
-return '';
-
-}
-
-}
-
-
-/* =========================
-   MOBILE MENU
-========================= */
-
-const menuBtn =
-document.getElementById('menuBtn');
-
-const mainNav =
-document.getElementById('mainNav');
-
-menuBtn.onclick=function(){
-
-const open =
-mainNav.classList.toggle('open');
-
-menuBtn.setAttribute(
-'aria-expanded',
-String(open)
-);
-
-};
-
-
-/* =========================
-   SEMESTERS
-========================= */
-
-function showSemesters(push=true){
-
-if(push){
-
-history.pushState(
-{level:'semester'},
-'',
-'#semester'
-);
-
-}
-
-breadcrumb.innerHTML =
-'<h2>Choose Semester</h2>';
-
-const semesters =
-Object.keys(SUBJECTS);
-
-notesBox.innerHTML =
-semesters.map(function(sem){
-
-return `
-
-<article
-class="level-card"
-onclick='showSubjects(${JSON.stringify(sem)})'
->
-
-<div>
-
-<div class="level-icon">
-📚
-</div>
-
-<h3>
-${esc(sem)}
-</h3>
-
-<p>
-Semester study resources
-</p>
-
-</div>
-
-<span class="level-arrow">
-Explore →
-</span>
-
-</article>
-
-`;
-
-}).join('');
-
-}
-
-
-/* =========================
-   SUBJECTS
-========================= */
-
-window.showSubjects =
-function(semester,push=true){
-
-if(push){
-
-history.pushState(
-{
-level:'subject',
-semester:semester
-},
-'',
-'#subject'
-);
-
-}
-
-breadcrumb.innerHTML = `
-
-<a
-class="back-btn"
-onclick="history.back()"
->
-← All Semesters
-</a>
-
-<h2>
-${esc(semester)}
-</h2>
-
-`;
-
-const subjects =
-SUBJECTS[semester] || [];
-
-notesBox.innerHTML =
-subjects.map(function(subject){
-
-return `
-
-<article
-class="level-card"
-onclick='showUnits(
-${JSON.stringify(encodeURIComponent(semester))},
-${JSON.stringify(encodeURIComponent(subject))}
-)'
->
-
-<div>
-
-<div class="level-icon">
-🧪
-</div>
-
-<h3>
-${esc(subject)}
-</h3>
-
-<p>
-View available units
-</p>
-
-</div>
-
-<span class="level-arrow">
-View Units →
-</span>
-
-</article>
-
-`;
-
-}).join('');
-
-};
-
-
-/* =========================
-   UNITS
-========================= */
-
-window.showUnits =
-function(
-encodedSemester,
-encodedSubject,
-push=true
-){
-
-const semester =
-decodeURIComponent(encodedSemester);
-
-const subject =
-decodeURIComponent(encodedSubject);
-
-if(push){
-
-history.pushState(
-{
-level:'unit',
-semester:semester,
-subject:subject
-},
-'',
-'#unit'
-);
-
-}
-
-breadcrumb.innerHTML = `
-
-<a
-class="back-btn"
-onclick="history.back()"
->
-← ${esc(semester)}
-</a>
-
-<h2>
-${esc(subject)}
-</h2>
-
-`;
-
-const units = [
-
-'Unit 1',
-'Unit 2',
-'Unit 3',
-'Unit 4',
-'Unit 5',
-'All Units / Complete Notes'
-
-];
-
-notesBox.innerHTML =
-units.map(function(unit){
-
-return `
-
-<article
-class="level-card"
-onclick='showPDFs(
-${JSON.stringify(encodeURIComponent(semester))},
-${JSON.stringify(encodeURIComponent(subject))},
-${JSON.stringify(encodeURIComponent(unit))}
-)'
->
-
-<div>
-
-<div class="level-icon">
-📖
-</div>
-
-<h3>
-${esc(unit)}
-</h3>
-
-<p>
-Open study material
-</p>
-
-</div>
-
-<span class="level-arrow">
-View PDFs →
-</span>
-
-</article>
-
-`;
-
-}).join('');
-
-};
-
-
-/* =========================
-   PDFS
-========================= */
-
-window.showPDFs =
-async function(
-encodedSemester,
-encodedSubject,
-encodedUnit,
-push=true
-){
-
-const semester =
-decodeURIComponent(encodedSemester);
-
-const subject =
-decodeURIComponent(encodedSubject);
-
-const unit =
-decodeURIComponent(encodedUnit);
-
-if(push){
-
-history.pushState(
-{
-level:'pdf',
-semester:semester,
-subject:subject,
-unit:unit
-},
-'',
-'#pdf'
-);
-
-}
-
-breadcrumb.innerHTML = `
-
-<a
-class="back-btn"
-onclick="history.back()"
->
-← ${esc(subject)}
-</a>
-
-<h2>
-${esc(unit)}
-</h2>
-
-`;
-
-notesBox.innerHTML = `
-
-<div class="empty">
-Loading PDFs...
-</div>
-
-`;
-
-
-try{
-
-/*
-Fetch by semester + subject first.
-
-This is more reliable than exact
-unit matching because older records
-may have:
-- different capitalization
-- extra spaces
-- empty/null unit
-*/
-
-const {data,error} =
-await supabaseClient
-.from('notes')
-.select('*')
-.order('created_at',{
-ascending:false
-});
-
-if(error){
-
-throw error;
-
-}
-
-
-/* FILTER IN JAVASCRIPT */
-
-const semesterWanted =
-normalizeSemester(semester);
-
-const subjectWanted =
-normalizeText(subject);
-
-let filtered =
-(data || []).filter(function(note){
-
-const sameSemester =
-normalizeSemester(note.semester) ===
-semesterWanted;
-
-const sameSubject =
-normalizeText(note.subject) ===
-subjectWanted;
-
-return sameSemester && sameSubject;
-
-});
-
-
-/*
-All Units / Complete Notes:
-show every PDF of that subject.
-*/
-
-if(
-unit !== 'All Units / Complete Notes'
-){
-
-const wantedUnit =
-normalizeText(unit);
-
-filtered =
-filtered.filter(function(note){
-
-const noteUnit =
-normalizeText(note.unit);
-
-return noteUnit === wantedUnit;
-
-});
-
-}
-
-
-notes = filtered;
-
-
-if(!notes.length){
-
-notesBox.innerHTML = `
-
-<div class="empty">
-
-No PDF uploaded for
-<strong>${esc(unit)}</strong>
-yet.
-
-<br><br>
-
-<small>
-If a PDF exists but is not showing,
-check its Semester, Subject and Unit
-in the Admin panel.
-</small>
-
-</div>
-
-`;
-
-return;
-
-}
-
-
-renderPDFCards(notes);
-
-
-}catch(error){
-
-console.error(error);
-
-notesBox.innerHTML = `
-
-<div class="empty">
-
-<strong>
-PDFs load nahi ho paaye.
-</strong>
-
-<br><br>
-
-${esc(error.message)}
-
-</div>
-
-`;
-
-}
-
-};
-
-
-/* =========================
-   PDF CARDS
-========================= */
-
-function renderPDFCards(items){
-
-notesBox.innerHTML =
-items.map(function(note){
-
-const url =
-safeUrl(note.pdf_url);
-
-const unitText =
-note.unit ||
-'Complete Notes';
-
-return `
-
-<article class="pdf-card">
-
-<div class="pdf-top">
-
-<div class="pdf-icon">
-PDF
-</div>
-
-<div>
-
-<div class="pdf-label">
-${esc(unitText)}
-</div>
-
-<h3>
-${esc(
-note.title ||
-'Untitled PDF'
-)}
-</h3>
-
-</div>
-
-</div>
-
-<p>
-${esc(
-note.description ||
-'B.Pharm study resource.'
-)}
-</p>
-
-<div class="pdf-actions">
-
-<button
-class="pdf-btn preview-btn"
-onclick='openPdf(
-${JSON.stringify(url)},
-${JSON.stringify(
-note.title ||
-"PDF Preview"
-)}
-)'
->
-👁 View PDF
-</button>
-
-<a
-class="pdf-btn download-btn"
-href="${esc(url)}"
-target="_blank"
-rel="noopener noreferrer"
->
-↓ Full PDF
-</a>
-
-</div>
-
-</article>
-
-`;
-
-}).join('');
-
-}
-
-
-/* =========================
-   OPEN PDF
-========================= */
-
-window.openPdf =
-async function(url,title){
-
-if(!url){
-
-alert(
-'PDF link is not valid.'
-);
-
-return;
-
-}
-
-if(!window.pdfjsLib){
-
-alert(
-'PDF preview service is still loading. Please try again.'
-);
-
-return;
-
-}
-
-
-modal.classList.add('open');
-
-document.body.style.overflow='hidden';
-
-pdfTitle.textContent =
-title;
-
-downloadPdf.href =
-url;
-
-currentPdfUrl =
-url;
-
-viewer.innerHTML = `
-
-<div class="pdf-loading">
-Loading high-resolution PDF preview...
-</div>
-
-`;
-
-currentPage=1;
-
-try{
-
-currentPdf =
-await pdfjsLib
-.getDocument({
-url:url,
-disableAutoFetch:false,
-disableStream:false
-})
-.promise;
-
-previewPages =
-Math.min(
-currentPdf.numPages,
-5
-);
-
-await renderPdfPage();
-
-}catch(error){
-
-console.error(error);
-
-viewer.innerHTML = `
-
-<div class="pdf-loading">
-
-PDF preview load nahi ho paya.
-
-<br><br>
-
-<a
-class="full-download"
-href="${esc(url)}"
-target="_blank"
-rel="noopener noreferrer"
->
-Open Full PDF
-</a>
-
-</div>
-
-`;
-
-}
-
-};
-
-
-/* =========================
-   HIGH RESOLUTION PDF PAGE
-========================= */
-
-async function renderPdfPage(){
-
-if(!currentPdf){
-
-return;
-
-}
-
-const page =
-await currentPdf.getPage(
-currentPage
-);
-
-
-/*
-Base viewport.
-*/
-
-const baseViewport =
-page.getViewport({
-scale:1
-});
-
-
-/*
-Available CSS width.
-*/
-
-const availableWidth =
-Math.max(
-280,
-Math.min(
-viewer.clientWidth - 24,
-900
-)
-);
-
-
-/*
-Normal CSS scale.
-*/
-
-const cssScale =
-availableWidth /
-baseViewport.width;
-
-
-/*
-Device Pixel Ratio.
-
-Mobile phones can have DPR 2 or 3.
-This is the main fix for blurry PDF text.
-*/
-
-const dpr =
-Math.min(
-window.devicePixelRatio || 1,
-3
-);
-
-
-/*
-High-resolution viewport.
-*/
-
-const renderScale =
-cssScale * dpr;
-
-const renderViewport =
-page.getViewport({
-scale:renderScale
-});
-
-
-/*
-CSS-size viewport.
-*/
-
-const cssViewport =
-page.getViewport({
-scale:cssScale
-});
-
-
-const wrap =
-document.createElement('div');
-
-wrap.className =
-'pdf-page';
-
-
-const canvas =
-document.createElement('canvas');
-
-
-/*
-Actual bitmap = high resolution.
-*/
-
-canvas.width =
-Math.ceil(
-renderViewport.width
-);
-
-canvas.height =
-Math.ceil(
-renderViewport.height
-);
-
-
-/*
-Displayed CSS size = normal size.
-*/
-
-canvas.style.width =
-Math.ceil(
-cssViewport.width
-) + 'px';
-
-canvas.style.height =
-Math.ceil(
-cssViewport.height
-) + 'px';
-
-
-const context =
-canvas.getContext(
-'2d',
-{
-alpha:false
-});
-
-
-context.imageSmoothingEnabled =
-true;
-
-
-wrap.appendChild(canvas);
-
-
-const label =
-document.createElement('div');
-
-label.className =
-'page-label';
-
-label.textContent =
-'Preview Page ' +
-currentPage +
-' of ' +
-previewPages;
-
-wrap.appendChild(label);
-
-
-viewer.innerHTML='';
-
-viewer.appendChild(
-wrap
-);
-
-
-/*
-Render at high resolution.
-*/
-
-await page.render({
-
-canvasContext:context,
-
-viewport:renderViewport
-
-}).promise;
-
-
-counter.textContent =
-'Page ' +
-currentPage +
-' / ' +
-previewPages;
-
-prevPdf.disabled =
-currentPage <= 1;
-
-nextPdf.disabled =
-currentPage >= previewPages;
-
-}
-
-
-/* =========================
-   NEXT PAGE
-========================= */
-
-nextPdf.onclick =
-async function(){
-
-if(
-currentPdf &&
-currentPage < previewPages
-){
-
-currentPage++;
-
-await renderPdfPage();
-
-}
-
-};
-
-
-/* =========================
-   PREVIOUS PAGE
-========================= */
-
-prevPdf.onclick =
-async function(){
-
-if(
-currentPdf &&
-currentPage > 1
-){
-
-currentPage--;
-
-await renderPdfPage();
-
-}
-
-};
-
-
-/* =========================
-   CLOSE PDF
-========================= */
-
-function closePdf(){
-
-modal.classList.remove(
-'open'
-);
-
-   
+<p>Learn

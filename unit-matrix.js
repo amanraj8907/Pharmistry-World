@@ -246,14 +246,12 @@
   border: 1px solid #dce8e6;
   border-radius: 13px;
 }
-      }
 
       .pw-matrix {
   width: max-content;
   min-width: 820px;
   border-collapse: collapse;
 }
-      }
 
       .pw-matrix th {
         padding: 12px 10px;
@@ -265,12 +263,9 @@
       }
 
       .pw-matrix th:first-child {
-        text-align: left;
-        min-width: 270px;
-        position: sticky;
-        left: 0;
-        z-index: 5;
-      }
+  text-align: left;
+  min-width: 270px;
+}
 
       .pw-matrix td {
         padding: 9px;
@@ -280,14 +275,10 @@
       }
 
       .pw-matrix td:first-child {
-        position: sticky;
-        left: 0;
-        z-index: 3;
-        min-width: 270px;
-        text-align: left;
-        background: #fff;
-        box-shadow: 4px 0 8px rgba(0,0,0,.05);
-      }
+  min-width: 270px;
+  text-align: left;
+  background: #fff;
+}
 
       .pw-subject-name {
         font-weight: 700;

@@ -90,8 +90,7 @@
     "Unit 5"
   ];
 
-  let allNotes = [];
-  let currentSemester = "All Semesters";
+  let notesData = [];
 
   function normalize(value) {
     return String(value || "")
@@ -100,17 +99,17 @@
       .replace(/\s+/g, " ");
   }
 
-  function esc(value) {
-    return String(value ?? "").replace(
+  function escapeHTML(value) {
+    return String(value || "").replace(
       /[&<>"']/g,
-      function (c) {
+      function (char) {
         return {
           "&": "&amp;",
           "<": "&lt;",
           ">": "&gt;",
           '"': "&quot;",
           "'": "&#039;"
-        }[c];
+        }[char];
       }
     );
   }
@@ -121,104 +120,199 @@
     }
 
     const style = document.createElement("style");
+
     style.id = "pwMatrixCSS";
 
     style.textContent = `
       .pw-matrix-section {
         margin: 35px 0 60px;
-        padding: 24px;
-        border: 1px solid #dbe8e6;
-        border-radius: 20px;
-        background: #ffffff;
-        box-shadow: 0 10px 30px rgba(0,0,0,.05);
+        padding: 20px;
+        border: 1px solid #dce8e6;
+        border-radius: 18px;
+        background: #fff;
+        box-shadow: 0 8px 25px rgba(0,0,0,.05);
       }
 
-      .pw-matrix-head {
-        margin-bottom: 20px;
+      .pw-matrix-title {
+        margin-bottom: 18px;
       }
 
-      .pw-matrix-head h2 {
-        margin: 0 0 7px;
-        font-size: 26px;
+      .pw-matrix-title h2 {
+        margin: 0 0 6px;
+        font-size: 25px;
       }
 
-      .pw-matrix-head p {
+      .pw-matrix-title p {
         margin: 0;
-        color: #687979;
+        color: #71817f;
+      }
+
+      .pw-semester-grid {
+        display: grid;
+        grid-template-columns:
+          repeat(4, minmax(0, 1fr));
+        gap: 12px;
+      }
+
+      .pw-semester-card {
+        width: 100%;
+        min-height: 72px;
+        padding: 14px;
+        border: 1px solid #dce8e6;
+        border-radius: 14px;
+        background: #fff;
+        cursor: pointer;
+        text-align: left;
+        font: inherit;
+        font-weight: 700;
+        color: #173b39;
+        transition: .2s ease;
+      }
+
+      .pw-semester-card:hover {
+        transform: translateY(-2px);
+        border-color: #117f78;
+        box-shadow: 0 7px 18px rgba(0,0,0,.08);
+      }
+
+      .pw-semester-card span {
+        display: block;
+        margin-top: 5px;
+        color: #117f78;
+        font-size: 13px;
+        font-weight: 600;
+      }
+
+      .pw-back {
+        border: 0;
+        background: transparent;
+        padding: 0;
+        margin-bottom: 15px;
+        color: #117f78;
+        font-weight: 800;
+        cursor: pointer;
+        font-size: 14px;
+      }
+
+      .pw-selected-semester {
+        margin-bottom: 15px;
+      }
+
+      .pw-selected-semester h3 {
+        margin: 0;
+        font-size: 22px;
+      }
+
+      .pw-scroll-hint {
+        margin-bottom: 10px;
+        padding: 8px 10px;
+        border-radius: 9px;
+        background: #eef8f6;
+        color: #117f78;
+        text-align: center;
+        font-size: 12px;
+        font-weight: 700;
       }
 
       .pw-matrix-filters {
         display: grid;
-        grid-template-columns: 1.5fr 1fr 1fr;
+        grid-template-columns:
+          1.5fr 1fr;
         gap: 10px;
-        margin-bottom: 18px;
+        margin-bottom: 15px;
       }
 
       .pw-matrix-filters input,
       .pw-matrix-filters select {
         width: 100%;
         box-sizing: border-box;
-        padding: 12px 13px;
-        border: 1px solid #d5e2e0;
-        border-radius: 11px;
+        padding: 11px 12px;
+        border: 1px solid #d7e3e1;
+        border-radius: 10px;
         background: #fff;
-        color: #203635;
         font: inherit;
+        color: #203635;
         outline: none;
       }
 
       .pw-matrix-wrap {
+        width: 100%;
         overflow-x: auto;
-        border: 1px solid #dbe8e6;
-        border-radius: 14px;
+        overflow-y: hidden;
+        -webkit-overflow-scrolling: touch;
+        border: 1px solid #dce8e6;
+        border-radius: 13px;
       }
 
       .pw-matrix {
         width: 100%;
-        min-width: 760px;
+        min-width: 820px;
         border-collapse: collapse;
       }
 
       .pw-matrix th {
-        background: #102f2e;
+        padding: 12px 10px;
+        background: #103b39;
         color: #fff;
-        padding: 13px 10px;
-        font-size: 13px;
         text-align: center;
         white-space: nowrap;
+        font-size: 13px;
       }
 
       .pw-matrix th:first-child {
         text-align: left;
-        min-width: 250px;
+        min-width: 270px;
+        position: sticky;
+        left: 0;
+        z-index: 5;
       }
 
       .pw-matrix td {
-        border-top: 1px solid #e3eceb;
         padding: 9px;
+        border-top: 1px solid #e5eceb;
         text-align: center;
         background: #fff;
       }
 
       .pw-matrix td:first-child {
+        position: sticky;
+        left: 0;
+        z-index: 3;
+        min-width: 270px;
         text-align: left;
-        font-weight: 600;
+        background: #fff;
+        box-shadow: 4px 0 8px rgba(0,0,0,.05);
+      }
+
+      .pw-subject-name {
+        font-weight: 700;
         color: #203635;
+        line-height: 1.3;
+      }
+
+      .pw-subject-semester {
+        display: block;
+        margin-top: 3px;
+        color: #7b8988;
+        font-size: 11px;
+        font-weight: 500;
       }
 
       .pw-cell {
         width: 100%;
-        min-height: 40px;
+        min-width: 65px;
+        min-height: 38px;
         border: 0;
         border-radius: 9px;
+        font: inherit;
+        font-size: 12px;
         font-weight: 800;
-        cursor: pointer;
-        font-size: 14px;
       }
 
       .pw-cell.available {
         background: #d9f5df;
         color: #137333;
+        cursor: pointer;
       }
 
       .pw-cell.available:hover {
@@ -231,30 +325,28 @@
         cursor: default;
       }
 
-      .pw-matrix-legend {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 16px;
-        margin-top: 15px;
-        font-size: 13px;
-        color: #536563;
+      .pw-empty {
+        padding: 25px;
+        text-align: center;
+        color: #74827f;
       }
 
-      .pw-legend-green {
+      .pw-legend {
+        margin-top: 12px;
+        display: flex;
+        gap: 16px;
+        flex-wrap: wrap;
+        font-size: 12px;
+      }
+
+      .pw-green {
         color: #137333;
         font-weight: 800;
       }
 
-      .pw-legend-red {
+      .pw-red {
         color: #c62828;
         font-weight: 800;
-      }
-
-      .pw-matrix-loading,
-      .pw-matrix-empty {
-        padding: 25px;
-        text-align: center;
-        color: #687979;
       }
 
       /* POPUP */
@@ -263,38 +355,37 @@
         position: fixed;
         inset: 0;
         z-index: 999999;
-        background: rgba(0,0,0,.38);
+        background: rgba(0,0,0,.42);
         display: flex;
-        justify-content: flex-end;
-        align-items: flex-start;
-        padding: 18px;
+        justify-content: center;
+        align-items: center;
+        padding: 16px;
         box-sizing: border-box;
       }
 
       .pw-popup {
-        width: min(900px, 100%);
-        max-height: calc(100vh - 36px);
-        overflow: auto;
+        width: min(1050px, 100%);
+        max-height: calc(100vh - 32px);
+        overflow-y: auto;
         background: #fff;
         border-radius: 20px;
-        box-shadow: 0 20px 60px rgba(0,0,0,.28);
         padding: 22px;
+        box-sizing: border-box;
+        box-shadow: 0 25px 70px rgba(0,0,0,.3);
         position: relative;
       }
 
       .pw-popup-close {
         position: absolute;
-        right: 14px;
         top: 12px;
+        right: 12px;
         width: 38px;
         height: 38px;
         border: 0;
         border-radius: 50%;
         background: #f1f4f4;
-        color: #203635;
-        font-size: 24px;
+        font-size: 25px;
         cursor: pointer;
-        line-height: 1;
       }
 
       .pw-popup-title {
@@ -303,41 +394,57 @@
       }
 
       .pw-popup-title h2 {
-        margin: 0 0 7px;
+        margin: 0 0 6px;
         font-size: 24px;
       }
 
       .pw-popup-title p {
         margin: 0;
-        color: #687979;
+        color: #71817f;
+        font-size: 14px;
       }
 
       .pw-popup-footer {
-        text-align: center;
-        padding-top: 20px;
         margin-top: 18px;
-        border-top: 1px solid #e1e9e8;
-        font-weight: 700;
+        padding-top: 17px;
+        border-top: 1px solid #e0e9e7;
+        text-align: center;
         color: #117f78;
+        font-weight: 800;
       }
 
       @media (max-width: 700px) {
+
         .pw-matrix-section {
-          padding: 16px;
+          padding: 15px;
+        }
+
+        .pw-semester-grid {
+          grid-template-columns: 1fr;
         }
 
         .pw-matrix-filters {
           grid-template-columns: 1fr;
         }
 
+        .pw-matrix {
+          min-width: 800px;
+        }
+
+        .pw-matrix th:first-child,
+        .pw-matrix td:first-child {
+          min-width: 235px;
+        }
+
         .pw-popup-overlay {
-          padding: 10px;
+          padding: 8px;
         }
 
         .pw-popup {
-          max-height: calc(100vh - 20px);
-          padding: 17px;
-          border-radius: 16px;
+          width: 100%;
+          max-height: calc(100vh - 16px);
+          padding: 16px;
+          border-radius: 17px;
         }
 
         .pw-popup-title h2 {
@@ -349,16 +456,6 @@
     document.head.appendChild(style);
   }
 
-  function getAvailability(semester, subject, unit) {
-    return allNotes.some(function (note) {
-      return (
-        normalize(note.semester) === normalize(semester) &&
-        normalize(note.subject) === normalize(subject) &&
-        normalize(note.unit) === normalize(unit)
-      );
-    });
-  }
-
   async function loadNotes() {
     try {
       let client;
@@ -367,17 +464,19 @@
         window.supabase &&
         window.supabase.createClient
       ) {
-        client = window.supabase.createClient(
-          SUPABASE_URL,
-          SUPABASE_KEY
-        );
+        client =
+          window.supabase.createClient(
+            SUPABASE_URL,
+            SUPABASE_KEY
+          );
       } else {
-        await loadSupabaseLibrary();
+        await loadSupabase();
 
-        client = window.supabase.createClient(
-          SUPABASE_URL,
-          SUPABASE_KEY
-        );
+        client =
+          window.supabase.createClient(
+            SUPABASE_URL,
+            SUPABASE_KEY
+          );
       }
 
       const result = await client
@@ -388,799 +487,374 @@
         throw result.error;
       }
 
-      allNotes = result.data || [];
+      notesData = result.data || [];
+
     } catch (error) {
       console.error(
-        "Unit Matrix loading error:",
+        "Unit Matrix database error:",
         error
       );
 
-      allNotes = [];
+      notesData = [];
     }
   }
 
-  function loadSupabaseLibrary() {
-    return new Promise(function (resolve, reject) {
-      if (
-        window.supabase &&
-        window.supabase.createClient
-      ) {
-        resolve();
-        return;
-      }
+  function loadSupabase() {
+    return new Promise(
+      function (resolve, reject) {
 
-      const script = document.createElement("script");
-
-      script.src =
-        "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2";
-
-      script.onload = function () {
         if (
           window.supabase &&
           window.supabase.createClient
         ) {
           resolve();
-        } else {
-          reject(
-            new Error("Supabase library unavailable")
-          );
-        }
-      };
-
-      script.onerror = function () {
-        reject(
-          new Error("Supabase library failed")
-        );
-      };
-
-      document.head.appendChild(script);
-    });
-  }
-
-  function getFilteredRows() {
-    const search =
-      document.getElementById("pwMatrixSearch");
-
-    const semester =
-      document.getElementById("pwMatrixSemester");
-
-    const status =
-      document.getElementById("pwMatrixStatus");
-
-    const q = normalize(
-      search ? search.value : ""
-    );
-
-    currentSemester =
-      semester
-        ? semester.value
-        : "All Semesters";
-
-    const statusValue =
-      status
-        ? status.value
-        : "all";
-
-    const rows = [];
-
-    Object.keys(SUBJECTS).forEach(
-      function (sem) {
-        if (
-          currentSemester !== "All Semesters" &&
-          sem !== currentSemester
-        ) {
           return;
         }
 
-        SUBJECTS[sem].forEach(
-          function (subject) {
+        const script =
+          document.createElement(
+            "script"
+          );
+
+        script.src =
+          "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2";
+
+        script.onload =
+          function () {
             if (
-              q &&
-              !normalize(subject).includes(q)
+              window.supabase &&
+              window.supabase.createClient
             ) {
-              return;
-            }
-
-            const availability =
-              UNITS.map(function (unit) {
-                return getAvailability(
-                  sem,
-                  subject,
-                  unit
-                );
-              });
-
-            const hasAvailable =
-              availability.some(Boolean);
-
-            const hasNA =
-              availability.some(
-                function (value) {
-                  return !value;
-                }
+              resolve();
+            } else {
+              reject(
+                new Error(
+                  "Supabase unavailable"
+                )
               );
-
-            if (
-              statusValue === "available" &&
-              !hasAvailable
-            ) {
-              return;
             }
+          };
 
-            if (
-              statusValue === "na" &&
-              !hasNA
-            ) {
-              return;
-            }
+        script.onerror =
+          function () {
+            reject(
+              new Error(
+                "Supabase failed to load"
+              )
+            );
+          };
 
-            rows.push({
-              semester: sem,
-              subject: subject,
-              availability: availability
-            });
-          }
+        document.head.appendChild(
+          script
         );
       }
     );
-
-    return rows;
   }
 
-  function matrixHTML() {
+  function isAvailable(
+    semester,
+    subject,
+    unit
+  ) {
+    return notesData.some(
+      function (note) {
+        return (
+          normalize(note.semester) ===
+            normalize(semester) &&
+          normalize(note.subject) ===
+            normalize(subject) &&
+          normalize(note.unit) ===
+            normalize(unit)
+        );
+      }
+    );
+  }
+
+  function semesterCards() {
     return `
-      <div class="pw-matrix-section" id="pwPermanentMatrix">
+      <div class="pw-semester-grid">
 
-        <div class="pw-matrix-head">
-          <h2>📚 Unit Availability</h2>
-          <p>
-            Check which study units are currently available.
-            Green cells open the exact study material.
-          </p>
-        </div>
+        ${Object.keys(SUBJECTS)
+          .map(
+            function (semester) {
+              return `
+                <button
+                  type="button"
+                  class="pw-semester-card"
+                  data-semester="${escapeHTML(
+                    semester
+                  )}">
 
-        <div class="pw-matrix-filters">
+                  ${escapeHTML(
+                    semester
+                  )}
 
-          <input
-            id="pwMatrixSearch"
-            type="search"
-            placeholder="Search Subject..."
-            autocomplete="off"
-          >
+                  <span>
+                    View subjects →
+                  </span>
 
-          <select id="pwMatrixSemester">
-            <option value="All Semesters">
-              All Semesters
-            </option>
-
-            ${Object.keys(SUBJECTS)
-              .map(function (sem) {
-                return `
-                  <option value="${esc(sem)}">
-                    ${esc(sem)}
-                  </option>
-                `;
-              })
-              .join("")}
-          </select>
-
-          <select id="pwMatrixStatus">
-            <option value="all">All</option>
-            <option value="available">Available</option>
-            <option value="na">NA</option>
-          </select>
-
-        </div>
-
-        <div
-          id="pwMatrixTable"
-          class="pw-matrix-wrap">
-        </div>
-
-        <div class="pw-matrix-legend">
-          <span>
-            <span class="pw-legend-green">🟢 Available</span>
-            — Click to open
-          </span>
-
-          <span>
-            <span class="pw-legend-red">🔴 NA</span>
-            — No PDF uploaded
-          </span>
-        </div>
+                </button>
+              `;
+            }
+          )
+          .join("")}
 
       </div>
     `;
   }
 
-  function renderMatrix(container) {
-    if (!container) {
+  function subjectMatrix(
+    semester
+  ) {
+    return `
+      <button
+        type="button"
+        class="pw-back"
+        data-back="semesters">
+        ← Back to Semesters
+      </button>
+
+      <div class="pw-selected-semester">
+        <h3>
+          ${escapeHTML(semester)}
+        </h3>
+      </div>
+
+      <div class="pw-matrix-filters">
+
+        <input
+          type="search"
+          class="pw-search"
+          placeholder="Search Subject..."
+          autocomplete="off">
+
+        <select class="pw-status">
+          <option value="all">
+            All
+          </option>
+
+          <option value="available">
+            Available
+          </option>
+
+          <option value="na">
+            NA
+          </option>
+        </select>
+
+      </div>
+
+      <div class="pw-scroll-hint">
+        👉 Swipe left/right to view Unit 1–5
+      </div>
+
+      <div class="pw-matrix-wrap">
+        <table class="pw-matrix">
+
+          <thead>
+            <tr>
+              <th>Subject</th>
+              <th>Unit 1</th>
+              <th>Unit 2</th>
+              <th>Unit 3</th>
+              <th>Unit 4</th>
+              <th>Unit 5</th>
+            </tr>
+          </thead>
+
+          <tbody class="pw-subject-body">
+          </tbody>
+
+        </table>
+      </div>
+
+      <div class="pw-legend">
+        <span>
+          <span class="pw-green">🟢 Available</span>
+          — Click to open
+        </span>
+
+        <span>
+          <span class="pw-red">🔴 NA</span>
+          — Not available
+        </span>
+      </div>
+    `;
+  }
+
+  function renderSubjects(
+    container,
+    semester
+  ) {
+    const body =
+      container.querySelector(
+        ".pw-subject-body"
+      );
+
+    if (!body) {
       return;
     }
 
-    const rows = getFilteredRows();
+    const search =
+      normalize(
+        (
+          container.querySelector(
+            ".pw-search"
+          ) || {}
+        ).value
+      );
 
-    if (!rows.length) {
-      container.innerHTML =
-        `<div class="pw-matrix-empty">
-          No subjects found.
-        </div>`;
+    const status =
+      (
+        container.querySelector(
+          ".pw-status"
+        ) || {}
+      ).value || "all";
+
+    const subjects =
+      SUBJECTS[semester] || [];
+
+    const filtered =
+      subjects.filter(
+        function (subject) {
+
+          if (
+            search &&
+            !normalize(subject).includes(
+              search
+            )
+          ) {
+            return false;
+          }
+
+          const availability =
+            UNITS.map(
+              function (unit) {
+                return isAvailable(
+                  semester,
+                  subject,
+                  unit
+                );
+              }
+            );
+
+          const hasAvailable =
+            availability.some(
+              Boolean
+            );
+
+          const hasNA =
+            availability.some(
+              function (value) {
+                return !value;
+              }
+            );
+
+          if (
+            status === "available" &&
+            !hasAvailable
+          ) {
+            return false;
+          }
+
+          if (
+            status === "na" &&
+            !hasNA
+          ) {
+            return false;
+          }
+
+          return true;
+        }
+      );
+
+    if (!filtered.length) {
+      body.innerHTML = `
+        <tr>
+          <td colspan="6">
+            <div class="pw-empty">
+              No subjects found.
+            </div>
+          </td>
+        </tr>
+      `;
 
       return;
     }
 
-    container.innerHTML = `
-      <table class="pw-matrix">
+    body.innerHTML =
+      filtered
+        .map(
+          function (subject) {
 
-        <thead>
-          <tr>
-            <th>Subject</th>
-            <th>Unit 1</th>
-            <th>Unit 2</th>
-            <th>Unit 3</th>
-            <th>Unit 4</th>
-            <th>Unit 5</th>
-          </tr>
-        </thead>
+            return `
+              <tr>
 
-        <tbody>
-          ${rows
-            .map(function (row) {
-              return `
-                <tr>
+                <td>
+                  <div class="pw-subject-name">
+                    ${escapeHTML(
+                      subject
+                    )}
+                  </div>
 
-                  <td>
-                    ${esc(row.subject)}
-                    <small style="
-                      display:block;
-                      color:#7a8987;
-                      font-weight:500;
-                      margin-top:3px;
-                    ">
-                      ${esc(row.semester)}
-                    </small>
-                  </td>
+                  <span class="pw-subject-semester">
+                    ${escapeHTML(
+                      semester
+                    )}
+                  </span>
+                </td>
 
-                  ${row.availability
-                    .map(function (available, index) {
-                      const unit =
-                        UNITS[index];
+                ${UNITS.map(
+                  function (unit) {
 
-                      if (available) {
-                        return `
-                          <td>
-                            <button
-                              type="button"
-                              class="pw-cell available"
-                              data-semester="${esc(row.semester)}"
-                              data-subject="${esc(row.subject)}"
-                              data-unit="${esc(unit)}">
-                              🟢
-                            </button>
-                          </td>
-                        `;
-                      }
+                    const available =
+                      isAvailable(
+                        semester,
+                        subject,
+                        unit
+                      );
 
+                    if (!available) {
                       return `
                         <td>
                           <button
                             type="button"
                             class="pw-cell na"
-                            type="button"
                             disabled>
                             🔴 NA
                           </button>
                         </td>
                       `;
-                    })
-                    .join("")}
+                    }
 
-                </tr>
-              `;
-            })
-            .join("")}
-        </tbody>
+                    return `
+                      <td>
+                        <button
+                          type="button"
+                          class="pw-cell available"
+                          data-semester="${escapeHTML(
+                            semester
+                          )}"
+                          data-subject="${escapeHTML(
+                            subject
+                          )}"
+                          data-unit="${escapeHTML(
+                            unit
+                          )}">
+                          🟢
+                        </button>
+                      </td>
+                    `;
+                  }
+                ).join("")}
 
-      </table>
-    `;
-
-    container
-      .querySelectorAll(".pw-cell.available")
-      .forEach(function (button) {
-        button.addEventListener(
-          "click",
-          function () {
-            const semester =
-              button.dataset.semester;
-
-            const subject =
-              button.dataset.subject;
-
-            const unit =
-              button.dataset.unit;
-
-            closePopup();
-
-            /*
-              Use the existing Notes navigation.
-              We do NOT replace or modify it.
-            */
-
-            if (
-              typeof window.showPDFs ===
-              "function"
-            ) {
-              window.showPDFs(
-                semester,
-                subject,
-                unit
-              );
-
-              const notes =
-                document.getElementById(
-                  "notes"
-                );
-
-              if (notes) {
-                setTimeout(function () {
-                  notes.scrollIntoView({
-                    behavior: "smooth",
-                    block: "start"
-                  });
-                }, 100);
-              }
-            }
+              </tr>
+            `;
           }
-        );
-      });
-  }
+        )
+        .join("");
 
-  function bindFilters(container) {
-    const search =
-      document.getElementById(
-        "pwMatrixSearch"
-      );
-
-    const semester =
-      document.getElementById(
-        "pwMatrixSemester"
-      );
-
-    const status =
-      document.getElementById(
-        "pwMatrixStatus"
-      );
-
-    if (search) {
-      search.addEventListener(
-        "input",
-        function () {
-          renderMatrix(container);
-        }
-      );
-    }
-
-    if (semester) {
-      semester.addEventListener(
-        "change",
-        function () {
-          renderMatrix(container);
-        }
-      );
-    }
-
-    if (status) {
-      status.addEventListener(
-        "change",
-        function () {
-          renderMatrix(container);
-        }
-      );
-    }
-  }
-
-  function createPermanentMatrix() {
-    if (
-      document.getElementById(
-        "pwPermanentMatrix"
-      )
-    ) {
-      return;
-    }
-
-    const notes =
-      document.getElementById("notes");
-
-    if (!notes) {
-      return;
-    }
-
-    const section =
-      document.createElement("section");
-
-    section.innerHTML =
-      matrixHTML();
-
-    const matrix =
-      section.firstElementChild;
-
-    /*
-      Keep the matrix outside #notes.
-      Existing showHome/showSubjects/showUnits/
-      showPDFs replace only #notes content.
-    */
-
-    notes.parentNode.insertBefore(
-      matrix,
-      notes.nextSibling
-    );
-
-    const table =
-      document.getElementById(
-        "pwMatrixTable"
-      );
-
-    bindFilters(table);
-    renderMatrix(table);
-  }
-
-  function createPopup() {
-    if (
-      document.getElementById(
-        "pwMatrixPopup"
-      )
-    ) {
-      return;
-    }
-
-    const overlay =
-      document.createElement("div");
-
-    overlay.id =
-      "pwMatrixPopup";
-
-    overlay.className =
-      "pw-popup-overlay";
-
-    overlay.innerHTML = `
-      <div
-        class="pw-popup"
-        role="dialog"
-        aria-modal="true"
-        aria-label="Unit Availability">
-
-        <button
-          type="button"
-          class="pw-popup-close"
-          id="pwMatrixClose"
-          aria-label="Close">
-          ×
-        </button>
-
-        <div class="pw-popup-title">
-          <h2>📚 Unit Availability</h2>
-          <p>
-            See which B.Pharm units are currently available.
-            Tap 🟢 to open the exact PDF section.
-          </p>
-        </div>
-
-        <div class="pw-matrix-filters">
-
-          <input
-            id="pwPopupSearch"
-            type="search"
-            placeholder="Search Subject..."
-            autocomplete="off"
-          >
-
-          <select id="pwPopupSemester">
-            <option value="All Semesters">
-              All Semesters
-            </option>
-
-            ${Object.keys(SUBJECTS)
-              .map(function (sem) {
-                return `
-                  <option value="${esc(sem)}">
-                    ${esc(sem)}
-                  </option>
-                `;
-              })
-              .join("")}
-          </select>
-
-          <select id="pwPopupStatus">
-            <option value="all">All</option>
-            <option value="available">
-              Available
-            </option>
-            <option value="na">
-              NA
-            </option>
-          </select>
-
-        </div>
-
-        <div
-          id="pwPopupTable"
-          class="pw-matrix-wrap">
-          <div class="pw-matrix-loading">
-            Loading availability...
-          </div>
-        </div>
-
-        <div class="pw-popup-footer">
-          Thank You 🥰 Please Share 😊
-        </div>
-
-      </div>
-    `;
-
-    document.body.appendChild(
-      overlay
-    );
-
-    const close =
-      document.getElementById(
-        "pwMatrixClose"
-      );
-
-    if (close) {
-  close.addEventListener(
-    "click",
-    closePopup
-  );
-    }
-
-    overlay.addEventListener(
-      "click",
-      function (event) {
-        if (
-          event.target === overlay
-        ) {
-          closePopup();
-        }
-      }
-    );
-
-    const popupTable =
-      document.getElementById(
-        "pwPopupTable"
-      );
-
-    const popupSearch =
-      document.getElementById(
-        "pwPopupSearch"
-      );
-
-    const popupSemester =
-      document.getElementById(
-        "pwPopupSemester"
-      );
-
-    const popupStatus =
-      document.getElementById(
-        "pwPopupStatus"
-      );
-
-    function renderPopup() {
-      renderMatrixFor(
-        popupTable,
-        popupSearch.value,
-        popupSemester.value,
-        popupStatus.value
-      );
-    }
-
-    function bindPopupFilter(element) {
-      if (!element) {
-        return;
-      }
-
-      element.addEventListener(
-        "input",
-        renderPopup
-      );
-
-      element.addEventListener(
-        "change",
-        renderPopup
-      );
-    }
-
-    bindPopupFilter(
-      popupSearch
-    );
-
-    bindPopupFilter(
-      popupSemester
-    );
-
-    bindPopupFilter(
-      popupStatus
-    );
-
-    renderPopup();
-  }
-
-  function renderMatrixFor(
-    container,
-    searchValue,
-    semesterValue,
-    statusValue
-  ) {
-    const q =
-      normalize(searchValue);
-
-    const rows = [];
-
-    Object.keys(SUBJECTS).forEach(
-      function (sem) {
-
-        if (
-          semesterValue !==
-            "All Semesters" &&
-          sem !== semesterValue
-        ) {
-          return;
-        }
-
-        SUBJECTS[sem].forEach(
-          function (subject) {
-
-            if (
-              q &&
-              !normalize(subject)
-                .includes(q)
-            ) {
-              return;
-            }
-
-            const availability =
-              UNITS.map(
-                function (unit) {
-                  return getAvailability(
-                    sem,
-                    subject,
-                    unit
-                  );
-                }
-              );
-
-            const hasAvailable =
-              availability.some(
-                Boolean
-              );
-
-            const hasNA =
-              availability.some(
-                function (x) {
-                  return !x;
-                }
-              );
-
-            if (
-              statusValue ===
-                "available" &&
-              !hasAvailable
-            ) {
-              return;
-            }
-
-            if (
-              statusValue === "na" &&
-              !hasNA
-            ) {
-              return;
-            }
-
-            rows.push({
-              semester: sem,
-              subject: subject,
-              availability:
-                availability
-            });
-          }
-        );
-      }
-    );
-
-    if (!rows.length) {
-      container.innerHTML =
-        `
-        <div class="pw-matrix-empty">
-          No subjects found.
-        </div>
-        `;
-
-      return;
-    }
-
-    container.innerHTML = `
-      <table class="pw-matrix">
-
-        <thead>
-          <tr>
-            <th>Subject</th>
-            <th>Unit 1</th>
-            <th>Unit 2</th>
-            <th>Unit 3</th>
-            <th>Unit 4</th>
-            <th>Unit 5</th>
-          </tr>
-        </thead>
-
-        <tbody>
-
-          ${rows
-            .map(function (row) {
-              return `
-                <tr>
-
-                  <td>
-                    ${esc(row.subject)}
-
-                    <small style="
-                      display:block;
-                      color:#7a8987;
-                      font-weight:500;
-                      margin-top:3px;
-                    ">
-                      ${esc(row.semester)}
-                    </small>
-                  </td>
-
-                  ${row.availability
-                    .map(
-                      function (
-                        available,
-                        index
-                      ) {
-
-                        const unit =
-                          UNITS[index];
-
-                        if (available) {
-                          return `
-                            <td>
-                              <button
-                                type="button"
-                                class="pw-cell available"
-                                data-semester="${esc(row.semester)}"
-                                data-subject="${esc(row.subject)}"
-                                data-unit="${esc(unit)}">
-                                🟢
-                              </button>
-                            </td>
-                          `;
-                        }
-
-                        return `
-                          <td>
-                            <button
-                              type="button"
-                              class="pw-cell na"
-                              disabled>
-                              🔴 NA
-                            </button>
-                          </td>
-                        `;
-                      }
-                    )
-                    .join("")}
-
-                </tr>
-              `;
-            })
-            .join("")}
-
-        </tbody>
-
-      </table>
-    `;
-
-    container
+    body
       .querySelectorAll(
         ".pw-cell.available"
       )
@@ -1191,7 +865,7 @@
             "click",
             function () {
 
-              const semester =
+              const sem =
                 button.dataset.semester;
 
               const subject =
@@ -1206,9 +880,8 @@
                 typeof window.showPDFs ===
                 "function"
               ) {
-
                 window.showPDFs(
-                  semester,
+                  sem,
                   subject,
                   unit
                 );
@@ -1236,65 +909,338 @@
               }
             }
           );
-
         }
       );
   }
 
-  function closePopup() {
-
-    const popup =
-      document.getElementById(
-        "pwMatrixPopup"
-      );
-
-    if (popup) {
-      popup.remove();
-    }
-
-    document.body.style.overflow =
-      "";
-  }
-
-  async function start() {
-
-    try {
-
-      injectCSS();
-
-      await loadNotes();
-
-      createPermanentMatrix();
-
-      createPopup();
-
-      document.body.style.overflow =
-        "hidden";
-
-    } catch (error) {
-
-      console.error(
-        "Pharmistry World Unit Matrix error:",
-        error
-      );
-
-    }
-  }
-
-  if (
-    document.readyState ===
-    "loading"
+  function renderSemesterView(
+    container,
+    semester
   ) {
+    container.innerHTML =
+      subjectMatrix(
+        semester
+      );
 
-    document.addEventListener(
-      "DOMContentLoaded",
-      start
+    renderSubjects(
+      container,
+      semester
     );
 
-  } else {
+    const search =
+      container.querySelector(
+        ".pw-search"
+      );
 
-    start();
+    const status =
+      container.querySelector(
+        ".pw-status"
+      );
+
+    if (search) {
+      search.addEventListener(
+        "input",
+        function () {
+          renderSubjects(
+            container,
+            semester
+          );
+        }
+      );
+    }
+
+    if (status) {
+      status.addEventListener(
+        "change",
+        function () {
+          renderSubjects(
+            container,
+            semester
+          );
+        }
+      );
+    }
+
+    const back =
+      container.querySelector(
+        '[data-back="semesters"]'
+      );
+
+    if (back) {
+      back.addEventListener(
+        "click",
+            function () {
+
+      renderSemesterList(
+        container
+      );
+
+    }
+  );
+}
+
+function renderSemesterList(
+  container
+) {
+  container.innerHTML =
+    semesterCards();
+
+  container
+    .querySelectorAll(
+      ".pw-semester-card"
+    )
+    .forEach(
+      function (button) {
+
+        button.addEventListener(
+          "click",
+          function () {
+
+            renderSemesterView(
+              container,
+              button.dataset.semester
+            );
+
+          }
+        );
+
+      }
+    );
+}
+
+function permanentMatrix() {
+  return `
+    <section
+      id="pwPermanentMatrix"
+      class="pw-matrix-section">
+
+      <div class="pw-matrix-title">
+
+        <h2>
+          📚 Unit Availability
+        </h2>
+
+        <p>
+          Select a semester to view
+          subject-wise unit availability.
+        </p>
+
+      </div>
+
+      <div
+        id="pwPermanentContent">
+      </div>
+
+    </section>
+  `;
+}
+
+function createPermanentMatrix() {
+
+  if (
+    document.getElementById(
+      "pwPermanentMatrix"
+    )
+  ) {
+    return;
+  }
+
+  const notes =
+    document.getElementById(
+      "notes"
+    );
+
+  if (!notes) {
+    return;
+  }
+
+  const wrapper =
+    document.createElement(
+      "div"
+    );
+
+  wrapper.innerHTML =
+    permanentMatrix();
+
+  const section =
+    wrapper.firstElementChild;
+
+  notes.parentNode.insertBefore(
+    section,
+    notes.nextSibling
+  );
+
+  const content =
+    document.getElementById(
+      "pwPermanentContent"
+    );
+
+  renderSemesterList(
+    content
+  );
+}
+
+function popupHTML() {
+  return `
+    <div
+      class="pw-popup-overlay"
+      id="pwMatrixPopup">
+
+      <div
+        class="pw-popup"
+        role="dialog"
+        aria-modal="true">
+
+        <button
+          type="button"
+          class="pw-popup-close"
+          id="pwMatrixClose"
+          aria-label="Close">
+          ×
+        </button>
+
+        <div class="pw-popup-title">
+
+          <h2>
+            📚 B.Pharm Unit Availability
+          </h2>
+
+          <p>
+            Select a semester to view
+            available study units.
+          </p>
+
+        </div>
+
+        <div id="pwPopupContent">
+        </div>
+
+        <div class="pw-popup-footer">
+          Thank You 🥰 Please Share 😊
+        </div>
+
+      </div>
+
+    </div>
+  `;
+}
+
+function createPopup() {
+
+  if (
+    document.getElementById(
+      "pwMatrixPopup"
+    )
+  ) {
+    return;
+  }
+
+  const wrapper =
+    document.createElement(
+      "div"
+    );
+
+  wrapper.innerHTML =
+    popupHTML();
+
+  document.body.appendChild(
+    wrapper.firstElementChild
+  );
+
+  const popup =
+    document.getElementById(
+      "pwMatrixPopup"
+    );
+
+  const content =
+    document.getElementById(
+      "pwPopupContent"
+    );
+
+  renderSemesterList(
+    content
+  );
+
+  const close =
+    document.getElementById(
+      "pwMatrixClose"
+    );
+
+  if (close) {
+    close.addEventListener(
+      "click",
+      closePopup
+    );
+  }
+
+  popup.addEventListener(
+    "click",
+    function (event) {
+
+      if (
+        event.target === popup
+      ) {
+        closePopup();
+      }
+
+    }
+  );
+
+  document.body.style.overflow =
+    "hidden";
+}
+
+function closePopup() {
+
+  const popup =
+    document.getElementById(
+      "pwMatrixPopup"
+    );
+
+  if (popup) {
+    popup.remove();
+  }
+
+  document.body.style.overflow =
+    "";
+}
+
+async function start() {
+
+  try {
+
+    injectCSS();
+
+    await loadNotes();
+
+    createPermanentMatrix();
+
+    createPopup();
+
+  } catch (error) {
+
+    console.error(
+      "Pharmistry World Unit Matrix error:",
+      error
+    );
 
   }
+}
+
+if (
+  document.readyState ===
+  "loading"
+) {
+
+  document.addEventListener(
+    "DOMContentLoaded",
+    start
+  );
+
+} else {
+
+  start();
+
+}
 
 })();

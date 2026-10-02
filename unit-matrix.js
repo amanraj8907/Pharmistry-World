@@ -1211,11 +1211,52 @@ async function start() {
 
     injectCSS();
 
-    await loadNotes();
+    /*
+      Popup ko database se pehle create karo.
+      Isse Supabase delay ki wajah se popup
+      disappear nahi hoga.
+    */
+
+    createPopup();
+
+    /*
+      Permanent matrix bhi immediately create karo.
+    */
 
     createPermanentMatrix();
 
-    createPopup();
+    /*
+      Ab database se availability load karo.
+    */
+
+    await loadNotes();
+
+    /*
+      Database load hone ke baad popup aur
+      permanent matrix ko fresh render karo.
+    */
+
+    const popupContent =
+      document.getElementById(
+        "pwPopupContent"
+      );
+
+    if (popupContent) {
+      renderSemesterList(
+        popupContent
+      );
+    }
+
+    const permanentContent =
+      document.getElementById(
+        "pwPermanentContent"
+      );
+
+    if (permanentContent) {
+      renderSemesterList(
+        permanentContent
+      );
+    }
 
   } catch (error) {
 
@@ -1225,7 +1266,9 @@ async function start() {
     );
 
   }
+
 }
+
 
 if (
   document.readyState ===
@@ -1242,5 +1285,6 @@ if (
   start();
 
 }
+
 
 })();

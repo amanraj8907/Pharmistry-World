@@ -978,6 +978,7 @@
     }
   );
 }
+  }
 
 function renderSemesterList(
   container

@@ -1111,10 +1111,12 @@
       });
 
 
-    /*
+        /*
       Keep resolution readable.
       Higher compression means lower JPEG quality.
-                const scale =
+    */
+
+    const scale =
       targetReduction >= 60
         ? 1.45
         : targetReduction >= 40

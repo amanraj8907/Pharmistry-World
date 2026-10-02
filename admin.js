@@ -1,6 +1,11 @@
 (() => {
   'use strict';
 
+  /* =========================================================
+     PHARMISTRY WORLD — ADMIN
+     PDF COMPRESSION + WATERMARK + COPYRIGHT + PREVIEW
+  ========================================================= */
+
   const SUPABASE_URL =
     'https://qgmpwanxqytoakmnklvy.supabase.co';
 
@@ -9,9 +14,24 @@
 
   const BUCKET = 'B. Pharm Notes';
 
+  const LOGO_URL =
+    './pharmistry-watermark.png';
+
+  const PDFJS_URL =
+    'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+
+  const PDFJS_WORKER =
+    'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+  const JSPDF_URL =
+    'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+
   const $ = id => document.getElementById(id);
 
   let client = null;
+
+  let notePreparedPdf = null;
+  let industryPreparedPdf = null;
 
   const SUBJECTS = {
     '1st Semester': [
@@ -22,6 +42,7 @@
       'Communication Skills',
       'Remedial Biology / Remedial Mathematics'
     ],
+
     '2nd Semester': [
       'Human Anatomy and Physiology II',
       'Pharmaceutical Organic Chemistry I',
@@ -30,12 +51,14 @@
       'Computer Applications in Pharmacy',
       'Environmental Sciences'
     ],
+
     '3rd Semester': [
       'Pharmaceutical Organic Chemistry II',
       'Physical Pharmaceutics I',
       'Pharmaceutical Microbiology',
       'Pharmaceutical Engineering'
     ],
+
     '4th Semester': [
       'Pharmaceutical Organic Chemistry III',
       'Medicinal Chemistry I',
@@ -43,6 +66,7 @@
       'Pharmacology I',
       'Pharmacognosy and Phytochemistry I'
     ],
+
     '5th Semester': [
       'Medicinal Chemistry II',
       'Industrial Pharmacy I',
@@ -50,6 +74,7 @@
       'Pharmacognosy and Phytochemistry II',
       'Pharmaceutical Jurisprudence'
     ],
+
     '6th Semester': [
       'Medicinal Chemistry III',
       'Pharmacology III',
@@ -58,12 +83,14 @@
       'Pharmaceutical Biotechnology',
       'Quality Assurance'
     ],
+
     '7th Semester': [
       'Instrumental Methods of Analysis',
       'Industrial Pharmacy II',
       'Pharmacy Practice',
       'Novel Drug Delivery System'
     ],
+
     '8th Semester': [
       'Biostatistics and Research Methodology',
       'Social and Preventive Pharmacy',
@@ -81,6 +108,11 @@
     ]
   };
 
+
+  /* =========================================================
+     HELPERS
+  ========================================================= */
+
   const esc = value =>
     String(value ?? '').replace(
       /[&<>"']/g,
@@ -93,145 +125,102 @@
       }[c])
     );
 
-  function message(element, text, success = false) {
+
+  function message(
+    element,
+    text,
+    success = false
+  ) {
     if (!element) return;
 
-    element.textContent = text || '';
+    element.textContent =
+      text || '';
+
     element.className =
-      'message ' + (success ? 'ok' : 'error');
+      'message ' +
+      (success ? 'ok' : 'error');
   }
 
-  async function isAdmin(uid) {
-    const { data, error } = await client
-      .from('admin_users')
-      .select('user_id')
-      .eq('user_id', uid)
-      .maybeSingle();
 
-    if (error) throw error;
+  function formatBytes(bytes) {
 
-    return !!data;
-  }
-
-  async function showSession() {
-    try {
-      const { data, error } =
-        await client.auth.getSession();
-
-      if (error) throw error;
-
-      const session = data.session;
-
-      if (!session) {
-        $('loginView')?.classList.remove('hidden');
-        $('adminView')?.classList.add('hidden');
-        return;
-      }
-
-      const admin = await isAdmin(session.user.id);
-
-      if (!admin) {
-        await client.auth.signOut();
-
-        $('loginView')?.classList.remove('hidden');
-        $('adminView')?.classList.add('hidden');
-
-        message(
-          $('loginMsg'),
-          'This account is not authorized as an admin.'
-        );
-
-        return;
-      }
-
-      if ($('userEmail')) {
-        $('userEmail').textContent =
-          session.user.email || '';
-      }
-
-      $('loginView')?.classList.add('hidden');
-      $('adminView')?.classList.remove('hidden');
-
-      await loadNotes();
-      await loadIndustry();
-
-      if ($('contactList')) {
-        await loadContactMessages();
-      }
-
-    } catch (error) {
-      console.error(error);
-
-      message(
-        $('loginMsg'),
-        error.message || 'Session check failed.'
-      );
+    if (!bytes || bytes <= 0) {
+      return '0 B';
     }
-  }
 
-  async function login(event) {
-    event.preventDefault();
+    const units = [
+      'B',
+      'KB',
+      'MB',
+      'GB'
+    ];
 
-    message(
-      $('loginMsg'),
-      'Signing in…',
-      true
+    const i = Math.floor(
+      Math.log(bytes) /
+      Math.log(1024)
     );
 
-    try {
-      const email =
-        $('email')?.value.trim();
-
-      const password =
-        $('password')?.value;
-
-      if (!email || !password) {
-        throw new Error(
-          'Email and password are required.'
-        );
-      }
-
-      const { error } =
-        await client.auth.signInWithPassword({
-          email,
-          password
-        });
-
-      if (error) throw error;
-
-      await showSession();
-
-    } catch (error) {
-      console.error(error);
-
-      message(
-        $('loginMsg'),
-        error.message || 'Sign-in failed.'
-      );
-    }
+    return (
+      (
+        bytes /
+        Math.pow(1024, i)
+      ).toFixed(
+        i === 0 ? 0 : 2
+      ) +
+      ' ' +
+      units[i]
+    );
   }
 
-  async function logout() {
-    await client.auth.signOut();
-    await showSession();
+
+  function reductionPercent(
+    original,
+    converted
+  ) {
+    if (!original) return 0;
+
+    return (
+      (
+        (original - converted) /
+        original
+      ) * 100
+    );
   }
+
 
   function safeName(name) {
-    return name
-      .replace(/\.pdf$/i, '')
-      .replace(/[^a-zA-Z0-9_-]+/g, '-')
-      .replace(/^-+|-+$/g, '')
-      .slice(0, 80) || 'file';
+
+    return String(name || 'file')
+      .replace(
+        /\.pdf$/i,
+        ''
+      )
+      .replace(
+        /[^a-zA-Z0-9_-]+/g,
+        '-'
+      )
+      .replace(
+        /^-+|-+$/g,
+        ''
+      )
+      .slice(
+        0,
+        80
+      ) || 'file';
   }
 
+
   function publicPath(url) {
+
     try {
+
       if (!url) return null;
 
       const encoded =
         `/storage/v1/object/public/${encodeURIComponent(BUCKET)}/`;
 
       if (url.includes(encoded)) {
+
         return decodeURIComponent(
           url.split(encoded)[1]
         );
@@ -241,6 +230,7 @@
         `/storage/v1/object/public/${BUCKET}/`;
 
       if (url.includes(raw)) {
+
         return decodeURIComponent(
           url.split(raw)[1]
         );
@@ -251,11 +241,1077 @@
     return null;
   }
 
-  async function uploadFile(file, folder) {
+
+  /* =========================================================
+     EXTERNAL LIBRARIES
+  ========================================================= */
+
+  function loadScript(src) {
+
+    return new Promise(
+      (resolve, reject) => {
+
+        const old =
+          document.querySelector(
+            `script[src="${src}"]`
+          );
+
+        if (old) {
+
+          if (
+            old.dataset.loaded === 'yes'
+          ) {
+            resolve();
+            return;
+          }
+
+          old.addEventListener(
+            'load',
+            resolve,
+            { once: true }
+          );
+
+          old.addEventListener(
+            'error',
+            reject,
+            { once: true }
+          );
+
+          return;
+        }
+
+        const script =
+          document.createElement(
+            'script'
+          );
+
+        script.src = src;
+
+        script.onload = () => {
+
+          script.dataset.loaded =
+            'yes';
+
+          resolve();
+        };
+
+        script.onerror = () =>
+          reject(
+            new Error(
+              'Required PDF library could not be loaded.'
+            )
+          );
+
+        document.head.appendChild(
+          script
+        );
+      }
+    );
+  }
+
+
+  async function loadPdfJs() {
+
+    await loadScript(
+      PDFJS_URL
+    );
+
+    if (!window.pdfjsLib) {
+      throw new Error(
+        'PDF.js could not be loaded.'
+      );
+    }
+
+    window.pdfjsLib
+      .GlobalWorkerOptions
+      .workerSrc =
+      PDFJS_WORKER;
+
+    return window.pdfjsLib;
+  }
+
+
+  async function loadJsPdf() {
+
+    await loadScript(
+      JSPDF_URL
+    );
+
+    if (
+      !window.jspdf ||
+      !window.jspdf.jsPDF
+    ) {
+      throw new Error(
+        'jsPDF could not be loaded.'
+      );
+    }
+
+    return window.jspdf.jsPDF;
+  }
+
+
+  /* =========================================================
+     LOGO
+  ========================================================= */
+
+  let logoPromise = null;
+
+  function getLogo() {
+
+    if (logoPromise) {
+      return logoPromise;
+    }
+
+    logoPromise =
+      new Promise(
+        (resolve, reject) => {
+
+          const img =
+            new Image();
+
+          img.crossOrigin =
+            'anonymous';
+
+          img.onload =
+            () => resolve(img);
+
+          img.onerror =
+            () =>
+              reject(
+                new Error(
+                  'Pharmistry World logo not found. Upload pharmistry-watermark.png to the repository root.'
+                )
+              );
+
+          img.src =
+            LOGO_URL +
+            '?v=20261002';
+        }
+      );
+
+    return logoPromise;
+  }
+
+
+  /* =========================================================
+     AUTH
+  ========================================================= */
+
+  async function isAdmin(uid) {
+
+    const {
+      data,
+      error
+    } =
+      await client
+        .from('admin_users')
+        .select('user_id')
+        .eq(
+          'user_id',
+          uid
+        )
+        .maybeSingle();
+
+    if (error) {
+      throw error;
+    }
+
+    return !!data;
+  }
+
+
+  async function showSession() {
+
+    try {
+
+      const {
+        data,
+        error
+      } =
+        await client.auth.getSession();
+
+      if (error) {
+        throw error;
+      }
+
+      const session =
+        data.session;
+
+      if (!session) {
+
+        $('loginView')
+          ?.classList
+          .remove('hidden');
+
+        $('adminView')
+          ?.classList
+          .add('hidden');
+
+        return;
+      }
+
+      const admin =
+        await isAdmin(
+          session.user.id
+        );
+
+      if (!admin) {
+
+        await client.auth.signOut();
+
+        $('loginView')
+          ?.classList
+          .remove('hidden');
+
+        $('adminView')
+          ?.classList
+          .add('hidden');
+
+        message(
+          $('loginMsg'),
+          'This account is not authorized as an admin.'
+        );
+
+        return;
+      }
+
+      if ($('userEmail')) {
+
+        $('userEmail')
+          .textContent =
+          session.user.email || '';
+      }
+
+      $('loginView')
+        ?.classList
+        .add('hidden');
+
+      $('adminView')
+        ?.classList
+        .remove('hidden');
+
+      await loadNotes();
+      await loadIndustry();
+
+      if ($('contactList')) {
+        await loadContactMessages();
+      }
+
+    } catch (error) {
+
+      console.error(error);
+
+      message(
+        $('loginMsg'),
+        error.message ||
+        'Session check failed.'
+      );
+    }
+  }
+
+
+  async function login(event) {
+
+    event.preventDefault();
+
+    message(
+      $('loginMsg'),
+      'Signing in…',
+      true
+    );
+
+    try {
+
+      const email =
+        $('email')
+          ?.value
+          .trim();
+
+      const password =
+        $('password')
+          ?.value;
+
+      if (!email || !password) {
+
+        throw new Error(
+          'Email and password are required.'
+        );
+      }
+
+      const {
+        error
+      } =
+        await client.auth
+          .signInWithPassword({
+            email,
+            password
+          });
+
+      if (error) {
+        throw error;
+      }
+
+      await showSession();
+
+    } catch (error) {
+
+      console.error(error);
+
+      message(
+        $('loginMsg'),
+        error.message ||
+        'Sign-in failed.'
+      );
+    }
+  }
+
+
+  async function logout() {
+
+    await client.auth.signOut();
+
+    await showSession();
+  }
+
+
+  /* =========================================================
+     PROCESSOR CSS
+  ========================================================= */
+
+  function addProcessorStyles() {
+
+    if (
+      $('pwProcessorStyles')
+    ) {
+      return;
+    }
+
+    const style =
+      document.createElement(
+        'style'
+      );
+
+    style.id =
+      'pwProcessorStyles';
+
+    style.textContent = `
+
+      .pw-tools {
+        grid-column: 1 / -1;
+        padding: 18px;
+        margin-top: 5px;
+        border: 1px solid rgba(0,0,0,.12);
+        border-radius: 14px;
+        background: rgba(0,0,0,.025);
+      }
+
+      .pw-tools h3 {
+        margin: 0 0 6px;
+      }
+
+      .pw-tools p {
+        margin: 5px 0;
+      }
+
+      .pw-controls {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        align-items: end;
+        margin-top: 14px;
+      }
+
+      .pw-controls label {
+        min-width: 130px;
+      }
+
+      .pw-result {
+        margin-top: 15px;
+        padding: 14px;
+        border-radius: 12px;
+        background: rgba(0,0,0,.045);
+      }
+
+      .pw-stats {
+        display: grid;
+        grid-template-columns:
+          repeat(auto-fit,minmax(140px,1fr));
+        gap: 10px;
+      }
+
+      .pw-stat {
+        background: #fff;
+        padding: 11px;
+        border-radius: 10px;
+      }
+
+      .pw-stat strong {
+        display: block;
+        margin-top: 4px;
+        font-size: 17px;
+      }
+
+      .pw-preview {
+        width: 100%;
+        height: 520px;
+        margin-top: 14px;
+        border: 1px solid rgba(0,0,0,.12);
+        border-radius: 12px;
+        background: #eee;
+      }
+
+      .pw-hidden {
+        display: none !important;
+      }
+
+      .pw-ok {
+        color: #18733d;
+      }
+
+      .pw-warning {
+        color: #9a6700;
+      }
+
+    `;
+
+    document.head.appendChild(
+      style
+    );
+  }
+
+
+  /* =========================================================
+     PROCESSOR UI
+  ========================================================= */
+
+  function addProcessor(
+    type
+  ) {
+
+    const industry =
+      type === 'industry';
+
+    const input =
+      $(
+        industry
+          ? 'industryPdf'
+          : 'pdf'
+      );
+
+    if (!input) {
+      return;
+    }
+
+    const existing =
+      $(
+        industry
+          ? 'industryPdfTools'
+          : 'notesPdfTools'
+      );
+
+    if (existing) {
+      return;
+    }
+
+    addProcessorStyles();
+
+    const box =
+      document.createElement(
+        'div'
+      );
+
+    box.id =
+      industry
+        ? 'industryPdfTools'
+        : 'notesPdfTools';
+
+    box.className =
+      'pw-tools';
+
+    box.innerHTML = `
+
+      <h3>
+        PDF Compression & Branding
+      </h3>
+
+      <p>
+        Select a target compression percentage,
+        then convert and preview the final PDF.
+      </p>
+
+      <div class="pw-controls">
+
+        <label>
+          Compression
+
+          <select class="pw-percent">
+
+            <option value="10">10%</option>
+            <option value="20">20%</option>
+            <option value="30">30%</option>
+            <option value="40" selected>40%</option>
+            <option value="50">50%</option>
+            <option value="60">60%</option>
+            <option value="70">70%</option>
+
+          </select>
+        </label>
+
+        <button
+          type="button"
+          class="btn primary pw-convert"
+        >
+          Convert & Prepare PDF
+        </button>
+
+        <button
+          type="button"
+          class="btn pw-preview-btn pw-hidden"
+        >
+          Preview Converted PDF
+        </button>
+
+      </div>
+
+      <div class="pw-result pw-hidden">
+
+        <div class="pw-stats">
+
+          <div class="pw-stat">
+            Original
+            <strong class="pw-original">—</strong>
+          </div>
+
+          <div class="pw-stat">
+            Converted
+            <strong class="pw-converted">—</strong>
+          </div>
+
+          <div class="pw-stat">
+            Actual reduction
+            <strong class="pw-reduction">—</strong>
+          </div>
+
+        </div>
+
+        <p class="pw-status"></p>
+
+      </div>
+
+      <iframe
+        class="pw-preview pw-hidden"
+        title="Converted PDF preview"
+      ></iframe>
+
+    `;
+
+    input
+      .closest('label')
+      ?.insertAdjacentElement(
+        'afterend',
+        box
+      );
+
+
+    const convertButton =
+      box.querySelector(
+        '.pw-convert'
+      );
+
+    const previewButton =
+      box.querySelector(
+        '.pw-preview-btn'
+      );
+
+    const percentSelect =
+      box.querySelector(
+        '.pw-percent'
+      );
+
+    const result =
+      box.querySelector(
+        '.pw-result'
+      );
+
+    const iframe =
+      box.querySelector(
+        '.pw-preview'
+      );
+
+    const status =
+      box.querySelector(
+        '.pw-status'
+      );
+
+
+    input.addEventListener(
+      'change',
+      () => {
+
+        if (industry) {
+          industryPreparedPdf =
+            null;
+        } else {
+          notePreparedPdf =
+            null;
+        }
+
+        result.classList.add(
+          'pw-hidden'
+        );
+
+        previewButton.classList.add(
+          'pw-hidden'
+        );
+
+        iframe.classList.add(
+          'pw-hidden'
+        );
+
+        iframe.src =
+          'about:blank';
+
+        status.textContent =
+          '';
+      }
+    );
+
+
+    convertButton.addEventListener(
+      'click',
+      async () => {
+
+        const file =
+          input.files[0];
+
+        if (!file) {
+
+          message(
+            industry
+              ? $('industryMsg')
+              : $('uploadMsg'),
+            'Choose a PDF first.'
+          );
+
+          return;
+        }
+
+        if (
+          file.size >
+          25 * 1024 * 1024
+        ) {
+
+          message(
+            industry
+              ? $('industryMsg')
+              : $('uploadMsg'),
+            'PDF must be 25 MB or smaller.'
+          );
+
+          return;
+        }
+
+        convertButton.disabled =
+          true;
+
+        previewButton.disabled =
+          true;
+
+        status.textContent =
+          'Converting PDF and adding branding…';
+
+        message(
+          industry
+            ? $('industryMsg')
+            : $('uploadMsg'),
+          'Processing PDF…',
+          true
+        );
+
+        try {
+
+          const target =
+            Number(
+              percentSelect.value
+            );
+
+          const prepared =
+            await processPdf(
+              file,
+              target
+            );
+
+          if (industry) {
+            industryPreparedPdf =
+              prepared;
+          } else {
+            notePreparedPdf =
+              prepared;
+          }
+
+          const actual =
+            reductionPercent(
+              file.size,
+              prepared.size
+            );
+
+          result.classList.remove(
+            'pw-hidden'
+          );
+
+          box.querySelector(
+            '.pw-original'
+          ).textContent =
+            formatBytes(
+              file.size
+            );
+
+          box.querySelector(
+            '.pw-converted'
+          ).textContent =
+            formatBytes(
+              prepared.size
+            );
+
+          box.querySelector(
+            '.pw-reduction'
+          ).textContent =
+            actual.toFixed(1) +
+            '%';
+
+          status.textContent =
+            `Target: ${target}% • Actual: ${actual.toFixed(1)}%`;
+
+          status.className =
+            actual >= target
+              ? 'pw-status pw-ok'
+              : 'pw-status pw-warning';
+
+
+          previewButton.classList.remove(
+            'pw-hidden'
+          );
+
+          previewButton.disabled =
+            false;
+
+
+          previewButton.onclick =
+            () => {
+
+              const url =
+                URL.createObjectURL(
+                  prepared
+                );
+
+              iframe.src =
+                url;
+
+              iframe.classList.remove(
+                'pw-hidden'
+              );
+
+            };
+
+
+          message(
+            industry
+              ? $('industryMsg')
+              : $('uploadMsg'),
+            'PDF converted successfully. Preview it before publishing.',
+            true
+          );
+
+        } catch (error) {
+
+          console.error(error);
+
+          status.textContent =
+            error.message ||
+            'PDF conversion failed.';
+
+          message(
+            industry
+              ? $('industryMsg')
+              : $('uploadMsg'),
+            error.message ||
+            'PDF conversion failed.'
+          );
+
+        } finally {
+
+          convertButton.disabled =
+            false;
+        }
+
+      }
+    );
+  }
+
+
+  /* =========================================================
+     PDF PROCESSING
+  ========================================================= */
+
+  async function processPdf(
+    file,
+    targetReduction
+  ) {
+
+    const pdfjs =
+      await loadPdfJs();
+
+    const jsPDF =
+      await loadJsPdf();
+
+    const logo =
+      await getLogo();
+
+    const buffer =
+      await file.arrayBuffer();
+
+    const pdf =
+      await pdfjs
+        .getDocument({
+          data:
+            new Uint8Array(
+              buffer
+            )
+        })
+        .promise;
+
+    const firstPage =
+      await pdf.getPage(1);
+
+    const firstViewport =
+      firstPage.getViewport({
+        scale: 1
+      });
+
+    const width =
+      firstViewport.width;
+
+    const height =
+      firstViewport.height;
+
+    const orientation =
+      width > height
+        ? 'landscape'
+        : 'portrait';
+
+    const doc =
+      new jsPDF({
+        orientation,
+        unit: 'pt',
+        format: [
+          width,
+          height
+        ],
+        compress: true
+      });
+
+
+    /*
+      Keep resolution readable.
+      Higher compression means lower JPEG quality.
+                const scale =
+      targetReduction >= 60
+        ? 1.45
+        : targetReduction >= 40
+          ? 1.8
+          : 2.1;
+
+    const quality =
+      targetReduction >= 60
+        ? 0.48
+        : targetReduction >= 50
+          ? 0.55
+          : targetReduction >= 40
+            ? 0.62
+            : targetReduction >= 30
+              ? 0.70
+              : 0.80;
+
+    for (
+      let pageNo = 1;
+      pageNo <= pdf.numPages;
+      pageNo++
+    ) {
+
+      const page =
+        await pdf.getPage(pageNo);
+
+      const viewport =
+        page.getViewport({
+          scale
+        });
+
+      const canvas =
+        document.createElement('canvas');
+
+      canvas.width =
+        Math.ceil(viewport.width);
+
+      canvas.height =
+        Math.ceil(viewport.height);
+
+      const ctx =
+        canvas.getContext('2d', {
+          alpha: false
+        });
+
+      ctx.fillStyle = '#ffffff';
+
+      ctx.fillRect(
+        0,
+        0,
+        canvas.width,
+        canvas.height
+      );
+
+      await page.render({
+        canvasContext: ctx,
+        viewport
+      }).promise;
+
+
+      /* ==============================
+         LIGHT PHARMISTRY WORLD WATERMARK
+      ============================== */
+
+      ctx.save();
+
+      ctx.globalAlpha = 0.055;
+
+      const watermarkWidth =
+        canvas.width * 0.46;
+
+      const watermarkHeight =
+        watermarkWidth *
+        (
+          logo.naturalHeight /
+          logo.naturalWidth
+        );
+
+      ctx.translate(
+        canvas.width / 2,
+        canvas.height / 2
+      );
+
+      ctx.rotate(
+        -Math.PI / 12
+      );
+
+      ctx.drawImage(
+        logo,
+        -watermarkWidth / 2,
+        -watermarkHeight / 2,
+        watermarkWidth,
+        watermarkHeight
+      );
+
+      ctx.restore();
+
+
+      /* ==============================
+         COPYRIGHT FOOTER
+      ============================== */
+
+      ctx.save();
+
+      ctx.globalAlpha = 0.72;
+
+      ctx.fillStyle = '#444';
+
+      ctx.font =
+        `${Math.max(
+          16,
+          canvas.width * 0.009
+        )}px Arial`;
+
+      ctx.textAlign = 'center';
+
+      ctx.textBaseline = 'bottom';
+
+      ctx.fillText(
+        '© Pharmistry World — All Rights Reserved.',
+        canvas.width / 2,
+        canvas.height -
+          Math.max(
+            10,
+            canvas.height * 0.012
+          )
+      );
+
+      ctx.restore();
+
+
+      /* ==============================
+         JPEG COMPRESSION
+      ============================== */
+
+      const image =
+        canvas.toDataURL(
+          'image/jpeg',
+          quality
+        );
+
+
+      if (pageNo > 1) {
+
+        doc.addPage(
+          [width, height],
+          orientation
+        );
+      }
+
+
+      doc.addImage(
+        image,
+        'JPEG',
+        0,
+        0,
+        width,
+        height,
+        undefined,
+        'FAST'
+      );
+    }
+
+
+    /* ==============================
+       CREATE FINAL PDF
+    ============================== */
+
+    const blob =
+      doc.output('blob');
+
+    return new File(
+      [blob],
+      safeName(file.name) +
+      '-pharmistry.pdf',
+      {
+        type: 'application/pdf'
+      }
+    );
+  }
+
+
+  /* =========================================================
+     STORAGE UPLOAD
+  ========================================================= */
+
+  async function uploadFile(
+    file,
+    folder
+  ) {
+
     const path =
       `${folder}/${Date.now()}-${safeName(file.name)}.pdf`;
 
-    const { error } =
+    const {
+      error
+    } =
       await client.storage
         .from(BUCKET)
         .upload(
@@ -268,7 +1324,9 @@
           }
         );
 
-    if (error) throw error;
+    if (error) {
+      throw error;
+    }
 
     return {
       path,
@@ -276,11 +1334,18 @@
         client.storage
           .from(BUCKET)
           .getPublicUrl(path)
-          .data.publicUrl
+          .data
+          .publicUrl
     };
   }
 
+
+  /* =========================================================
+     SUBJECTS / UNITS
+  ========================================================= */
+
   function populateSubjects() {
+
     const semester =
       $('semester')?.value;
 
@@ -290,7 +1355,9 @@
     const unit =
       $('unit');
 
-    if (!subject || !unit) return;
+    if (!subject || !unit) {
+      return;
+    }
 
     subject.innerHTML =
       '<option value="">Select subject</option>';
@@ -298,35 +1365,53 @@
     unit.innerHTML =
       '<option value="">Select subject first</option>';
 
-    subject.disabled = !semester;
+    subject.disabled =
+      !semester;
+
     unit.disabled = true;
 
     if (semester) {
-      (SUBJECTS[semester] || []).forEach(item => {
+
+      (
+        SUBJECTS[semester] || []
+      ).forEach(item => {
+
         subject.insertAdjacentHTML(
           'beforeend',
           `<option>${esc(item)}</option>`
         );
+
       });
     }
   }
 
+
   function populateUnits() {
+
     const subject =
       $('subject')?.value;
 
     const unit =
       $('unit');
 
-    if (!unit) return;
+    if (!unit) {
+      return;
+    }
 
     unit.innerHTML =
       '<option value="">Select unit</option>';
 
-    unit.disabled = !subject;
+    unit.disabled =
+      !subject;
 
     if (subject) {
-      for (let i = 1; i <= 5; i++) {
+
+      for (
+        let i = 1;
+        i <= 5;
+        i++
+      ) {
+
         unit.insertAdjacentHTML(
           'beforeend',
           `<option>Unit ${i}</option>`
@@ -340,61 +1425,106 @@
     }
   }
 
+
+  /* =========================================================
+     B.PHARM NOTES UPLOAD
+  ========================================================= */
+
   async function uploadNote(event) {
+
     event.preventDefault();
 
-    const file =
-      $('pdf')?.files[0];
+    if (!notePreparedPdf) {
 
-    if (!file) {
       return message(
         $('uploadMsg'),
-        'Choose a PDF first.'
+        'Please convert the PDF first.'
       );
     }
 
-    if (file.size > 25 * 1024 * 1024) {
+    if (
+      notePreparedPdf.size >
+      25 * 1024 * 1024
+    ) {
+
       return message(
         $('uploadMsg'),
-        'PDF must be 25 MB or smaller.'
+        'Converted PDF must be 25 MB or smaller.'
       );
     }
 
     message(
       $('uploadMsg'),
-      'Uploading…',
+      'Uploading processed PDF…',
       true
     );
 
     let path = null;
 
     try {
+
       const result =
-        await uploadFile(file, 'notes');
+        await uploadFile(
+          notePreparedPdf,
+          'notes'
+        );
 
       path = result.path;
 
-      const { error } =
+      const {
+        error
+      } =
         await client
           .from('notes')
           .insert({
-            title: $('title').value.trim(),
-            semester: $('semester').value,
-            subject: $('subject').value.trim(),
-            unit: $('unit').value,
-            description: $('description').value.trim(),
-            pdf_url: result.url
+
+            title:
+              $('title')
+                .value
+                .trim(),
+
+            semester:
+              $('semester')
+                .value,
+
+            subject:
+              $('subject')
+                .value
+                .trim(),
+
+            unit:
+              $('unit')
+                .value,
+
+            description:
+              $('description')
+                .value
+                .trim(),
+
+            pdf_url:
+              result.url
           });
 
-      if (error) throw error;
+      if (error) {
+        throw error;
+      }
 
       $('uploadForm').reset();
+
+      notePreparedPdf = null;
+
       populateSubjects();
 
       if ($('fileName')) {
-        $('fileName').textContent =
+
+        $('fileName')
+          .textContent =
           'No file selected';
       }
+
+      resetProcessor(
+        'notesPdfTools'
+      );
 
       message(
         $('uploadMsg'),
@@ -405,7 +1535,9 @@
       await loadNotes();
 
     } catch (error) {
+
       if (path) {
+
         await client.storage
           .from(BUCKET)
           .remove([path]);
@@ -415,45 +1547,66 @@
 
       message(
         $('uploadMsg'),
-        error.message || 'Upload failed.'
+        error.message ||
+        'Upload failed.'
       );
     }
   }
 
+
+  /* =========================================================
+     LOAD NOTES
+  ========================================================= */
+
   async function loadNotes() {
+
     const box =
       $('notesList');
 
-    if (!box) return;
+    if (!box) {
+      return;
+    }
 
     box.innerHTML =
       '<p class="muted">Loading…</p>';
 
-    const { data, error } =
+    const {
+      data,
+      error
+    } =
       await client
         .from('notes')
         .select('*')
         .order(
           'created_at',
-          { ascending: false }
+          {
+            ascending: false
+          }
         );
 
     if (error) {
+
       box.innerHTML =
         `<p class="message error">${esc(error.message)}</p>`;
+
       return;
     }
 
     if (!data?.length) {
+
       box.innerHTML =
         '<p class="muted">No notes published yet.</p>';
+
       return;
     }
 
     box.innerHTML =
       data.map(note => `
+
         <article class="note-row">
+
           <div>
+
             <span class="badge">
               ${esc(note.semester)}
             </span>
@@ -463,15 +1616,30 @@
             </h3>
 
             <p>
-              <strong>${esc(note.subject)}</strong>
-              ${note.unit ? ' · ' + esc(note.unit) : ''}
-              ${note.description
-                ? ' · ' + esc(note.description)
-                : ''}
+
+              <strong>
+                ${esc(note.subject)}
+              </strong>
+
+              ${
+                note.unit
+                  ? ' · ' + esc(note.unit)
+                  : ''
+              }
+
+              ${
+                note.description
+                  ? ' · ' +
+                    esc(note.description)
+                  : ''
+              }
+
             </p>
+
           </div>
 
           <div class="row-actions">
+
             <a
               class="btn"
               href="${esc(note.pdf_url)}"
@@ -488,64 +1656,103 @@
             >
               Delete
             </button>
+
           </div>
+
         </article>
+
       `).join('');
 
     box
       .querySelectorAll('[data-del]')
       .forEach(button => {
-        button.onclick = () =>
-          deleteNote(
-            button.dataset.del,
-            button.dataset.url
-          );
+
+        button.onclick =
+          () =>
+            deleteNote(
+              button.dataset.del,
+              button.dataset.url
+            );
+
       });
   }
 
-  async function deleteNote(id, url) {
-    if (!confirm('Delete this note?')) return;
+
+  async function deleteNote(
+    id,
+    url
+  ) {
+
+    if (
+      !confirm(
+        'Delete this note?'
+      )
+    ) {
+      return;
+    }
 
     try {
-      const path = publicPath(url);
+
+      const path =
+        publicPath(url);
 
       if (path) {
+
         await client.storage
           .from(BUCKET)
           .remove([path]);
       }
 
-      const { error } =
+      const {
+        error
+      } =
         await client
           .from('notes')
           .delete()
           .eq('id', id);
 
-      if (error) throw error;
+      if (error) {
+        throw error;
+      }
 
       await loadNotes();
 
     } catch (error) {
+
       alert(
         error.message ||
         'Delete failed.'
       );
     }
-  }
+    }  /* =========================================================
+     INDUSTRY UPLOAD
+  ========================================================= */
 
   async function uploadIndustry(event) {
+
     event.preventDefault();
 
-    const file =
+    const originalFile =
       $('industryPdf')?.files[0];
 
     if (
-      file &&
-      file.size > 25 * 1024 * 1024
+      originalFile &&
+      !industryPreparedPdf
     ) {
       return message(
         $('industryMsg'),
-        'PDF must be 25 MB or smaller.'
+        'Please convert the PDF first.'
+      );
+    }
+
+    if (
+      industryPreparedPdf &&
+      industryPreparedPdf.size >
+      25 * 1024 * 1024
+    ) {
+      return message(
+        $('industryMsg'),
+        'Converted PDF must be 25 MB or smaller.'
       );
     }
 
@@ -558,12 +1765,16 @@
     let path = null;
 
     try {
+
       let url = null;
 
-      if (file) {
+      /* PDF is optional for Industry */
+
+      if (industryPreparedPdf) {
+
         const result =
           await uploadFile(
-            file,
+            industryPreparedPdf,
             'industry'
           );
 
@@ -571,30 +1782,49 @@
         url = result.url;
       }
 
-      const { error } =
+      const {
+        error
+      } =
         await client
           .from('industry_resources')
           .insert({
+
             title:
-              $('industryTitle').value.trim(),
+              $('industryTitle')
+                .value
+                .trim(),
 
             category:
-              $('industryCategory').value,
+              $('industryCategory')
+                .value,
 
             description:
-              $('industryDescription').value.trim(),
+              $('industryDescription')
+                .value
+                .trim(),
 
-            pdf_url: url
+            pdf_url:
+              url
           });
 
-      if (error) throw error;
+      if (error) {
+        throw error;
+      }
 
       $('industryForm').reset();
 
+      industryPreparedPdf = null;
+
       if ($('industryFileName')) {
-        $('industryFileName').textContent =
+
+        $('industryFileName')
+          .textContent =
           'No PDF selected';
       }
+
+      resetProcessor(
+        'industryPdfTools'
+      );
 
       message(
         $('industryMsg'),
@@ -605,7 +1835,9 @@
       await loadIndustry();
 
     } catch (error) {
+
       if (path) {
+
         await client.storage
           .from(BUCKET)
           .remove([path]);
@@ -621,40 +1853,60 @@
     }
   }
 
+
+  /* =========================================================
+     LOAD INDUSTRY
+  ========================================================= */
+
   async function loadIndustry() {
+
     const box =
       $('industryList');
 
-    if (!box) return;
+    if (!box) {
+      return;
+    }
 
     box.innerHTML =
       '<p class="muted">Loading…</p>';
 
-    const { data, error } =
+    const {
+      data,
+      error
+    } =
       await client
         .from('industry_resources')
         .select('*')
         .order(
           'created_at',
-          { ascending: false }
+          {
+            ascending: false
+          }
         );
 
-    if (error) {
+        if (error) {
+
       box.innerHTML =
         `<p class="message error">${esc(error.message)}</p>`;
+
       return;
     }
 
     if (!data?.length) {
+
       box.innerHTML =
         '<p class="muted">No industry resources published yet.</p>';
+
       return;
     }
 
     box.innerHTML =
       data.map(item => `
+
         <article class="note-row">
+
           <div>
+
             <span class="badge">
               ${esc(item.category)}
             </span>
@@ -664,8 +1916,11 @@
             </h3>
 
             <p>
-              ${esc(item.description || '')}
+              ${esc(
+                item.description || ''
+              )}
             </p>
+
           </div>
 
           <div class="row-actions">
@@ -688,53 +1943,79 @@
             <button
               class="btn danger"
               data-ind="${esc(item.id)}"
-              data-url="${esc(item.pdf_url || '')}"
+              data-url="${esc(
+                item.pdf_url || ''
+              )}"
             >
               Delete
             </button>
 
           </div>
+
         </article>
+
       `).join('');
 
     box
       .querySelectorAll('[data-ind]')
       .forEach(button => {
-        button.onclick = () =>
-          deleteIndustry(
-            button.dataset.ind,
-            button.dataset.url
-          );
+
+        button.onclick =
+          () =>
+            deleteIndustry(
+              button.dataset.ind,
+              button.dataset.url
+            );
+
       });
   }
 
-  async function deleteIndustry(id, url) {
+
+  /* =========================================================
+     DELETE INDUSTRY
+  ========================================================= */
+
+  async function deleteIndustry(
+    id,
+    url
+  ) {
+
     if (
       !confirm(
         'Delete this industry resource?'
       )
-    ) return;
+    ) {
+      return;
+    }
 
     try {
-      const path = publicPath(url);
+
+      const path =
+        publicPath(url);
 
       if (path) {
+
         await client.storage
           .from(BUCKET)
           .remove([path]);
       }
 
-      const { error } =
+      const {
+        error
+      } =
         await client
           .from('industry_resources')
           .delete()
           .eq('id', id);
 
-      if (error) throw error;
+      if (error) {
+        throw error;
+      }
 
       await loadIndustry();
 
     } catch (error) {
+
       alert(
         error.message ||
         'Delete failed.'
@@ -742,43 +2023,65 @@
     }
   }
 
+
+  /* =========================================================
+     CONTACT MESSAGES
+  ========================================================= */
+
   async function loadContactMessages() {
+
     const box =
       $('contactList');
 
-    if (!box) return;
+    if (!box) {
+      return;
+    }
 
     box.innerHTML =
       '<p class="muted">Loading messages…</p>';
 
-    const { data, error } =
+    const {
+      data,
+      error
+    } =
       await client
         .from('contact_messages')
         .select('*')
         .order(
           'created_at',
-          { ascending: false }
+          {
+            ascending: false
+          }
         );
 
     if (error) {
+
       box.innerHTML =
         `<p class="message error">${esc(error.message)}</p>`;
+
       return;
     }
 
     if (!data?.length) {
+
       box.innerHTML =
         '<p class="muted">No contact messages yet.</p>';
+
       return;
     }
 
     box.innerHTML =
       data.map(item => `
+
         <article class="note-row">
+
           <div>
 
             <span class="badge">
-              ${esc(item.subject || 'General')}
+              ${esc(
+                item.subject ||
+                'General'
+              )}
             </span>
 
             <h3>
@@ -813,7 +2116,9 @@
 
             <a
               class="btn"
-              href="mailto:${encodeURIComponent(item.email)}"
+              href="mailto:${encodeURIComponent(
+                item.email
+              )}"
             >
               Reply
             </a>
@@ -826,96 +2131,175 @@
             </button>
 
           </div>
+
         </article>
+
       `).join('');
 
     box
       .querySelectorAll('[data-contact]')
       .forEach(button => {
-        button.onclick = () =>
-          deleteContactMessage(
-            button.dataset.contact
-          );
+
+        button.onclick =
+          () =>
+            deleteContactMessage(
+              button.dataset.contact
+            );
+
       });
   }
 
+
   async function deleteContactMessage(id) {
+
     if (
       !confirm(
         'Delete this contact message?'
       )
-    ) return;
+    ) {
+      return;
+    }
 
     try {
-      const { error } =
+
+      const {
+        error
+      } =
         await client
           .from('contact_messages')
           .delete()
           .eq('id', id);
 
-      if (error) throw error;
+      if (error) {
+        throw error;
+      }
 
       await loadContactMessages();
 
     } catch (error) {
+
       alert(
         error.message ||
         'Delete failed.'
       );
     }
+  }  /* =========================================================
+     RESET PDF PROCESSOR
+  ========================================================= */
+
+  function resetProcessor(id) {
+
+    const box = $(id);
+
+    if (!box) {
+      return;
+    }
+
+    const result =
+      box.querySelector('.pw-result');
+
+    const preview =
+      box.querySelector('.pw-preview');
+
+    const previewButton =
+      box.querySelector('.pw-preview-btn');
+
+    const status =
+      box.querySelector('.pw-status');
+
+    result?.classList.add(
+      'pw-hidden'
+    );
+
+    preview?.classList.add(
+      'pw-hidden'
+    );
+
+    previewButton?.classList.add(
+      'pw-hidden'
+    );
+
+    if (preview) {
+      preview.src = 'about:blank';
+    }
+
+    if (status) {
+      status.textContent = '';
+    }
   }
+
+
+  /* =========================================================
+     TABS
+  ========================================================= */
 
   function showTab(tab) {
-    const notesTab =
-      $('notesTab');
 
-    const industryTab =
-      $('industryTab');
+    const tabs = [
+      $('notesTab'),
+      $('industryTab'),
+      $('contactTab')
+    ];
 
-    const contactTab =
-      $('contactTab');
+    const panels = [
+      $('notesPanel'),
+      $('industryPanel'),
+      $('contactPanel')
+    ];
 
-    const notesPanel =
-      $('notesPanel');
+    tabs.forEach(item =>
+      item?.classList.remove('active')
+    );
 
-    const industryPanel =
-      $('industryPanel');
+    panels.forEach(item =>
+      item?.classList.add('hidden')
+    );
 
-    const contactPanel =
-      $('contactPanel');
-
-    notesTab?.classList.remove('active');
-    industryTab?.classList.remove('active');
-    contactTab?.classList.remove('active');
-
-    notesPanel?.classList.add('hidden');
-    industryPanel?.classList.add('hidden');
-    contactPanel?.classList.add('hidden');
 
     if (tab === 'notes') {
-      notesTab?.classList.add('active');
-      notesPanel?.classList.remove('hidden');
+
+      $('notesTab')
+        ?.classList
+        .add('active');
+
+      $('notesPanel')
+        ?.classList
+        .remove('hidden');
     }
+
 
     if (tab === 'industry') {
-      industryTab?.classList.add('active');
-      industryPanel?.classList.remove('hidden');
+
+      $('industryTab')
+        ?.classList
+        .add('active');
+
+      $('industryPanel')
+        ?.classList
+        .remove('hidden');
     }
 
+
     if (tab === 'contact') {
-      contactTab?.classList.add('active');
-      contactPanel?.classList.remove('hidden');
+
+      $('contactTab')
+        ?.classList
+        .add('active');
+
+      $('contactPanel')
+        ?.classList
+        .remove('hidden');
+
       loadContactMessages();
     }
-  }
+  }  /* =========================================================
+     BIND EVENTS
+  ========================================================= */
 
   function bind() {
 
-    const loginForm =
-      $('loginForm');
-
-    if (loginForm) {
-      loginForm.onsubmit = login;
+    if ($('loginForm')) {
+      $('loginForm').onsubmit = login;
     }
 
     if ($('logoutBtn')) {
@@ -923,8 +2307,7 @@
     }
 
     if ($('uploadForm')) {
-      $('uploadForm').onsubmit =
-        uploadNote;
+      $('uploadForm').onsubmit = uploadNote;
     }
 
     if ($('industryForm')) {
@@ -947,51 +2330,94 @@
         loadContactMessages;
     }
 
+
     if ($('semester')) {
+
       $('semester').onchange =
         populateSubjects;
     }
 
+
     if ($('subject')) {
+
       $('subject').onchange =
         populateUnits;
     }
 
+
     if ($('pdf')) {
+
       $('pdf').onchange = () => {
+
+        notePreparedPdf = null;
+
         if ($('fileName')) {
+
           $('fileName').textContent =
             $('pdf').files[0]?.name ||
             'No file selected';
         }
+
+        resetProcessor(
+          'notesPdfTools'
+        );
       };
     }
+
 
     if ($('industryPdf')) {
+
       $('industryPdf').onchange = () => {
+
+        industryPreparedPdf = null;
+
         if ($('industryFileName')) {
+
           $('industryFileName').textContent =
-            $('industryPdf').files[0]?.name ||
+            $('industryPdf')
+              .files[0]?.name ||
             'No PDF selected';
         }
+
+        resetProcessor(
+          'industryPdfTools'
+        );
       };
     }
 
+
     if ($('notesTab')) {
+
       $('notesTab').onclick =
-        () => showTab('notes');
+        () =>
+          showTab('notes');
     }
+
 
     if ($('industryTab')) {
+
       $('industryTab').onclick =
-        () => showTab('industry');
+        () =>
+          showTab('industry');
     }
 
+
     if ($('contactTab')) {
+
       $('contactTab').onclick =
-        () => showTab('contact');
+        () =>
+          showTab('contact');
     }
-  }
+
+
+    /* PDF PROCESSING CONTROLS */
+
+    addProcessor('notes');
+
+    addProcessor('industry');
+  }  /* =========================================================
+     INIT
+  ========================================================= */
 
   function init() {
 
@@ -999,10 +2425,12 @@
       !window.supabase ||
       !window.supabase.createClient
     ) {
+
       message(
         $('loginMsg'),
         'Supabase library load nahi hui. Page refresh karein.'
       );
+
       return;
     }
 
@@ -1013,19 +2441,26 @@
       );
 
     bind();
+
     showSession();
   }
+
 
   if (
     document.readyState ===
     'loading'
   ) {
+
     document.addEventListener(
       'DOMContentLoaded',
       init,
-      { once: true }
+      {
+        once: true
+      }
     );
+
   } else {
+
     init();
   }
 

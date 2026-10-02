@@ -996,50 +996,190 @@
             false;
 
 
-          previewButton.onclick = () => {
+          previewButton.onclick =
+  async () => {
 
-  const url = URL.createObjectURL(prepared);
+    previewButton.disabled = true;
 
-  iframe.src = url;
+    previewButton.textContent =
+      'Opening Preview…';
 
-  iframe.classList.remove('pw-hidden');
+    try {
 
-  const openWindow = window.open(
-    url,
-    '_blank'
-  );
+      const pdfjs =
+        await loadPdfJs();
 
-  if (!openWindow) {
+      const buffer =
+        await prepared.arrayBuffer();
 
-    const oldLink =
-      box.querySelector('.pw-open-link');
+      const pdf =
+        await pdfjs
+          .getDocument({
+            data:
+              new Uint8Array(buffer)
+          })
+          .promise;
 
-    if (oldLink) {
-      oldLink.remove();
+      /* Remove old preview */
+      const oldPreview =
+        box.querySelector(
+          '.pw-pages-preview'
+        );
+
+      if (oldPreview) {
+        oldPreview.remove();
+      }
+
+      /* Create preview container */
+      const previewBox =
+        document.createElement('div');
+
+      previewBox.className =
+        'pw-pages-preview';
+
+      previewBox.style.marginTop =
+        '14px';
+
+      previewBox.style.maxHeight =
+        '700px';
+
+      previewBox.style.overflowY =
+        'auto';
+
+      previewBox.style.padding =
+        '10px';
+
+      previewBox.style.background =
+        '#eee';
+
+      previewBox.style.borderRadius =
+        '12px';
+
+      /* Show maximum 10 pages */
+      const pageCount =
+        Math.min(
+          pdf.numPages,
+          10
+        );
+
+      for (
+        let pageNo = 1;
+        pageNo <= pageCount;
+        pageNo++
+      ) {
+
+        const page =
+          await pdf.getPage(
+            pageNo
+          );
+
+        const viewport =
+          page.getViewport({
+            scale: 1.15
+          });
+
+        const canvas =
+          document.createElement(
+            'canvas'
+          );
+
+        const context =
+          canvas.getContext(
+            '2d'
+          );
+
+        canvas.width =
+          viewport.width;
+
+        canvas.height =
+          viewport.height;
+
+        canvas.style.width =
+          '100%';
+
+        canvas.style.height =
+          'auto';
+
+        canvas.style.display =
+          'block';
+
+        canvas.style.background =
+          '#fff';
+
+        canvas.style.marginBottom =
+          '12px';
+
+        canvas.style.borderRadius =
+          '6px';
+
+        canvas.style.boxShadow =
+          '0 1px 5px rgba(0,0,0,.15)';
+
+        previewBox.appendChild(
+          canvas
+        );
+
+        await page.render({
+          canvasContext:
+            context,
+          viewport:
+            viewport
+        }).promise;
+      }
+
+      if (
+        pdf.numPages > 10
+      ) {
+
+        const more =
+          document.createElement(
+            'p'
+          );
+
+        more.textContent =
+          `Showing first 10 of ${pdf.numPages} pages.`;
+
+        more.style.textAlign =
+          'center';
+
+        more.style.fontWeight =
+          '600';
+
+        more.style.margin =
+          '10px';
+
+        previewBox.appendChild(
+          more
+        );
+      }
+
+      iframe.replaceWith(
+        previewBox
+      );
+
+      previewButton.textContent =
+        'Preview Opened';
+
+    } catch (error) {
+
+      console.error(error);
+
+      alert(
+        'Preview open nahi ho paaya: ' +
+        error.message
+      );
+
+      previewButton.textContent =
+        'Preview Converted PDF';
+
+    } finally {
+
+      previewButton.disabled =
+        false;
+
     }
 
-    const link =
-      document.createElement('a');
-
-    link.href = url;
-    link.target = '_blank';
-    link.rel = 'noopener';
-
-    link.className =
-      'btn primary pw-open-link';
-
-    link.textContent =
-      'Open Converted PDF';
-
-    link.style.display =
-      'inline-block';
-
-    link.style.marginTop =
-      '10px';
-
-    box.appendChild(link);
-  }
-};
+  };
 
 
           message(
@@ -1243,36 +1383,32 @@ const quality =
 
 
       /* ==============================
-         COPYRIGHT FOOTER
-      ============================== */
+   COPYRIGHT HEADER
+============================== */
 
-      ctx.save();
+ctx.save();
 
-      ctx.globalAlpha = 0.1;
+ctx.globalAlpha = 1;
 
-      ctx.fillStyle = '#111';
+ctx.fillStyle = '#d00000';
 
 ctx.font =
   `${Math.max(
-    14,
-    canvas.width * 0.008
+    12,
+    canvas.width * 0.007
   )}px Arial`;
 
-      ctx.textAlign = 'center';
+ctx.textAlign = 'right';
 
-      ctx.textBaseline = 'bottom';
+ctx.textBaseline = 'top';
 
-      ctx.fillText(
-        '© Pharmistry World — All Rights Reserved.',
-        canvas.width / 2,
-        canvas.height -
-          Math.max(
-            10,
-            canvas.height * 0.012
-          )
-      );
+ctx.fillText(
+  '© Pharmistry World — All Rights Reserved.',
+  canvas.width - 15,
+  12
+);
 
-      ctx.restore();
+ctx.restore();
 
 
       /* ==============================

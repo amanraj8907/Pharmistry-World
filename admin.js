@@ -996,22 +996,50 @@
             false;
 
 
-          previewButton.onclick =
-            () => {
+          previewButton.onclick = () => {
 
-              const url =
-                URL.createObjectURL(
-                  prepared
-                );
+  const url = URL.createObjectURL(prepared);
 
-              iframe.src =
-                url;
+  iframe.src = url;
 
-              iframe.classList.remove(
-                'pw-hidden'
-              );
+  iframe.classList.remove('pw-hidden');
 
-            };
+  const openWindow = window.open(
+    url,
+    '_blank'
+  );
+
+  if (!openWindow) {
+
+    const oldLink =
+      box.querySelector('.pw-open-link');
+
+    if (oldLink) {
+      oldLink.remove();
+    }
+
+    const link =
+      document.createElement('a');
+
+    link.href = url;
+    link.target = '_blank';
+    link.rel = 'noopener';
+
+    link.className =
+      'btn primary pw-open-link';
+
+    link.textContent =
+      'Open Converted PDF';
+
+    link.style.display =
+      'inline-block';
+
+    link.style.marginTop =
+      '10px';
+
+    box.appendChild(link);
+  }
+};
 
 
           message(
@@ -1112,27 +1140,35 @@
 
 
         /*
-      Keep resolution readable.
-      Higher compression means lower JPEG quality.
-    */
+  FAST PDF PROCESSING
+  Optimized for mobile browsers.
+*/
 
-    const scale =
-      targetReduction >= 60
-        ? 1.45
+const scale =
+  targetReduction >= 70
+    ? 0.85
+    : targetReduction >= 60
+      ? 0.90
+      : targetReduction >= 50
+        ? 0.95
         : targetReduction >= 40
-          ? 1.8
-          : 2.1;
+          ? 1.00
+          : targetReduction >= 30
+            ? 1.05
+            : 1.10;
 
-    const quality =
-      targetReduction >= 60
-        ? 0.48
-        : targetReduction >= 50
-          ? 0.55
-          : targetReduction >= 40
-            ? 0.62
-            : targetReduction >= 30
-              ? 0.70
-              : 0.80;
+const quality =
+  targetReduction >= 70
+    ? 0.50
+    : targetReduction >= 60
+      ? 0.56
+      : targetReduction >= 50
+        ? 0.62
+        : targetReduction >= 40
+          ? 0.68
+          : targetReduction >= 30
+            ? 0.74
+            : 0.80;
 
     for (
       let pageNo = 1;
@@ -1183,7 +1219,7 @@
 
       ctx.save();
 
-      ctx.globalAlpha = 0.055;
+      ctx.globalAlpha = 0.15;
 
       const watermarkWidth =
         canvas.width * 0.46;
@@ -1195,22 +1231,13 @@
           logo.naturalWidth
         );
 
-      ctx.translate(
-        canvas.width / 2,
-        canvas.height / 2
-      );
-
-      ctx.rotate(
-        -Math.PI / 12
-      );
-
       ctx.drawImage(
-        logo,
-        -watermarkWidth / 2,
-        -watermarkHeight / 2,
-        watermarkWidth,
-        watermarkHeight
-      );
+  logo,
+  (canvas.width - watermarkWidth) / 2,
+  (canvas.height - watermarkHeight) / 2,
+  watermarkWidth,
+  watermarkHeight
+);
 
       ctx.restore();
 
@@ -1221,15 +1248,15 @@
 
       ctx.save();
 
-      ctx.globalAlpha = 0.72;
+      ctx.globalAlpha = 0.95;
 
       ctx.fillStyle = '#444';
 
       ctx.font =
-        `${Math.max(
-          16,
-          canvas.width * 0.009
-        )}px Arial`;
+  `${Math.max(
+    20,
+    canvas.width * 0.011
+  )}px Arial`;
 
       ctx.textAlign = 'center';
 

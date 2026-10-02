@@ -1248,14 +1248,14 @@ const quality =
 
       ctx.save();
 
-      ctx.globalAlpha = 0.95;
+      ctx.globalAlpha = 0.1;
 
-      ctx.fillStyle = '#444';
+      ctx.fillStyle = '#111';
 
-      ctx.font =
+ctx.font =
   `${Math.max(
-    20,
-    canvas.width * 0.011
+    14,
+    canvas.width * 0.008
   )}px Arial`;
 
       ctx.textAlign = 'center';

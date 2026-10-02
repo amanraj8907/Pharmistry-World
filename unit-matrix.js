@@ -236,18 +236,23 @@
       }
 
       .pw-matrix-wrap {
-        width: 100%;
-        overflow-x: auto;
-        overflow-y: hidden;
-        -webkit-overflow-scrolling: touch;
-        border: 1px solid #dce8e6;
-        border-radius: 13px;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-x;
+  overscroll-behavior-x: contain;
+  border: 1px solid #dce8e6;
+  border-radius: 13px;
+}
       }
 
       .pw-matrix {
-        width: 100%;
-        min-width: 820px;
-        border-collapse: collapse;
+  width: max-content;
+  min-width: 820px;
+  border-collapse: collapse;
+}
       }
 
       .pw-matrix th {
@@ -425,10 +430,6 @@
 
         .pw-matrix-filters {
           grid-template-columns: 1fr;
-        }
-
-        .pw-matrix {
-          min-width: 800px;
         }
 
         .pw-matrix th:first-child,

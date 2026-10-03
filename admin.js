@@ -1284,31 +1284,8 @@
   Optimized for mobile browsers.
 */
 
-const scale =
-  targetReduction >= 70
-    ? 0.85
-    : targetReduction >= 60
-      ? 0.90
-      : targetReduction >= 50
-        ? 0.95
-        : targetReduction >= 40
-          ? 1.00
-          : targetReduction >= 30
-            ? 1.05
-            : 1.10;
-
-const quality =
-  targetReduction >= 70
-    ? 0.50
-    : targetReduction >= 60
-      ? 0.56
-      : targetReduction >= 50
-        ? 0.62
-        : targetReduction >= 40
-          ? 0.68
-          : targetReduction >= 30
-            ? 0.74
-            : 0.80;
+const scale = 2.0;
+const quality = 0.92;
 
     for (
       let pageNo = 1;
@@ -1359,7 +1336,7 @@ const quality =
 
       ctx.save();
 
-      ctx.globalAlpha = 0.18;
+      ctx.globalAlpha = 0.19;
 
       const watermarkWidth =
         canvas.width * 0.46;

@@ -14,6 +14,9 @@
 
   const BUCKET = 'B. Pharm Notes';
 
+  const DOSYA_FUNCTION_URL =
+    `${SUPABASE_URL}/functions/v1/dosya-storage`;
+
   const LOGO_URL =
     './pharmistry-watermark.png';
 
@@ -243,641 +246,539 @@
 
 
   /* =========================================================
-     EXTERNAL LIBRARIES
+     DOSYA STORAGE HELPERS
   ========================================================= */
 
-  function loadScript(src) {
+  function dosyaFileId(url) {
 
-    return new Promise(
-      (resolve, reject) => {
+    try {
 
-        const old =
-          document.querySelector(
-            `script[src="${src}"]`
-          );
-
-        if (old) {
-
-          if (
-            old.dataset.loaded === 'yes'
-          ) {
-            resolve();
-            return;
-          }
-
-          old.addEventListener(
-            'load',
-            resolve,
-            { once: true }
-          );
-
-          old.addEventListener(
-            'error',
-            reject,
-            { once: true }
-          );
-
-          return;
-        }
-
-        const script =
-          document.createElement(
-            'script'
-          );
-
-        script.src = src;
-
-        script.onload = () => {
-
-          script.dataset.loaded =
-            'yes';
-
-          resolve();
-        };
-
-        script.onerror = () =>
-          reject(
-            new Error(
-              'Required PDF library could not be loaded.'
-            )
-          );
-
-        document.head.appendChild(
-          script
-        );
+      if (!url) {
+        return null;
       }
-    );
+
+      const parsed =
+        new URL(url);
+
+      if (
+        parsed.origin !==
+        new URL(DOSYA_FUNCTION_URL).origin
+      ) {
+        return null;
+      }
+
+      if (
+        parsed.pathname !==
+        new URL(DOSYA_FUNCTION_URL).pathname
+      ) {
+        return null;
+      }
+
+      if (
+        parsed.searchParams.get(
+          'action'
+        ) !== 'download'
+      ) {
+        return null;
+      }
+
+      return (
+            parsed.searchParams.get(
+      'file_id'
+    ) || null
+  );
+
+} catch (_) {
+
+  return null;
+
+}
+}
+
+
+/* =========================================================
+   AUTH
+========================================================= */
+
+async function isAdmin(uid) {
+
+  const {
+    data,
+    error
+  } =
+    await client
+      .from('admin_users')
+      .select('user_id')
+      .eq(
+        'user_id',
+        uid
+      )
+      .maybeSingle();
+
+  if (error) {
+    throw error;
   }
 
-
-  async function loadPdfJs() {
-
-    await loadScript(
-      PDFJS_URL
-    );
-
-    if (!window.pdfjsLib) {
-      throw new Error(
-        'PDF.js could not be loaded.'
-      );
-    }
-
-    window.pdfjsLib
-      .GlobalWorkerOptions
-      .workerSrc =
-      PDFJS_WORKER;
-
-    return window.pdfjsLib;
-  }
+  return !!data;
+}
 
 
-  async function loadJsPdf() {
+async function showSession() {
 
-    await loadScript(
-      JSPDF_URL
-    );
-
-    if (
-      !window.jspdf ||
-      !window.jspdf.jsPDF
-    ) {
-      throw new Error(
-        'jsPDF could not be loaded.'
-      );
-    }
-
-    return window.jspdf.jsPDF;
-  }
-
-
-  /* =========================================================
-     LOGO
-  ========================================================= */
-
-  let logoPromise = null;
-
-  function getLogo() {
-
-    if (logoPromise) {
-      return logoPromise;
-    }
-
-    logoPromise =
-      new Promise(
-        (resolve, reject) => {
-
-          const img =
-            new Image();
-
-          img.crossOrigin =
-            'anonymous';
-
-          img.onload =
-            () => resolve(img);
-
-          img.onerror =
-            () =>
-              reject(
-                new Error(
-                  'Pharmistry World logo not found. Upload pharmistry-watermark.png to the repository root.'
-                )
-              );
-
-          img.src =
-            LOGO_URL +
-            '?v=20261002';
-        }
-      );
-
-    return logoPromise;
-  }
-
-
-  /* =========================================================
-     AUTH
-  ========================================================= */
-
-  async function isAdmin(uid) {
+  try {
 
     const {
       data,
       error
     } =
-      await client
-        .from('admin_users')
-        .select('user_id')
-        .eq(
-          'user_id',
-          uid
-        )
-        .maybeSingle();
+      await client.auth.getSession();
 
     if (error) {
       throw error;
     }
 
-    return !!data;
-  }
+    const session =
+      data.session;
 
-
-  async function showSession() {
-
-    try {
-
-      const {
-        data,
-        error
-      } =
-        await client.auth.getSession();
-
-      if (error) {
-        throw error;
-      }
-
-      const session =
-        data.session;
-
-      if (!session) {
-
-        $('loginView')
-          ?.classList
-          .remove('hidden');
-
-        $('adminView')
-          ?.classList
-          .add('hidden');
-
-        return;
-      }
-
-      const admin =
-        await isAdmin(
-          session.user.id
-        );
-
-      if (!admin) {
-
-        await client.auth.signOut();
-
-        $('loginView')
-          ?.classList
-          .remove('hidden');
-
-        $('adminView')
-          ?.classList
-          .add('hidden');
-
-        message(
-          $('loginMsg'),
-          'This account is not authorized as an admin.'
-        );
-
-        return;
-      }
-
-      if ($('userEmail')) {
-
-        $('userEmail')
-          .textContent =
-          session.user.email || '';
-      }
+    if (!session) {
 
       $('loginView')
         ?.classList
-        .add('hidden');
+        .remove('hidden');
 
       $('adminView')
         ?.classList
+        .add('hidden');
+
+      return;
+    }
+
+    const admin =
+      await isAdmin(
+        session.user.id
+      );
+
+    if (!admin) {
+
+      await client.auth.signOut();
+
+      $('loginView')
+        ?.classList
         .remove('hidden');
 
-      await loadNotes();
-      await loadIndustry();
-
-      if ($('contactList')) {
-        await loadContactMessages();
-      }
-
-    } catch (error) {
-
-      console.error(error);
+      $('adminView')
+        ?.classList
+        .add('hidden');
 
       message(
         $('loginMsg'),
-        error.message ||
-        'Session check failed.'
+        'This account is not authorized as an admin.'
       );
+
+      return;
     }
-  }
 
+    if ($('userEmail')) {
 
-  async function login(event) {
+      $('userEmail')
+        .textContent =
+        session.user.email || '';
+    }
 
-    event.preventDefault();
+    $('loginView')
+      ?.classList
+      .add('hidden');
+
+    $('adminView')
+      ?.classList
+      .remove('hidden');
+
+    await loadNotes();
+    await loadIndustry();
+
+    if ($('contactList')) {
+      await loadContactMessages();
+    }
+
+  } catch (error) {
+
+    console.error(error);
 
     message(
       $('loginMsg'),
-      'Signing in…',
-      true
+      error.message ||
+      'Session check failed.'
     );
+  }
+}
 
-    try {
 
-      const email =
-        $('email')
-          ?.value
-          .trim();
+async function login(event) {
 
-      const password =
-        $('password')
-          ?.value;
+  event.preventDefault();
 
-      if (!email || !password) {
+  message(
+    $('loginMsg'),
+    'Signing in…',
+    true
+  );
 
-        throw new Error(
-          'Email and password are required.'
-        );
-      }
+  try {
 
-      const {
-        error
-      } =
-        await client.auth
-          .signInWithPassword({
-            email,
-            password
-          });
+    const email =
+      $('email')
+        ?.value
+        .trim();
 
-      if (error) {
-        throw error;
-      }
+    const password =
+      $('password')
+        ?.value;
 
-      await showSession();
+    if (!email || !password) {
 
-    } catch (error) {
-
-      console.error(error);
-
-      message(
-        $('loginMsg'),
-        error.message ||
-        'Sign-in failed.'
+      throw new Error(
+        'Email and password are required.'
       );
     }
-  }
 
+    const {
+      error
+    } =
+      await client.auth
+        .signInWithPassword({
+          email,
+          password
+        });
 
-  async function logout() {
-
-    await client.auth.signOut();
+    if (error) {
+      throw error;
+    }
 
     await showSession();
-  }
 
+  } catch (error) {
 
-  /* =========================================================
-     PROCESSOR CSS
-  ========================================================= */
+    console.error(error);
 
-  function addProcessorStyles() {
-
-    if (
-      $('pwProcessorStyles')
-    ) {
-      return;
-    }
-
-    const style =
-      document.createElement(
-        'style'
-      );
-
-    style.id =
-      'pwProcessorStyles';
-
-    style.textContent = `
-
-      .pw-tools {
-        grid-column: 1 / -1;
-        padding: 18px;
-        margin-top: 5px;
-        border: 1px solid rgba(0,0,0,.12);
-        border-radius: 14px;
-        background: rgba(0,0,0,.025);
-      }
-
-      .pw-tools h3 {
-        margin: 0 0 6px;
-      }
-
-      .pw-tools p {
-        margin: 5px 0;
-      }
-
-      .pw-controls {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 10px;
-        align-items: end;
-        margin-top: 14px;
-      }
-
-      .pw-controls label {
-        min-width: 130px;
-      }
-
-      .pw-result {
-        margin-top: 15px;
-        padding: 14px;
-        border-radius: 12px;
-        background: rgba(0,0,0,.045);
-      }
-
-      .pw-stats {
-        display: grid;
-        grid-template-columns:
-          repeat(auto-fit,minmax(140px,1fr));
-        gap: 10px;
-      }
-
-      .pw-stat {
-        background: #fff;
-        padding: 11px;
-        border-radius: 10px;
-      }
-
-      .pw-stat strong {
-        display: block;
-        margin-top: 4px;
-        font-size: 17px;
-      }
-
-      .pw-preview {
-        width: 100%;
-        height: 520px;
-        margin-top: 14px;
-        border: 1px solid rgba(0,0,0,.12);
-        border-radius: 12px;
-        background: #eee;
-      }
-
-      .pw-hidden {
-        display: none !important;
-      }
-
-      .pw-ok {
-        color: #18733d;
-      }
-
-      .pw-warning {
-        color: #9a6700;
-      }
-
-    `;
-
-    document.head.appendChild(
-      style
+    message(
+      $('loginMsg'),
+      error.message ||
+      'Sign-in failed.'
     );
   }
+}
 
 
-  /* =========================================================
-     PROCESSOR UI
-  ========================================================= */
+async function logout() {
 
-  function addProcessor(
-    type
+  await client.auth.signOut();
+
+  await showSession();
+}
+
+
+/* =========================================================
+   PROCESSOR CSS
+========================================================= */
+
+function addProcessorStyles() {
+
+  if (
+    $('pwProcessorStyles')
   ) {
+    return;
+  }
 
-    const industry =
-      type === 'industry';
+  const style =
+    document.createElement(
+      'style'
+    );
 
-    const input =
-      $(
-        industry
-          ? 'industryPdf'
-          : 'pdf'
-      );
+  style.id =
+    'pwProcessorStyles';
 
-    if (!input) {
-      return;
+  style.textContent = `
+
+    .pw-tools {
+      grid-column: 1 / -1;
+      padding: 18px;
+      margin-top: 5px;
+      border: 1px solid rgba(0,0,0,.12);
+      border-radius: 14px;
+      background: rgba(0,0,0,.025);
     }
 
-    const existing =
-      $(
-        industry
-          ? 'industryPdfTools'
-          : 'notesPdfTools'
-      );
-
-    if (existing) {
-      return;
+    .pw-tools h3 {
+      margin: 0 0 6px;
     }
 
-    addProcessorStyles();
+    .pw-tools p {
+      margin: 5px 0;
+    }
 
-    const box =
-      document.createElement(
-        'div'
-      );
+    .pw-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: end;
+      margin-top: 14px;
+    }
 
-    box.id =
+    .pw-controls label {
+      min-width: 130px;
+    }
+
+    .pw-result {
+      margin-top: 15px;
+      padding: 14px;
+      border-radius: 12px;
+      background: rgba(0,0,0,.045);
+    }
+
+    .pw-stats {
+      display: grid;
+      grid-template-columns:
+        repeat(auto-fit,minmax(140px,1fr));
+      gap: 10px;
+    }
+
+    .pw-stat {
+      background: #fff;
+      padding: 11px;
+      border-radius: 10px;
+    }
+
+    .pw-stat strong {
+      display: block;
+      margin-top: 4px;
+      font-size: 17px;
+    }
+
+    .pw-preview {
+      width: 100%;
+      height: 520px;
+      margin-top: 14px;
+      border: 1px solid rgba(0,0,0,.12);
+      border-radius: 12px;
+      background: #eee;
+    }
+
+    .pw-hidden {
+      display: none !important;
+    }
+
+    .pw-ok {
+      color: #18733d;
+    }
+
+    .pw-warning {
+      color: #9a6700;
+    }
+
+  `;
+
+  document.head.appendChild(
+    style
+  );
+}
+
+
+/* =========================================================
+   PROCESSOR UI
+========================================================= */
+
+function addProcessor(
+  type
+) {
+
+  const industry =
+    type === 'industry';
+
+  const input =
+    $(
+      industry
+        ? 'industryPdf'
+        : 'pdf'
+    );
+
+  if (!input) {
+    return;
+  }
+
+  const existing =
+    $(
       industry
         ? 'industryPdfTools'
-        : 'notesPdfTools';
+        : 'notesPdfTools'
+    );
 
-    box.className =
-      'pw-tools';
+  if (existing) {
+    return;
+  }
 
-    box.innerHTML = `
+  addProcessorStyles();
 
-      <h3>
-        PDF Compression & Branding
-      </h3>
+  const box =
+    document.createElement(
+      'div'
+    );
 
-      <p>
-        Select a target compression percentage,
-        then convert and preview the final PDF.
-      </p>
+  box.id =
+    industry
+      ? 'industryPdfTools'
+      : 'notesPdfTools';
 
-      <div class="pw-controls">
+  box.className =
+    'pw-tools';
 
-        <label>
-          Compression
+  box.innerHTML = `
 
-          <select class="pw-percent">
+    <h3>
+      PDF Compression & Branding
+    </h3>
 
-            <option value="10">10%</option>
-            <option value="20">20%</option>
-            <option value="30">30%</option>
-            <option value="40" selected>40%</option>
-            <option value="50">50%</option>
-            <option value="60">60%</option>
-            <option value="70">70%</option>
+    <p>
+      Select a target compression percentage,
+      then convert and preview the final PDF.
+    </p>
 
-          </select>
-        </label>
+    <div class="pw-controls">
 
-        <button
-          type="button"
-          class="btn primary pw-convert"
-        >
-          Convert & Prepare PDF
-        </button>
+      <label>
+        Compression
 
-        <button
-          type="button"
-          class="btn pw-preview-btn pw-hidden"
-        >
-          Preview Converted PDF
-        </button>
+        <select class="pw-percent">
 
-      </div>
+          <option value="10">10%</option>
+          <option value="20">20%</option>
+          <option value="30">30%</option>
+          <option value="40" selected>40%</option>
+          <option value="50">50%</option>
+          <option value="60">60%</option>
+          <option value="70">70%</option>
 
-      <div class="pw-result pw-hidden">
+        </select>
+      </label>
 
-        <div class="pw-stats">
+      <button
+        type="button"
+        class="btn primary pw-convert"
+      >
+        Convert & Prepare PDF
+      </button>
 
-          <div class="pw-stat">
-            Original
-            <strong class="pw-original">—</strong>
-          </div>
+      <button
+        type="button"
+        class="btn pw-preview-btn pw-hidden"
+      >
+        Preview Converted PDF
+      </button>
 
-          <div class="pw-stat">
-            Converted
-            <strong class="pw-converted">—</strong>
-          </div>
+    </div>
 
-          <div class="pw-stat">
-            Actual reduction
-            <strong class="pw-reduction">—</strong>
-          </div>
+    <div class="pw-result pw-hidden">
 
+      <div class="pw-stats">
+
+        <div class="pw-stat">
+          Original
+          <strong class="pw-original">—</strong>
         </div>
 
-        <p class="pw-status"></p>
+        <div class="pw-stat">
+          Converted
+          <strong class="pw-converted">—</strong>
+        </div>
+
+        <div class="pw-stat">
+          Actual reduction
+          <strong class="pw-reduction">—</strong>
+        </div>
 
       </div>
 
-      <iframe
-        class="pw-preview pw-hidden"
-        title="Converted PDF preview"
-      ></iframe>
+      <p class="pw-status"></p>
 
-    `;
+    </div>
 
-    input
-      .closest('label')
-      ?.insertAdjacentElement(
-        'afterend',
-        box
-      );
+    <iframe
+      class="pw-preview pw-hidden"
+      title="Converted PDF preview"
+    ></iframe>
 
+  `;
 
-    const convertButton =
-      box.querySelector(
-        '.pw-convert'
-      );
-
-    const previewButton =
-      box.querySelector(
-        '.pw-preview-btn'
-      );
-
-    const percentSelect =
-      box.querySelector(
-        '.pw-percent'
-      );
-
-    const result =
-      box.querySelector(
-        '.pw-result'
-      );
-
-    const iframe =
-      box.querySelector(
-        '.pw-preview'
-      );
-
-    const status =
-      box.querySelector(
-        '.pw-status'
-      );
-
-
-    input.addEventListener(
-      'change',
-      () => {
-
-        if (industry) {
-          industryPreparedPdf =
-            null;
-        } else {
-          notePreparedPdf =
-            null;
-        }
-
-        result.classList.add(
-          'pw-hidden'
-        );
-
-        previewButton.classList.add(
-          'pw-hidden'
-        );
-
-        iframe.classList.add(
-          'pw-hidden'
-        );
-
-        iframe.src =
-          'about:blank';
-
-        status.textContent =
-          '';
-      }
+  input
+    .closest('label')
+    ?.insertAdjacentElement(
+      'afterend',
+      box
     );
 
 
-    convertButton.addEventListener(
+  const convertButton =
+    box.querySelector(
+      '.pw-convert'
+    );
+
+  const previewButton =
+    box.querySelector(
+      '.pw-preview-btn'
+    );
+
+  const percentSelect =
+    box.querySelector(
+      '.pw-percent'
+    );
+
+  const result =
+    box.querySelector(
+      '.pw-result'
+    );
+
+  const iframe =
+    box.querySelector(
+      '.pw-preview'
+    );
+
+  const status =
+    box.querySelector(
+      '.pw-status'
+    );
+
+
+  input.addEventListener(
+    'change',
+    () => {
+
+      if (industry) {
+        industryPreparedPdf =
+          null;
+      } else {
+        notePreparedPdf =
+          null;
+      }
+
+      result.classList.add(
+        'pw-hidden'
+      );
+
+      previewButton.classList.add(
+        'pw-hidden'
+      );
+
+      iframe.classList.add(
+        'pw-hidden'
+      );
+
+      iframe.src =
+        'about:blank';
+
+      status.textContent =
+        '';
+    }
+  );
+      convertButton.addEventListener(
       'click',
       async () => {
 
@@ -997,189 +898,189 @@
 
 
           previewButton.onclick =
-  async () => {
+            async () => {
 
-    previewButton.disabled = true;
+              previewButton.disabled =
+                true;
 
-    previewButton.textContent =
-      'Opening Preview…';
+              previewButton.textContent =
+                'Opening Preview…';
 
-    try {
+              try {
 
-      const pdfjs =
-        await loadPdfJs();
+                const pdfjs =
+                  await loadPdfJs();
 
-      const buffer =
-        await prepared.arrayBuffer();
+                const buffer =
+                  await prepared.arrayBuffer();
 
-      const pdf =
-        await pdfjs
-          .getDocument({
-            data:
-              new Uint8Array(buffer)
-          })
-          .promise;
+                const pdf =
+                  await pdfjs
+                    .getDocument({
+                      data:
+                        new Uint8Array(buffer)
+                    })
+                    .promise;
 
-      /* Remove old preview */
-      const oldPreview =
-        box.querySelector(
-          '.pw-pages-preview'
-        );
+                const oldPreview =
+                  box.querySelector(
+                    '.pw-pages-preview'
+                  );
 
-      if (oldPreview) {
-        oldPreview.remove();
-      }
+                if (oldPreview) {
+                  oldPreview.remove();
+                }
 
-      /* Create preview container */
-      const previewBox =
-        document.createElement('div');
+                const previewBox =
+                  document.createElement(
+                    'div'
+                  );
 
-      previewBox.className =
-        'pw-pages-preview';
+                previewBox.className =
+                  'pw-pages-preview';
 
-      previewBox.style.marginTop =
-        '14px';
+                previewBox.style.marginTop =
+                  '14px';
 
-      previewBox.style.maxHeight =
-        '700px';
+                previewBox.style.maxHeight =
+                  '700px';
 
-      previewBox.style.overflowY =
-        'auto';
+                previewBox.style.overflowY =
+                  'auto';
 
-      previewBox.style.padding =
-        '10px';
+                previewBox.style.padding =
+                  '10px';
 
-      previewBox.style.background =
-        '#eee';
+                previewBox.style.background =
+                  '#eee';
 
-      previewBox.style.borderRadius =
-        '12px';
+                previewBox.style.borderRadius =
+                  '12px';
 
-      /* Show maximum 10 pages */
-      const pageCount =
-        Math.min(
-          pdf.numPages,
-          10
-        );
+                const pageCount =
+                  Math.min(
+                    pdf.numPages,
+                    10
+                  );
 
-      for (
-        let pageNo = 1;
-        pageNo <= pageCount;
-        pageNo++
-      ) {
+                for (
+                  let pageNo = 1;
+                  pageNo <= pageCount;
+                  pageNo++
+                ) {
 
-        const page =
-          await pdf.getPage(
-            pageNo
-          );
+                  const page =
+                    await pdf.getPage(
+                      pageNo
+                    );
 
-        const viewport =
-          page.getViewport({
-            scale: 1.15
-          });
+                  const viewport =
+                    page.getViewport({
+                      scale: 1.15
+                    });
 
-        const canvas =
-          document.createElement(
-            'canvas'
-          );
+                  const canvas =
+                    document.createElement(
+                      'canvas'
+                    );
 
-        const context =
-          canvas.getContext(
-            '2d'
-          );
+                  const context =
+                    canvas.getContext(
+                      '2d'
+                    );
 
-        canvas.width =
-          viewport.width;
+                  canvas.width =
+                    viewport.width;
 
-        canvas.height =
-          viewport.height;
+                  canvas.height =
+                    viewport.height;
 
-        canvas.style.width =
-          '100%';
+                  canvas.style.width =
+                    '100%';
 
-        canvas.style.height =
-          'auto';
+                  canvas.style.height =
+                    'auto';
 
-        canvas.style.display =
-          'block';
+                  canvas.style.display =
+                    'block';
 
-        canvas.style.background =
-          '#fff';
+                  canvas.style.background =
+                    '#fff';
 
-        canvas.style.marginBottom =
-          '12px';
+                  canvas.style.marginBottom =
+                    '12px';
 
-        canvas.style.borderRadius =
-          '6px';
+                  canvas.style.borderRadius =
+                    '6px';
 
-        canvas.style.boxShadow =
-          '0 1px 5px rgba(0,0,0,.15)';
+                  canvas.style.boxShadow =
+                    '0 1px 5px rgba(0,0,0,.15)';
 
-        previewBox.appendChild(
-          canvas
-        );
+                  previewBox.appendChild(
+                    canvas
+                  );
 
-        await page.render({
-          canvasContext:
-            context,
-          viewport:
-            viewport
-        }).promise;
-      }
+                  await page.render({
+                    canvasContext:
+                      context,
+                    viewport:
+                      viewport
+                  }).promise;
+                }
 
-      if (
-        pdf.numPages > 10
-      ) {
+                if (
+                  pdf.numPages > 10
+                ) {
 
-        const more =
-          document.createElement(
-            'p'
-          );
+                  const more =
+                    document.createElement(
+                      'p'
+                    );
 
-        more.textContent =
-          `Showing first 10 of ${pdf.numPages} pages.`;
+                  more.textContent =
+                    `Showing first 10 of ${pdf.numPages} pages.`;
 
-        more.style.textAlign =
-          'center';
+                  more.style.textAlign =
+                    'center';
 
-        more.style.fontWeight =
-          '600';
+                  more.style.fontWeight =
+                    '600';
 
-        more.style.margin =
-          '10px';
+                  more.style.margin =
+                    '10px';
 
-        previewBox.appendChild(
-          more
-        );
-      }
+                  previewBox.appendChild(
+                    more
+                  );
+                }
 
-      iframe.replaceWith(
-        previewBox
-      );
+                iframe.replaceWith(
+                  previewBox
+                );
 
-      previewButton.textContent =
-        'Preview Opened';
+                previewButton.textContent =
+                  'Preview Opened';
 
-    } catch (error) {
+              } catch (error) {
 
-      console.error(error);
+                console.error(error);
 
-      alert(
-        'Preview open nahi ho paaya: ' +
-        error.message
-      );
+                alert(
+                  'Preview open nahi ho paaya: ' +
+                  error.message
+                );
 
-      previewButton.textContent =
-        'Preview Converted PDF';
+                previewButton.textContent =
+                  'Preview Converted PDF';
 
-    } finally {
+              } finally {
 
-      previewButton.disabled =
-        false;
+                previewButton.disabled =
+                  false;
 
-    }
+              }
 
-  };
+            };
 
 
           message(
@@ -1277,9 +1178,106 @@
         ],
         compress: true
       });
+        };
 
 
-        /*
+    message(
+      industry
+        ? $('industryMsg')
+        : $('uploadMsg'),
+      'PDF converted successfully. Preview it before publishing.',
+      true
+    );
+
+  } catch (error) {
+
+    console.error(error);
+
+    status.textContent =
+      error.message ||
+      'PDF conversion failed.';
+
+    message(
+      industry
+        ? $('industryMsg')
+        : $('uploadMsg'),
+      error.message ||
+      'PDF conversion failed.'
+    );
+
+  } finally {
+
+    convertButton.disabled =
+      false;
+  }
+
+}
+);
+
+
+/* =========================================================
+   PDF PROCESSING
+========================================================= */
+
+async function processPdf(
+  file,
+  targetReduction
+) {
+
+  const pdfjs =
+    await loadPdfJs();
+
+  const jsPDF =
+    await loadJsPdf();
+
+  const logo =
+    await getLogo();
+
+  const buffer =
+    await file.arrayBuffer();
+
+  const pdf =
+    await pdfjs
+      .getDocument({
+        data:
+          new Uint8Array(
+            buffer
+          )
+      })
+      .promise;
+
+  const firstPage =
+    await pdf.getPage(1);
+
+  const firstViewport =
+    firstPage.getViewport({
+      scale: 1
+    });
+
+  const width =
+    firstViewport.width;
+
+  const height =
+    firstViewport.height;
+
+  const orientation =
+    width > height
+      ? 'landscape'
+      : 'portrait';
+
+  const doc =
+    new jsPDF({
+      orientation,
+      unit: 'pt',
+      format: [
+        width,
+        height
+      ],
+      compress: true
+    });
+
+
+/*
   FAST PDF PROCESSING
   Optimized for mobile browsers.
 */
@@ -1310,542 +1308,544 @@ const quality =
             ? 0.74
             : 0.80;
 
-    for (
-      let pageNo = 1;
-      pageNo <= pdf.numPages;
-      pageNo++
-    ) {
+for (
+  let pageNo = 1;
+  pageNo <= pdf.numPages;
+  pageNo++
+) {
 
-      const page =
-        await pdf.getPage(pageNo);
+  const page =
+    await pdf.getPage(pageNo);
 
-      const viewport =
-        page.getViewport({
-          scale
-        });
+  const viewport =
+    page.getViewport({
+      scale
+    });
 
-      const canvas =
-        document.createElement('canvas');
+  const canvas =
+    document.createElement('canvas');
 
-      canvas.width =
-        Math.ceil(viewport.width);
+  canvas.width =
+    Math.ceil(viewport.width);
 
-      canvas.height =
-        Math.ceil(viewport.height);
+  canvas.height =
+    Math.ceil(viewport.height);
 
-      const ctx =
-        canvas.getContext('2d', {
-          alpha: false
-        });
+  const ctx =
+    canvas.getContext('2d', {
+      alpha: false
+    });
 
-      ctx.fillStyle = '#ffffff';
+  ctx.fillStyle =
+    '#ffffff';
 
-      ctx.fillRect(
-        0,
-        0,
-        canvas.width,
-        canvas.height
-      );
+  ctx.fillRect(
+    0,
+    0,
+    canvas.width,
+    canvas.height
+  );
 
-      await page.render({
-        canvasContext: ctx,
-        viewport
-      }).promise;
-
-
-      /* ==============================
-         LIGHT PHARMISTRY WORLD WATERMARK
-      ============================== */
-
-      ctx.save();
-
-      ctx.globalAlpha = 0.19;
-
-      const watermarkWidth =
-        canvas.width * 0.46;
-
-      const watermarkHeight =
-        watermarkWidth *
-        (
-          logo.naturalHeight /
-          logo.naturalWidth
-        );
-
-      ctx.drawImage(
-  logo,
-  (canvas.width - watermarkWidth) / 2,
-  (canvas.height - watermarkHeight) / 2,
-  watermarkWidth,
-  watermarkHeight
-);
-
-      ctx.restore();
+  await page.render({
+    canvasContext: ctx,
+    viewport
+  }).promise;
 
 
-      /* ==============================
-   COPYRIGHT HEADER
-============================== */
+  /* ==============================
+     LIGHT PHARMISTRY WORLD WATERMARK
+  ============================== */
 
-ctx.save();
+  ctx.save();
 
-ctx.globalAlpha = 1;
-ctx.globalCompositeOperation = 'source-over';
-ctx.filter = 'none';
-ctx.fillStyle = '#000000';
+  ctx.globalAlpha =
+    0.19;
 
-ctx.font = `bold ${Math.max(
-  16,
-  canvas.width * 0.009
-)}px Arial`;
+  const watermarkWidth =
+    canvas.width * 0.46;
 
-ctx.textAlign = 'left';
-ctx.textBaseline = 'bottom';
+  const watermarkHeight =
+    watermarkWidth *
+    (
+      logo.naturalHeight /
+      logo.naturalWidth
+    );
 
-ctx.fillText(
-  '© Pharmistry World – All Rights Reserved.',
-  20,
-  canvas.height - 12
-);
+  ctx.drawImage(
+    logo,
+    (canvas.width - watermarkWidth) / 2,
+    (canvas.height - watermarkHeight) / 2,
+    watermarkWidth,
+    watermarkHeight
+  );
 
-ctx.restore();
-
-
-      /* ==============================
-         JPEG COMPRESSION
-      ============================== */
-
-      const image =
-        canvas.toDataURL(
-          'image/jpeg',
-          quality
-        );
+  ctx.restore();
 
 
-      if (pageNo > 1) {
+  /* ==============================
+     COPYRIGHT
+  ============================== */
 
-        doc.addPage(
-          [width, height],
-          orientation
-        );
-      }
+  ctx.save();
+
+  ctx.globalAlpha =
+    1;
+
+  ctx.globalCompositeOperation =
+    'source-over';
+
+  ctx.filter =
+    'none';
+
+  ctx.fillStyle =
+    '#000000';
+
+  ctx.font =
+    `bold ${Math.max(
+      16,
+      canvas.width * 0.009
+    )}px Arial`;
+
+  ctx.textAlign =
+    'left';
+
+  ctx.textBaseline =
+    'bottom';
+
+  ctx.fillText(
+    '© Pharmistry World – All Rights Reserved.',
+    20,
+    canvas.height - 12
+  );
+
+  ctx.restore();
 
 
-      doc.addImage(
-        image,
-        'JPEG',
-        0,
-        0,
-        width,
-        height,
-        undefined,
-        'FAST'
-      );
-    }
+  /* ==============================
+     JPEG COMPRESSION
+  ============================== */
+
+  const image =
+    canvas.toDataURL(
+      'image/jpeg',
+      quality
+    );
 
 
-    /* ==============================
-       CREATE FINAL PDF
-    ============================== */
+  if (pageNo > 1) {
 
-    const blob =
-      doc.output('blob');
-
-    return new File(
-      [blob],
-      safeName(file.name) +
-      '-pharmistry.pdf',
-      {
-        type: 'application/pdf'
-      }
+    doc.addPage(
+      [width, height],
+      orientation
     );
   }
 
 
-  /* =========================================================
-     STORAGE UPLOAD
-  ========================================================= */
+  doc.addImage(
+    image,
+    'JPEG',
+    0,
+    0,
+    width,
+    height,
+    undefined,
+    'FAST'
+  );
+}
 
-  async function uploadFile(
+
+/* ==============================
+   CREATE FINAL PDF
+============================== */
+
+const blob =
+  doc.output('blob');
+
+return new File(
+  [blob],
+  safeName(file.name) +
+  '-pharmistry.pdf',
+  {
+    type: 'application/pdf'
+  }
+);
+}
+
+
+/* =========================================================
+   STORAGE UPLOAD — DOSYA
+========================================================= */
+
+async function uploadFile(
+  file,
+  folder
+) {
+
+  return await uploadToDosya(
     file,
     folder
+  );
+}
+
+/* =========================================================
+   SUBJECTS / UNITS
+========================================================= */
+
+function populateSubjects() {
+
+  const semester =
+    $('semester')?.value;
+
+  const subject =
+    $('subject');
+
+  const unit =
+    $('unit');
+
+  if (!subject || !unit) {
+    return;
+  }
+
+  subject.innerHTML =
+    '<option value="">Select subject</option>';
+
+  unit.innerHTML =
+    '<option value="">Select subject first</option>';
+
+  subject.disabled =
+    !semester;
+
+  unit.disabled =
+    true;
+
+  if (semester) {
+
+    (
+      SUBJECTS[semester] || []
+    ).forEach(item => {
+
+      subject.insertAdjacentHTML(
+        'beforeend',
+        `<option>${esc(item)}</option>`
+      );
+
+    });
+  }
+}
+
+
+function populateUnits() {
+
+  const subject =
+    $('subject')?.value;
+
+  const unit =
+    $('unit');
+
+  if (!unit) {
+    return;
+  }
+
+  unit.innerHTML =
+    '<option value="">Select unit</option>';
+
+  unit.disabled =
+    !subject;
+
+  if (subject) {
+
+    for (
+      let i = 1;
+      i <= 5;
+      i++
+    ) {
+
+      unit.insertAdjacentHTML(
+        'beforeend',
+        `<option>Unit ${i}</option>`
+      );
+    }
+
+    unit.insertAdjacentHTML(
+      'beforeend',
+      '<option>All Units / Complete Notes</option>'
+    );
+  }
+}
+
+
+/* =========================================================
+   B.PHARM NOTES UPLOAD
+========================================================= */
+
+async function uploadNote(event) {
+
+  event.preventDefault();
+
+  if (!notePreparedPdf) {
+
+    return message(
+      $('uploadMsg'),
+      'Please convert the PDF first.'
+    );
+  }
+
+  if (
+    notePreparedPdf.size >
+    25 * 1024 * 1024
   ) {
 
-    const path =
-      `${folder}/${Date.now()}-${safeName(file.name)}.pdf`;
+    return message(
+      $('uploadMsg'),
+      'Converted PDF must be 25 MB or smaller.'
+    );
+  }
+
+  message(
+    $('uploadMsg'),
+    'Uploading processed PDF…',
+    true
+  );
+
+  let uploadResult = null;
+
+  try {
+
+    const result =
+      await uploadFile(
+        notePreparedPdf,
+        'notes'
+      );
+
+    uploadResult =
+      result;
 
     const {
       error
     } =
-      await client.storage
-        .from(BUCKET)
-        .upload(
-          path,
-          file,
-          {
-            contentType: 'application/pdf',
-            cacheControl: '3600',
-            upsert: false
-          }
-        );
+      await client
+        .from('notes')
+        .insert({
+
+          title:
+            $('title')
+              .value
+              .trim(),
+
+          semester:
+            $('semester')
+              .value,
+
+          subject:
+            $('subject')
+              .value
+              .trim(),
+
+          unit:
+            $('unit')
+              .value,
+
+          description:
+            $('description')
+              .value
+              .trim(),
+
+          pdf_url:
+            result.url
+        });
 
     if (error) {
       throw error;
     }
 
-    return {
-      path,
-      url:
-        client.storage
-          .from(BUCKET)
-          .getPublicUrl(path)
-          .data
-          .publicUrl
-    };
-  }
+    $('uploadForm').reset();
 
+    notePreparedPdf = null;
 
-  /* =========================================================
-     SUBJECTS / UNITS
-  ========================================================= */
+    populateSubjects();
 
-  function populateSubjects() {
+    if ($('fileName')) {
 
-    const semester =
-      $('semester')?.value;
-
-    const subject =
-      $('subject');
-
-    const unit =
-      $('unit');
-
-    if (!subject || !unit) {
-      return;
+      $('fileName')
+        .textContent =
+        'No file selected';
     }
 
-    subject.innerHTML =
-      '<option value="">Select subject</option>';
-
-    unit.innerHTML =
-      '<option value="">Select subject first</option>';
-
-    subject.disabled =
-      !semester;
-
-    unit.disabled = true;
-
-    if (semester) {
-
-      (
-        SUBJECTS[semester] || []
-      ).forEach(item => {
-
-        subject.insertAdjacentHTML(
-          'beforeend',
-          `<option>${esc(item)}</option>`
-        );
-
-      });
-    }
-  }
-
-
-  function populateUnits() {
-
-    const subject =
-      $('subject')?.value;
-
-    const unit =
-      $('unit');
-
-    if (!unit) {
-      return;
-    }
-
-    unit.innerHTML =
-      '<option value="">Select unit</option>';
-
-    unit.disabled =
-      !subject;
-
-    if (subject) {
-
-      for (
-        let i = 1;
-        i <= 5;
-        i++
-      ) {
-
-        unit.insertAdjacentHTML(
-          'beforeend',
-          `<option>Unit ${i}</option>`
-        );
-      }
-
-      unit.insertAdjacentHTML(
-        'beforeend',
-        '<option>All Units / Complete Notes</option>'
-      );
-    }
-  }
-
-
-  /* =========================================================
-     B.PHARM NOTES UPLOAD
-  ========================================================= */
-
-  async function uploadNote(event) {
-
-    event.preventDefault();
-
-    if (!notePreparedPdf) {
-
-      return message(
-        $('uploadMsg'),
-        'Please convert the PDF first.'
-      );
-    }
-
-    if (
-      notePreparedPdf.size >
-      25 * 1024 * 1024
-    ) {
-
-      return message(
-        $('uploadMsg'),
-        'Converted PDF must be 25 MB or smaller.'
-      );
-    }
+    resetProcessor(
+      'notesPdfTools'
+    );
 
     message(
       $('uploadMsg'),
-      'Uploading processed PDF…',
+      'Note published successfully.',
       true
     );
 
-    let path = null;
+    await loadNotes();
 
-    try {
+  } catch (error) {
 
-      const result =
-        await uploadFile(
-          notePreparedPdf,
-          'notes'
+    if (uploadResult) {
+
+      try {
+
+        await deleteUploadedFile(
+          uploadResult
         );
 
-      path = result.path;
+      } catch (cleanupError) {
 
-      const {
-        error
-      } =
-        await client
-          .from('notes')
-          .insert({
-
-            title:
-              $('title')
-                .value
-                .trim(),
-
-            semester:
-              $('semester')
-                .value,
-
-            subject:
-              $('subject')
-                .value
-                .trim(),
-
-            unit:
-              $('unit')
-                .value,
-
-            description:
-              $('description')
-                .value
-                .trim(),
-
-            pdf_url:
-              result.url
-          });
-
-      if (error) {
-        throw error;
-      }
-
-      $('uploadForm').reset();
-
-      notePreparedPdf = null;
-
-      populateSubjects();
-
-      if ($('fileName')) {
-
-        $('fileName')
-          .textContent =
-          'No file selected';
-      }
-
-      resetProcessor(
-        'notesPdfTools'
-      );
-
-      message(
-        $('uploadMsg'),
-        'Note published successfully.',
-        true
-      );
-
-      await loadNotes();
-
-    } catch (error) {
-
-      if (path) {
-
-        await client.storage
-          .from(BUCKET)
-          .remove([path]);
-      }
-
-      console.error(error);
-
-      message(
-        $('uploadMsg'),
-        error.message ||
-        'Upload failed.'
-      );
-    }
-  }
-
-
-  /* =========================================================
-     LOAD NOTES
-  ========================================================= */
-
-  async function loadNotes() {
-
-    const box =
-      $('notesList');
-
-    if (!box) {
-      return;
-    }
-
-    box.innerHTML =
-      '<p class="muted">Loading…</p>';
-
-    const {
-      data,
-      error
-    } =
-      await client
-        .from('notes')
-        .select('*')
-        .order(
-          'created_at',
-          {
-            ascending: false
-          }
+        console.error(
+          'Upload cleanup failed:',
+          cleanupError
         );
-
-    if (error) {
-
-      box.innerHTML =
-        `<p class="message error">${esc(error.message)}</p>`;
-
-      return;
+      }
     }
 
-    if (!data?.length) {
+    console.error(error);
 
-      box.innerHTML =
-        '<p class="muted">No notes published yet.</p>';
+    message(
+      $('uploadMsg'),
+      error.message ||
+      'Upload failed.'
+    );
+  }
+}
 
-      return;
-    }
 
-    box.innerHTML =
-      data.map(note => `
+/* =========================================================
+   LOAD NOTES
+========================================================= */
 
-        <article class="note-row">
+async function loadNotes() {
 
-          <div>
+  const box =
+    $('notesList');
 
-            <span class="badge">
-              ${esc(note.semester)}
-            </span>
-
-            <h3>
-              ${esc(note.title)}
-            </h3>
-
-            <p>
-
-              <strong>
-                ${esc(note.subject)}
-              </strong>
-
-              ${
-                note.unit
-                  ? ' · ' + esc(note.unit)
-                  : ''
-              }
-
-              ${
-                note.description
-                  ? ' · ' +
-                    esc(note.description)
-                  : ''
-              }
-
-            </p>
-
-          </div>
-
-          <div class="row-actions">
-
-            <a
-              class="btn"
-              href="${esc(note.pdf_url)}"
-              target="_blank"
-              rel="noopener"
-            >
-              View
-            </a>
-
-            <button
-              class="btn danger"
-              data-del="${esc(note.id)}"
-              data-url="${esc(note.pdf_url)}"
-            >
-              Delete
-            </button>
-
-          </div>
-
-        </article>
-
-      `).join('');
-
-    box
-      .querySelectorAll('[data-del]')
-      .forEach(button => {
-
-        button.onclick =
-          () =>
-            deleteNote(
-              button.dataset.del,
-              button.dataset.url
-            );
-
-      });
+  if (!box) {
+    return;
   }
 
+  box.innerHTML =
+    '<p class="muted">Loading…</p>';
 
-  async function deleteNote(
+  const {
+    data,
+    error
+  } =
+    await client
+      .from('notes')
+      .select('*')
+      .order(
+        'created_at',
+        {
+          ascending: false
+        }
+      );
+
+  if (error) {
+
+    box.innerHTML =
+      `<p class="message error">${esc(error.message)}</p>`;
+
+    return;
+  }
+
+  if (!data?.length) {
+
+    box.innerHTML =
+      '<p class="muted">No notes published yet.</p>';
+
+    return;
+  }
+
+  box.innerHTML =
+    data.map(note => `
+
+      <article class="note-row">
+
+        <div>
+
+          <span class="badge">
+            ${esc(note.semester)}
+          </span>
+
+          <h3>
+            ${esc(note.title)}
+          </h3>
+
+          <p>
+
+            <strong>
+              ${esc(note.subject)}
+            </strong>
+
+            ${
+              note.unit
+                ? ' · ' + esc(note.unit)
+                : ''
+            }
+
+            ${
+              note.description
+                ? ' · ' +
+                  esc(note.description)
+                : ''
+            }
+
+          </p>
+
+        </div>
+
+        <div class="row-actions">
+
+          <a
+            class="btn"
+            href="${esc(note.pdf_url)}"
+            target="_blank"
+            rel="noopener"
+          >
+            View
+          </a>
+
+          <button
+            class="btn danger"
+            data-del="${esc(note.id)}"
+            data-url="${esc(note.pdf_url)}"
+          >
+            Delete
+          </button>
+
+        </div>
+
+      </article>
+
+    `).join('');
+
+  box
+    .querySelectorAll('[data-del]')
+    .forEach(button => {
+
+      button.onclick =
+        () =>
+          deleteNote(
+            button.dataset.del,
+            button.dataset.url
+          );
+
+    });
+}
+
+
+/* =========================================================
+   DELETE NOTE
+========================================================= */
+
+async function deleteNote(
   id,
   url
 ) {
+
   if (
     !confirm(
       'Delete this note?'
@@ -1856,29 +1856,43 @@ ctx.restore();
 
   try {
 
+    const fileId =
+      dosyaFileId(url);
+
     const path =
       publicPath(url);
 
+
     /* =========================================
-       1. DELETE PDF FROM STORAGE
+       1. DELETE PDF
     ========================================= */
 
-    if (!path) {
+    if (fileId) {
+
+      await deleteDosyaFile(
+        fileId
+      );
+
+    } else if (path) {
+
+      const {
+        error: storageError
+      } =
+        await client.storage
+          .from(BUCKET)
+          .remove([path]);
+
+      if (storageError) {
+        throw storageError;
+      }
+
+    } else {
+
       throw new Error(
         'PDF storage path could not be determined.'
       );
     }
 
-    const {
-      error: storageError
-    } =
-      await client.storage
-        .from(BUCKET)
-        .remove([path]);
-
-    if (storageError) {
-      throw storageError;
-    }
 
     /* =========================================
        2. DELETE NOTE FROM DATABASE
@@ -1896,13 +1910,12 @@ ctx.restore();
       throw databaseError;
     }
 
+
     /* =========================================
-       3. REFRESH NOTES LIST
+       3. REFRESH
     ========================================= */
 
-    await loadNotes();
-
-    alert(
+    await loadNotes();    alert(
       'Note and PDF deleted successfully.'
     );
 
@@ -1918,658 +1931,729 @@ ctx.restore();
       'Delete failed.'
     );
   }
-  }
-        
-     /* =========================================================
-     INDUSTRY UPLOAD
-  ========================================================= */
+}
 
-  async function uploadIndustry(event) {
 
-    event.preventDefault();
+/* =========================================================
+   INDUSTRY UPLOAD
+========================================================= */
 
-    const originalFile =
-      $('industryPdf')?.files[0];
+async function uploadIndustry(event) {
 
-    if (
-      originalFile &&
-      !industryPreparedPdf
-    ) {
-      return message(
-        $('industryMsg'),
-        'Please convert the PDF first.'
-      );
-    }
+  event.preventDefault();
 
-    if (
-      industryPreparedPdf &&
-      industryPreparedPdf.size >
-      25 * 1024 * 1024
-    ) {
-      return message(
-        $('industryMsg'),
-        'Converted PDF must be 25 MB or smaller.'
-      );
-    }
+  const originalFile =
+    $('industryPdf')?.files[0];
 
-    message(
+  if (
+    originalFile &&
+    !industryPreparedPdf
+  ) {
+
+    return message(
       $('industryMsg'),
-      'Publishing…',
-      true
+      'Please convert the PDF first.'
     );
-
-    let path = null;
-
-    try {
-
-      let url = null;
-
-      /* PDF is optional for Industry */
-
-      if (industryPreparedPdf) {
-
-        const result =
-          await uploadFile(
-            industryPreparedPdf,
-            'industry'
-          );
-
-        path = result.path;
-        url = result.url;
-      }
-
-      const {
-        error
-      } =
-        await client
-          .from('industry_resources')
-          .insert({
-
-            title:
-              $('industryTitle')
-                .value
-                .trim(),
-
-            category:
-              $('industryCategory')
-                .value,
-
-            description:
-              $('industryDescription')
-                .value
-                .trim(),
-
-            pdf_url:
-              url
-          });
-
-      if (error) {
-        throw error;
-      }
-
-      $('industryForm').reset();
-
-      industryPreparedPdf = null;
-
-      if ($('industryFileName')) {
-
-        $('industryFileName')
-          .textContent =
-          'No PDF selected';
-      }
-
-      resetProcessor(
-        'industryPdfTools'
-      );
-
-      message(
-        $('industryMsg'),
-        'Industry resource published successfully.',
-        true
-      );
-
-      await loadIndustry();
-
-    } catch (error) {
-
-      if (path) {
-
-        await client.storage
-          .from(BUCKET)
-          .remove([path]);
-      }
-
-      console.error(error);
-
-      message(
-        $('industryMsg'),
-        error.message ||
-        'Publish failed.'
-      );
-    }
   }
 
+  if (
+    industryPreparedPdf &&
+    industryPreparedPdf.size >
+    25 * 1024 * 1024
+  ) {
 
-  /* =========================================================
-     LOAD INDUSTRY
-  ========================================================= */
+    return message(
+      $('industryMsg'),
+      'Converted PDF must be 25 MB or smaller.'
+    );
+  }
 
-  async function loadIndustry() {
+  message(
+    $('industryMsg'),
+    'Publishing…',
+    true
+  );
 
-    const box =
-      $('industryList');
+  let uploadResult = null;
 
-    if (!box) {
-      return;
+  try {
+
+    let url = null;
+
+    if (industryPreparedPdf) {
+
+      const result =
+        await uploadFile(
+          industryPreparedPdf,
+          'industry'
+        );
+
+      uploadResult =
+        result;
+
+      url =
+        result.url;
     }
-
-    box.innerHTML =
-      '<p class="muted">Loading…</p>';
 
     const {
-      data,
       error
     } =
       await client
         .from('industry_resources')
-        .select('*')
-        .order(
-          'created_at',
-          {
-            ascending: false
-          }
+        .insert({
+
+          title:
+            $('industryTitle')
+              .value
+              .trim(),
+
+          category:
+            $('industryCategory')
+              .value,
+
+          description:
+            $('industryDescription')
+              .value
+              .trim(),
+
+          pdf_url:
+            url
+        });
+
+    if (error) {
+      throw error;
+    }
+
+    $('industryForm').reset();
+
+    industryPreparedPdf = null;
+
+    if ($('industryFileName')) {
+
+      $('industryFileName')
+        .textContent =
+        'No PDF selected';
+    }
+
+    resetProcessor(
+      'industryPdfTools'
+    );
+
+    message(
+      $('industryMsg'),
+      'Industry resource published successfully.',
+      true
+    );
+
+    await loadIndustry();
+
+  } catch (error) {
+
+    if (uploadResult) {
+
+      try {
+
+        await deleteUploadedFile(
+          uploadResult
         );
 
-        if (error) {
+      } catch (cleanupError) {
 
-      box.innerHTML =
-        `<p class="message error">${esc(error.message)}</p>`;
-
-      return;
+        console.error(
+          'Industry upload cleanup failed:',
+          cleanupError
+        );
+      }
     }
 
-    if (!data?.length) {
+    console.error(error);
 
-      box.innerHTML =
-        '<p class="muted">No industry resources published yet.</p>';
+    message(
+      $('industryMsg'),
+      error.message ||
+      'Publish failed.'
+    );
+  }
+}
 
-      return;
-    }
 
-    box.innerHTML =
-      data.map(item => `
+/* =========================================================
+   LOAD INDUSTRY
+========================================================= */
 
-        <article class="note-row">
+async function loadIndustry() {
 
-          <div>
+  const box =
+    $('industryList');
 
-            <span class="badge">
-              ${esc(item.category)}
-            </span>
-
-            <h3>
-              ${esc(item.title)}
-            </h3>
-
-            <p>
-              ${esc(
-                item.description || ''
-              )}
-            </p>
-
-          </div>
-
-          <div class="row-actions">
-
-            ${
-              item.pdf_url
-                ? `
-                  <a
-                    class="btn"
-                    href="${esc(item.pdf_url)}"
-                    target="_blank"
-                    rel="noopener"
-                  >
-                    View PDF
-                  </a>
-                `
-                : ''
-            }
-
-            <button
-              class="btn danger"
-              data-ind="${esc(item.id)}"
-              data-url="${esc(
-                item.pdf_url || ''
-              )}"
-            >
-              Delete
-            </button>
-
-          </div>
-
-        </article>
-
-      `).join('');
-
-    box
-      .querySelectorAll('[data-ind]')
-      .forEach(button => {
-
-        button.onclick =
-          () =>
-            deleteIndustry(
-              button.dataset.ind,
-              button.dataset.url
-            );
-
-      });
+  if (!box) {
+    return;
   }
 
+  box.innerHTML =
+    '<p class="muted">Loading…</p>';
 
-  /* =========================================================
-     DELETE INDUSTRY
-  ========================================================= */
+  const {
+    data,
+    error
+  } =
+    await client
+      .from('industry_resources')
+      .select('*')
+      .order(
+        'created_at',
+        {
+          ascending: false
+        }
+      );
 
-  async function deleteIndustry(
-    id,
-    url
+  if (error) {
+
+    box.innerHTML =
+      `<p class="message error">${esc(error.message)}</p>`;
+
+    return;
+  }
+
+  if (!data?.length) {
+
+    box.innerHTML =
+      '<p class="muted">No industry resources published yet.</p>';
+
+    return;
+  }
+
+  box.innerHTML =
+    data.map(item => `
+
+      <article class="note-row">
+
+        <div>
+
+          <span class="badge">
+            ${esc(item.category)}
+          </span>
+
+          <h3>
+            ${esc(item.title)}
+          </h3>
+
+          <p>
+            ${esc(
+              item.description || ''
+            )}
+          </p>
+
+        </div>
+
+        <div class="row-actions">
+
+          ${
+            item.pdf_url
+              ? `
+                <a
+                  class="btn"
+                  href="${esc(item.pdf_url)}"
+                  target="_blank"
+                  rel="noopener"
+                >
+                  View PDF
+                </a>
+              `
+              : ''
+          }
+
+          <button
+            class="btn danger"
+            data-ind="${esc(item.id)}"
+            data-url="${esc(
+              item.pdf_url || ''
+            )}"
+          >
+            Delete
+          </button>
+
+        </div>
+
+      </article>
+
+    `).join('');
+
+  box
+    .querySelectorAll('[data-ind]')
+    .forEach(button => {
+
+      button.onclick =
+        () =>
+          deleteIndustry(
+            button.dataset.ind,
+            button.dataset.url
+          );
+
+    });
+}
+
+
+/* =========================================================
+   DELETE INDUSTRY
+========================================================= */
+
+async function deleteIndustry(
+  id,
+  url
+) {
+
+  if (
+    !confirm(
+      'Delete this industry resource?'
+    )
   ) {
+    return;
+  }
 
-    if (
-      !confirm(
-        'Delete this industry resource?'
-      )
-    ) {
-      return;
-    }
+  try {
 
-    try {
+    const fileId =
+      dosyaFileId(url);
 
-      const path =
-        publicPath(url);
+    const path =
+      publicPath(url);
 
-      if (path) {
+    /* =========================================
+       DELETE PDF
+    ========================================= */
 
+    if (fileId) {
+
+      await deleteDosyaFile(
+        fileId
+      );
+
+    } else if (path) {
+
+      const {
+        error: storageError
+      } =
         await client.storage
           .from(BUCKET)
           .remove([path]);
+
+      if (storageError) {
+        throw storageError;
       }
-
-      const {
-        error
-      } =
-        await client
-          .from('industry_resources')
-          .delete()
-          .eq('id', id);
-
-      if (error) {
-        throw error;
-      }
-
-      await loadIndustry();
-
-    } catch (error) {
-
-      alert(
-        error.message ||
-        'Delete failed.'
-      );
-    }
-  }
-
-
-  /* =========================================================
-     CONTACT MESSAGES
-  ========================================================= */
-
-  async function loadContactMessages() {
-
-    const box =
-      $('contactList');
-
-    if (!box) {
-      return;
     }
 
-    box.innerHTML =
-      '<p class="muted">Loading messages…</p>';
+
+    /* =========================================
+       DELETE DATABASE RECORD
+    ========================================= */
 
     const {
-      data,
+      error
+    } =
+      await client
+        .from('industry_resources')
+        .delete()
+        .eq('id', id);
+
+    if (error) {
+      throw error;
+    }
+
+    await loadIndustry();
+
+  } catch (error) {
+
+    alert(
+      error.message ||
+      'Delete failed.'
+    );
+  }
+}
+
+
+/* =========================================================
+   CONTACT MESSAGES
+========================================================= */
+
+async function loadContactMessages() {
+
+  const box =
+    $('contactList');
+
+  if (!box) {
+    return;
+  }
+
+  box.innerHTML =
+    '<p class="muted">Loading messages…</p>';
+
+  const {
+    data,
+    error
+  } =
+    await client
+      .from('contact_messages')
+      .select('*')
+      .order(
+        'created_at',
+        {
+          ascending: false
+        }
+      );
+
+  if (error) {
+
+    box.innerHTML =
+      `<p class="message error">${esc(error.message)}</p>`;
+
+    return;
+  }
+
+  if (!data?.length) {
+
+    box.innerHTML =
+      '<p class="muted">No contact messages yet.</p>';
+
+    return;
+  }
+
+  box.innerHTML =
+    data.map(item => `
+
+      <article class="note-row">
+
+        <div>
+
+          <span class="badge">
+            ${esc(
+              item.subject ||
+              'General'
+            )}
+          </span>
+
+          <h3>
+            ${esc(item.name)}
+          </h3>
+
+          <p>
+            <strong>Email:</strong>
+            ${esc(item.email)}
+          </p>
+
+          <p>
+            <strong>Message:</strong>
+            ${esc(item.message)}
+          </p>
+
+          <small class="muted">
+            ${
+              item.created_at
+                ? esc(
+                    new Date(
+                      item.created_at
+                    ).toLocaleString()
+                  )
+                : ''
+            }
+          </small>
+
+        </div>
+
+        <div class="row-actions">
+
+          <a
+            class="btn"
+            href="mailto:${encodeURIComponent(
+              item.email
+            )}"
+          >
+            Reply
+          </a>
+
+          <button
+            class="btn danger"
+            data-contact="${esc(item.id)}"
+          >
+            Delete
+          </button>
+
+        </div>
+
+      </article>
+
+    `).join('');
+
+  box
+    .querySelectorAll('[data-contact]')
+    .forEach(button => {
+
+      button.onclick =
+        () =>
+          deleteContactMessage(
+            button.dataset.contact
+          );
+
+    });
+}
+
+
+async function deleteContactMessage(
+  id
+) {
+
+  if (
+    !confirm(
+      'Delete this contact message?'
+    )
+  ) {
+    return;
+  }
+
+  try {
+
+    const {
       error
     } =
       await client
         .from('contact_messages')
-        .select('*')
-        .order(
-          'created_at',
-          {
-            ascending: false
-          }
-        );
+        .delete()
+        .eq('id', id);
 
     if (error) {
-
-      box.innerHTML =
-        `<p class="message error">${esc(error.message)}</p>`;
-
-      return;
+      throw error;
     }
 
-    if (!data?.length) {
+    await loadContactMessages();
 
-      box.innerHTML =
-        '<p class="muted">No contact messages yet.</p>';
+  } catch (error) {
 
-      return;
-    }
+    alert(
+      error.message ||
+      'Delete failed.'
+    );
+  }
+}
 
-    box.innerHTML =
-      data.map(item => `
 
-        <article class="note-row">
+/* =========================================================
+   RESET PDF PROCESSOR
+========================================================= */
 
-          <div>
+function resetProcessor(id) {
 
-            <span class="badge">
-              ${esc(
-                item.subject ||
-                'General'
-              )}
-            </span>
+  const box =
+    $(id);
 
-            <h3>
-              ${esc(item.name)}
-            </h3>
+  if (!box) {
+    return;
+  }
 
-            <p>
-              <strong>Email:</strong>
-              ${esc(item.email)}
-            </p>
+  const result =
+    box.querySelector(
+      '.pw-result'
+    );
 
-            <p>
-              <strong>Message:</strong>
-              ${esc(item.message)}
-            </p>
+  const preview =
+    box.querySelector(
+      '.pw-preview'
+    );
 
-            <small class="muted">
-              ${
-                item.created_at
-                  ? esc(
-                      new Date(
-                        item.created_at
-                      ).toLocaleString()
-                    )
-                  : ''
-              }
-            </small>
+  const previewButton =
+    box.querySelector(
+      '.pw-preview-btn'
+    );
 
-          </div>
+  const status =
+    box.querySelector(
+      '.pw-status'
+    );
 
-          <div class="row-actions">
+  result?.classList.add(
+    'pw-hidden'
+  );
 
-            <a
-              class="btn"
-              href="mailto:${encodeURIComponent(
-                item.email
-              )}"
-            >
-              Reply
-            </a>
+  preview?.classList.add(
+    'pw-hidden'
+  );
 
-            <button
-              class="btn danger"
-              data-contact="${esc(item.id)}"
-            >
-              Delete
-            </button>
+  previewButton?.classList.add(
+    'pw-hidden'
+  );
 
-          </div>
+  if (preview) {
 
-        </article>
+    preview.src =
+      'about:blank';
+  }
 
-      `).join('');
+  if (status) {
 
-    box
-      .querySelectorAll('[data-contact]')
-      .forEach(button => {
+    status.textContent =
+      '';
+  }
+}
 
-        button.onclick =
-          () =>
-            deleteContactMessage(
-              button.dataset.contact
-            );
 
-      });
+/* =========================================================
+   TABS
+========================================================= */
+
+function showTab(tab) {
+
+  const tabs = [
+    $('notesTab'),
+    $('industryTab'),
+    $('contactTab')
+  ];
+
+  const panels = [
+    $('notesPanel'),
+    $('industryPanel'),
+    $('contactPanel')
+  ];
+
+  tabs.forEach(item =>
+    item?.classList.remove(
+      'active'
+    )
+  );
+
+  panels.forEach(item =>
+    item?.classList.add(
+      'hidden'
+    )
+  );
+
+
+  if (tab === 'notes') {
+
+    $('notesTab')
+      ?.classList
+      .add('active');
+
+    $('notesPanel')
+      ?.classList
+      .remove('hidden');
   }
 
 
-  async function deleteContactMessage(id) {
+  if (tab === 'industry') {
 
-    if (
-      !confirm(
-        'Delete this contact message?'
-      )
-    ) {
-      return;
-    }
+    $('industryTab')
+      ?.classList
+      .add('active');
 
-    try {
+    $('industryPanel')
+      ?.classList
+      .remove('hidden');
+  }
 
-      const {
-        error
-      } =
-        await client
-          .from('contact_messages')
-          .delete()
-          .eq('id', id);
 
-      if (error) {
-        throw error;
+  if (tab === 'contact') {
+
+    $('contactTab')
+      ?.classList
+      .add('active');
+
+    $('contactPanel')
+      ?.classList
+      .remove('hidden');
+
+    loadContactMessages();
+  }
+}
+
+
+/* =========================================================
+   BIND EVENTS
+========================================================= */
+
+function bind() {
+
+  if ($('loginForm')) {
+    $('loginForm').onsubmit =
+      login;
+  }
+
+  if ($('logoutBtn')) {
+    $('logoutBtn').onclick =
+      logout;
+  }
+
+  if ($('uploadForm')) {
+    $('uploadForm').onsubmit =
+      uploadNote;
+  }
+
+  if ($('industryForm')) {
+    $('industryForm').onsubmit =
+      uploadIndustry;
+  }
+
+  if ($('refreshBtn')) {
+    $('refreshBtn').onclick =
+      loadNotes;
+  }
+
+  if ($('industryRefreshBtn')) {
+    $('industryRefreshBtn').onclick =
+      loadIndustry;
+  }
+
+  if ($('contactRefreshBtn')) {
+    $('contactRefreshBtn').onclick =
+      loadContactMessages;
+  }
+
+
+  if ($('semester')) {
+
+    $('semester').onchange =
+      populateSubjects;
+  }
+
+
+  if ($('subject')) {
+
+    $('subject').onchange =
+      populateUnits;
+  }
+
+
+  if ($('pdf')) {
+
+    $('pdf').onchange = () => {
+
+      notePreparedPdf =
+        null;
+
+      if ($('fileName')) {
+
+        $('fileName').textContent =
+          $('pdf').files[0]?.name ||
+          'No file selected';
       }
 
-      await loadContactMessages();
-
-    } catch (error) {
-
-      alert(
-        error.message ||
-        'Delete failed.'
+      resetProcessor(
+        'notesPdfTools'
       );
-    }
-  }  /* =========================================================
-     RESET PDF PROCESSOR
-  ========================================================= */
-
-  function resetProcessor(id) {
-
-    const box = $(id);
-
-    if (!box) {
-      return;
-    }
-
-    const result =
-      box.querySelector('.pw-result');
-
-    const preview =
-      box.querySelector('.pw-preview');
-
-    const previewButton =
-      box.querySelector('.pw-preview-btn');
-
-    const status =
-      box.querySelector('.pw-status');
-
-    result?.classList.add(
-      'pw-hidden'
-    );
-
-    preview?.classList.add(
-      'pw-hidden'
-    );
-
-    previewButton?.classList.add(
-      'pw-hidden'
-    );
-
-    if (preview) {
-      preview.src = 'about:blank';
-    }
-
-    if (status) {
-      status.textContent = '';
-    }
+    };
   }
 
 
-  /* =========================================================
-     TABS
-  ========================================================= */
+  if ($('industryPdf')) {
 
-  function showTab(tab) {
+    $('industryPdf').onchange =
+      () => {
 
-    const tabs = [
-      $('notesTab'),
-      $('industryTab'),
-      $('contactTab')
-    ];
-
-    const panels = [
-      $('notesPanel'),
-      $('industryPanel'),
-      $('contactPanel')
-    ];
-
-    tabs.forEach(item =>
-      item?.classList.remove('active')
-    );
-
-    panels.forEach(item =>
-      item?.classList.add('hidden')
-    );
-
-
-    if (tab === 'notes') {
-
-      $('notesTab')
-        ?.classList
-        .add('active');
-
-      $('notesPanel')
-        ?.classList
-        .remove('hidden');
-    }
-
-
-    if (tab === 'industry') {
-
-      $('industryTab')
-        ?.classList
-        .add('active');
-
-      $('industryPanel')
-        ?.classList
-        .remove('hidden');
-    }
-
-
-    if (tab === 'contact') {
-
-      $('contactTab')
-        ?.classList
-        .add('active');
-
-      $('contactPanel')
-        ?.classList
-        .remove('hidden');
-
-      loadContactMessages();
-    }
-  }  /* =========================================================
-     BIND EVENTS
-  ========================================================= */
-
-  function bind() {
-
-    if ($('loginForm')) {
-      $('loginForm').onsubmit = login;
-    }
-
-    if ($('logoutBtn')) {
-      $('logoutBtn').onclick = logout;
-    }
-
-    if ($('uploadForm')) {
-      $('uploadForm').onsubmit = uploadNote;
-    }
-
-    if ($('industryForm')) {
-      $('industryForm').onsubmit =
-        uploadIndustry;
-    }
-
-    if ($('refreshBtn')) {
-      $('refreshBtn').onclick =
-        loadNotes;
-    }
-
-    if ($('industryRefreshBtn')) {
-      $('industryRefreshBtn').onclick =
-        loadIndustry;
-    }
-
-    if ($('contactRefreshBtn')) {
-      $('contactRefreshBtn').onclick =
-        loadContactMessages;
-    }
-
-
-    if ($('semester')) {
-
-      $('semester').onchange =
-        populateSubjects;
-    }
-
-
-    if ($('subject')) {
-
-      $('subject').onchange =
-        populateUnits;
-    }
-
-
-    if ($('pdf')) {
-
-      $('pdf').onchange = () => {
-
-        notePreparedPdf = null;
-
-        if ($('fileName')) {
-
-          $('fileName').textContent =
-            $('pdf').files[0]?.name ||
-            'No file selected';
-        }
-
-        resetProcessor(
-          'notesPdfTools'
-        );
-      };
-    }
-
-
-    if ($('industryPdf')) {
-
-      $('industryPdf').onchange = () => {
-
-        industryPreparedPdf = null;
+        industryPreparedPdf =
+          null;
 
         if ($('industryFileName')) {
 
-          $('industryFileName').textContent =
+          $('industryFileName')
+            .textContent =
             $('industryPdf')
               .files[0]?.name ||
             'No PDF selected';
@@ -2579,85 +2663,88 @@ ctx.restore();
           'industryPdfTools'
         );
       };
-    }
-
-
-    if ($('notesTab')) {
-
-      $('notesTab').onclick =
-        () =>
-          showTab('notes');
-    }
-
-
-    if ($('industryTab')) {
-
-      $('industryTab').onclick =
-        () =>
-          showTab('industry');
-    }
-
-
-    if ($('contactTab')) {
-
-      $('contactTab').onclick =
-        () =>
-          showTab('contact');
-    }
-
-
-    /* PDF PROCESSING CONTROLS */
-
-    addProcessor('notes');
-
-    addProcessor('industry');
-  }  /* =========================================================
-     INIT
-  ========================================================= */
-
-  function init() {
-
-    if (
-      !window.supabase ||
-      !window.supabase.createClient
-    ) {
-
-      message(
-        $('loginMsg'),
-        'Supabase library load nahi hui. Page refresh karein.'
-      );
-
-      return;
-    }
-
-    client =
-      window.supabase.createClient(
-        SUPABASE_URL,
-        SUPABASE_KEY
-      );
-
-    bind();
-
-    showSession();
   }
 
+
+  if ($('notesTab')) {
+
+    $('notesTab').onclick =
+      () =>
+        showTab('notes');
+  }
+
+
+  if ($('industryTab')) {
+
+    $('industryTab').onclick =
+      () =>
+        showTab('industry');
+  }
+
+
+  if ($('contactTab')) {
+
+    $('contactTab').onclick =
+      () =>
+        showTab('contact');
+  }
+
+
+  /* PDF PROCESSING CONTROLS */
+
+  addProcessor('notes');
+
+  addProcessor('industry');
+}
+
+
+/* =========================================================
+   INIT
+========================================================= */
+
+function init() {
 
   if (
-    document.readyState ===
-    'loading'
+    !window.supabase ||
+    !window.supabase.createClient
   ) {
 
-    document.addEventListener(
-      'DOMContentLoaded',
-      init,
-      {
-        once: true
-      }
+    message(
+      $('loginMsg'),
+      'Supabase library load nahi hui. Page refresh karein.'
     );
 
-  } else {
-
-    init();
+    return;
   }
+
+  client =
+    window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_KEY
+    );
+
+  bind();
+
+  showSession();
+}
+
+
+if (
+  document.readyState ===
+  'loading'
+) {
+
+  document.addEventListener(
+    'DOMContentLoaded',
+    init,
+    {
+      once: true
+    }
+  );
+
+} else {
+
+  init();
+}
 
 })();

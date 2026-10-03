@@ -1844,52 +1844,84 @@ ctx.restore();
 
 
   async function deleteNote(
-    id,
-    url
+  id,
+  url
+) {
+  if (
+    !confirm(
+      'Delete this note?'
+    )
   ) {
+    return;
+  }
 
-    if (
-      !confirm(
-        'Delete this note?'
-      )
-    ) {
-      return;
-    }
+  try {
 
-    try {
+    const path =
+      publicPath(url);
 
-      const path =
-        publicPath(url);
+    /* =========================================
+       1. DELETE PDF FROM STORAGE
+    ========================================= */
 
-      if (path) {
-
-        await client.storage
-          .from(BUCKET)
-          .remove([path]);
-      }
-
-      const {
-        error
-      } =
-        await client
-          .from('notes')
-          .delete()
-          .eq('id', id);
-
-      if (error) {
-        throw error;
-      }
-
-      await loadNotes();
-
-    } catch (error) {
-
-      alert(
-        error.message ||
-        'Delete failed.'
+    if (!path) {
+      throw new Error(
+        'PDF storage path could not be determined.'
       );
     }
-    }  /* =========================================================
+
+    const {
+      error: storageError
+    } =
+      await client.storage
+        .from(BUCKET)
+        .remove([path]);
+
+    if (storageError) {
+      throw storageError;
+    }
+
+    /* =========================================
+       2. DELETE NOTE FROM DATABASE
+    ========================================= */
+
+    const {
+      error: databaseError
+    } =
+      await client
+        .from('notes')
+        .delete()
+        .eq('id', id);
+
+    if (databaseError) {
+      throw databaseError;
+    }
+
+    /* =========================================
+       3. REFRESH NOTES LIST
+    ========================================= */
+
+    await loadNotes();
+
+    alert(
+      'Note and PDF deleted successfully.'
+    );
+
+  } catch (error) {
+
+    console.error(
+      'Delete error:',
+      error
+    );
+
+    alert(
+      error.message ||
+      'Delete failed.'
+    );
+  }
+  }
+        
+     /* =========================================================
      INDUSTRY UPLOAD
   ========================================================= */
 

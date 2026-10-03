@@ -1359,7 +1359,7 @@ const quality =
 
       ctx.save();
 
-      ctx.globalAlpha = 0.15;
+      ctx.globalAlpha = 0.22;
 
       const watermarkWidth =
         canvas.width * 0.46;

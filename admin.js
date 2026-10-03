@@ -1648,97 +1648,13 @@ ctx.restore();
 
   async function uploadFile(
     file,
-    folder,
-    storage = 'dosya'
+    folder
   ) {
-
-    if (storage === 'supabase') {
-
-      const path =
-        `${folder}/${Date.now()}-${safeName(file.name)}.pdf`;
-
-      const { error } =
-        await client.storage
-          .from(BUCKET)
-          .upload(
-            path,
-            file,
-            {
-              contentType: 'application/pdf',
-              cacheControl: '3600',
-              upsert: false
-            }
-          );
-
-      if (error) {
-        throw error;
-      }
-
-      return {
-        path,
-        file_id: null,
-        url:
-          client.storage
-            .from(BUCKET)
-            .getPublicUrl(path)
-            .data
-            .publicUrl
-      };
-    }
 
     return await uploadToDosya(
       file,
       folder
     );
-  }
-
-
-  function addStorageSelector(
-    formId,
-    selectId
-  ) {
-
-    const form = $(formId);
-
-    if (!form || $(selectId)) {
-      return;
-    }
-
-    const box =
-      document.createElement('div');
-
-    box.style.cssText =
-      'margin:12px 0;padding:12px;border:1px solid #e5e7eb;border-radius:10px;background:#f8fafc;';
-
-    box.innerHTML = `
-      <label
-        for="${selectId}"
-        style="display:block;font-weight:600;margin-bottom:6px;"
-      >
-        Storage for this upload
-      </label>
-      <select
-        id="${selectId}"
-        style="width:100%;max-width:320px;padding:10px;border:1px solid #cbd5e1;border-radius:8px;background:#fff;"
-      >
-        <option value="dosya" selected>Dosya Storage</option>
-        <option value="supabase">Supabase Storage</option>
-      </select>
-    `;
-
-    form.insertBefore(
-      box,
-      form.firstElementChild
-    );
-  }
-
-
-  function getSelectedStorage(
-    selectId
-  ) {
-
-    return $(selectId)?.value ||
-      'dosya';
   }
 
 
@@ -1868,8 +1784,7 @@ ctx.restore();
       const result =
         await uploadFile(
           notePreparedPdf,
-          'notes',
-          getSelectedStorage('noteStorageSelect')
+          'notes'
         );
 
       uploadResult = result;
@@ -2216,8 +2131,7 @@ ctx.restore();
         const result =
           await uploadFile(
             industryPreparedPdf,
-            'industry',
-            getSelectedStorage('industryStorageSelect')
+            'industry'
           );
 
         uploadResult = result;
@@ -2766,16 +2680,6 @@ ctx.restore();
       $('industryForm').onsubmit =
         uploadIndustry;
     }
-
-    addStorageSelector(
-      'uploadForm',
-      'noteStorageSelect'
-    );
-
-    addStorageSelector(
-      'industryForm',
-      'industryStorageSelect'
-    );
 
     if ($('refreshBtn')) {
       $('refreshBtn').onclick =

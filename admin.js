@@ -14,6 +14,10 @@
 
   const BUCKET = 'B. Pharm Notes';
 
+  /* DOSYA STORAGE EDGE FUNCTION */
+  const DOSYA_FUNCTION_URL =
+    `${SUPABASE_URL}/functions/v1/dosya-storage`;
+
   const LOGO_URL =
     './pharmistry-watermark.png';
 
@@ -239,6 +243,183 @@
     } catch (_) {}
 
     return null;
+  }
+
+
+  /* =========================================================
+     DOSYA HELPERS
+     New uploads use Dosya through the Supabase Edge Function.
+     Old Supabase Storage URLs remain supported.
+  ========================================================= */
+
+  function dosyaFileId(url) {
+
+    try {
+
+      if (!url) return null;
+
+      const parsed =
+        new URL(url, window.location.href);
+
+      const functionUrl =
+        new URL(DOSYA_FUNCTION_URL);
+
+      if (
+        parsed.origin === functionUrl.origin &&
+        parsed.pathname === functionUrl.pathname &&
+        parsed.searchParams.get('action') === 'download'
+      ) {
+
+        return parsed.searchParams.get('file_id');
+      }
+
+    } catch (_) {}
+
+    return null;
+  }
+
+
+  async function getAccessToken() {
+
+    const {
+      data,
+      error
+    } = await client.auth.getSession();
+
+    if (error) {
+      throw error;
+    }
+
+    const token =
+      data?.session?.access_token;
+
+    if (!token) {
+      throw new Error(
+        'Admin session expired. Please login again.'
+      );
+    }
+
+    return token;
+  }
+
+
+  async function uploadToDosya(file, folder) {
+
+    const token =
+      await getAccessToken();
+
+    const formData =
+      new FormData();
+
+    formData.append(
+      'file',
+      file,
+      `${folder}/${safeName(file.name)}.pdf`
+    );
+
+    const response =
+      await fetch(
+        `${DOSYA_FUNCTION_URL}?action=upload`,
+        {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${token}`
+          },
+          body: formData
+        }
+      );
+
+    let data = null;
+
+    try {
+      data = await response.json();
+    } catch (_) {}
+
+    if (!response.ok || !data?.ok) {
+      throw new Error(
+        data?.error ||
+        data?.message ||
+        `Dosya upload failed (${response.status}).`
+      );
+    }
+
+    const fileId =
+      data.file_id ||
+      data.id ||
+      data.file?.id;
+
+    const url =
+      data.url ||
+      data.public_url ||
+      data.download_url;
+
+    if (!fileId || !url) {
+      throw new Error(
+        'Dosya upload succeeded but file URL/ID was not returned.'
+      );
+    }
+
+    return {
+      path: null,
+      file_id: fileId,
+      url
+    };
+  }
+
+
+  async function deleteDosyaFile(fileId) {
+
+    if (!fileId) return;
+
+    const token =
+      await getAccessToken();
+
+    const response =
+      await fetch(
+        `${DOSYA_FUNCTION_URL}?action=delete&file_id=${encodeURIComponent(fileId)}`,
+        {
+          method: 'DELETE',
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
+
+    let data = null;
+
+    try {
+      data = await response.json();
+    } catch (_) {}
+
+    if (!response.ok || data?.ok === false) {
+      throw new Error(
+        data?.error ||
+        data?.message ||
+        `Dosya delete failed (${response.status}).`
+      );
+    }
+  }
+
+
+  async function deleteUploadedFile(result) {
+
+    if (!result) return;
+
+    if (result.file_id) {
+      await deleteDosyaFile(result.file_id);
+      return;
+    }
+
+    if (result.path) {
+      const { error } =
+        await client.storage
+          .from(BUCKET)
+          .remove([result.path]);
+
+      if (error) {
+        throw error;
+      }
+    }
   }
 
 
@@ -1470,37 +1651,10 @@ ctx.restore();
     folder
   ) {
 
-    const path =
-      `${folder}/${Date.now()}-${safeName(file.name)}.pdf`;
-
-    const {
-      error
-    } =
-      await client.storage
-        .from(BUCKET)
-        .upload(
-          path,
-          file,
-          {
-            contentType: 'application/pdf',
-            cacheControl: '3600',
-            upsert: false
-          }
-        );
-
-    if (error) {
-      throw error;
-    }
-
-    return {
-      path,
-      url:
-        client.storage
-          .from(BUCKET)
-          .getPublicUrl(path)
-          .data
-          .publicUrl
-    };
+    return await uploadToDosya(
+      file,
+      folder
+    );
   }
 
 
@@ -1623,7 +1777,7 @@ ctx.restore();
       true
     );
 
-    let path = null;
+    let uploadResult = null;
 
     try {
 
@@ -1633,7 +1787,7 @@ ctx.restore();
           'notes'
         );
 
-      path = result.path;
+      uploadResult = result;
 
       const {
         error
@@ -1700,11 +1854,12 @@ ctx.restore();
 
     } catch (error) {
 
-      if (path) {
-
-        await client.storage
-          .from(BUCKET)
-          .remove([path]);
+      if (uploadResult) {
+        try {
+          await deleteUploadedFile(uploadResult);
+        } catch (cleanupError) {
+          console.error('Upload cleanup failed:', cleanupError);
+        }
       }
 
       console.error(error);
@@ -1856,28 +2011,33 @@ ctx.restore();
 
   try {
 
+    const fileId =
+      dosyaFileId(url);
+
     const path =
       publicPath(url);
 
     /* =========================================
        1. DELETE PDF FROM STORAGE
+       New files -> Dosya
+       Old files -> Supabase Storage
     ========================================= */
 
-    if (!path) {
+    if (fileId) {
+      await deleteDosyaFile(fileId);
+    } else if (path) {
+      const { error: storageError } =
+        await client.storage
+          .from(BUCKET)
+          .remove([path]);
+
+      if (storageError) {
+        throw storageError;
+      }
+    } else {
       throw new Error(
         'PDF storage path could not be determined.'
       );
-    }
-
-    const {
-      error: storageError
-    } =
-      await client.storage
-        .from(BUCKET)
-        .remove([path]);
-
-    if (storageError) {
-      throw storageError;
     }
 
     /* =========================================
@@ -1958,7 +2118,7 @@ ctx.restore();
       true
     );
 
-    let path = null;
+    let uploadResult = null;
 
     try {
 
@@ -1974,7 +2134,7 @@ ctx.restore();
             'industry'
           );
 
-        path = result.path;
+        uploadResult = result;
         url = result.url;
       }
 
@@ -2032,11 +2192,12 @@ ctx.restore();
 
     } catch (error) {
 
-      if (path) {
-
-        await client.storage
-          .from(BUCKET)
-          .remove([path]);
+      if (uploadResult) {
+        try {
+          await deleteUploadedFile(uploadResult);
+        } catch (cleanupError) {
+          console.error('Upload cleanup failed:', cleanupError);
+        }
       }
 
       console.error(error);
@@ -2186,14 +2347,23 @@ ctx.restore();
 
     try {
 
+      const fileId =
+        dosyaFileId(url);
+
       const path =
         publicPath(url);
 
-      if (path) {
+      if (fileId) {
+        await deleteDosyaFile(fileId);
+      } else if (path) {
+        const { error: storageError } =
+          await client.storage
+            .from(BUCKET)
+            .remove([path]);
 
-        await client.storage
-          .from(BUCKET)
-          .remove([path]);
+        if (storageError) {
+          throw storageError;
+        }
       }
 
       const {

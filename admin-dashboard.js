@@ -254,7 +254,7 @@
               </p>
 
               <h2>
-                E. Storage Usage
+                Storage Usage
               </h2>
 
             </div>
@@ -368,7 +368,7 @@
               </p>
 
               <h2>
-                F. Analytics Dashboard
+                Analytics Dashboard
               </h2>
 
             </div>

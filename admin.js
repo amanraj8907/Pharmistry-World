@@ -1284,8 +1284,8 @@
   Optimized for mobile browsers.
 */
 
-const scale = 2.0;
-const quality = 0.92;
+const scale = 1.0;
+const quality = 0.80;
 
     for (
       let pageNo = 1;

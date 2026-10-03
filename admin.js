@@ -1389,23 +1389,22 @@ const quality =
 ctx.save();
 
 ctx.globalAlpha = 1;
+ctx.globalCompositeOperation = 'source-over';
+ctx.filter = 'none';
+ctx.fillStyle = '#000000';
 
-ctx.fillStyle = '#d00000';
-
-ctx.font =
-  `bold ${Math.max(
-    16,
-    canvas.width * 0.009
-  )}px Arial`;
+ctx.font = `bold ${Math.max(
+  16,
+  canvas.width * 0.009
+)}px Arial`;
 
 ctx.textAlign = 'center';
-
-ctx.textBaseline = 'top';
+ctx.textBaseline = 'bottom';
 
 ctx.fillText(
-  '© Pharmistry World — All Rights Reserved.',
+  '© Pharmistry World – All Rights Reserved.',
   canvas.width / 2,
-  12
+  canvas.height - 12
 );
 
 ctx.restore();

@@ -1398,12 +1398,12 @@ ctx.font = `bold ${Math.max(
   canvas.width * 0.009
 )}px Arial`;
 
-ctx.textAlign = 'center';
+ctx.textAlign = 'left';
 ctx.textBaseline = 'bottom';
 
 ctx.fillText(
   '© Pharmistry World – All Rights Reserved.',
-  canvas.width / 2,
+  20,
   canvas.height - 12
 );
 
